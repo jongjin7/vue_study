@@ -14,23 +14,23 @@
 
 <script>
 export default {
-  name: 'HelloWorld',
-  data () {
+  name: "HelloWorld",
+  data() {
     return {
-      msg: 'Welcome to Your Vue.js App',
-      linklist:[
-
-        {content: '서브페이지', link: '/sub'},
-
+      msg: "Welcome to Your Vue.js App",
+      linklist: [
+        { content: "서브페이지로 이동하기", link: "/sub" },
+        { content: "또다른 페이지", link: "/minor" }
       ]
-    }
+    };
   }
-}
+};
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
-h1, h2 {
+h1,
+h2 {
   font-weight: normal;
 }
 ul {
