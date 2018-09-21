@@ -9,10 +9,14 @@
       </li>
 
     </ul>
+
+    <button class="btn btn-primary" @click="clickBtn">Button</button>
   </div>
 </template>
 
 <script>
+
+import $ from "jquery";
 export default {
   name: "HelloWorld",
   data() {
@@ -23,6 +27,19 @@ export default {
         { content: "또다른 페이지", link: "/minor" }
       ]
     };
+  },
+  methods: {
+      clickBtn (event) {
+        console.log(event.target);
+        $(event.target).text('loading')
+        
+        setTimeout(function() {
+          $(event.target).text('reset')
+        }, 1000);
+      }
+	},
+  create:function(){
+
   }
 };
 </script>
