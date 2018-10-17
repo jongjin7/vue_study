@@ -3,17 +3,65 @@
 import Vue from "vue";
 import App from "./App";
 import router from "./router";
-import jQuery from "jquery";
+//import "expose-loader?$!expose-loader?jQuery!jquery";
+import axios from "axios";
+Vue.prototype.$http = axios;
+import BootstrapVue from "bootstrap-vue";
+Vue.use(BootstrapVue);
 
-import "bootstrap";
-import "bootstrap/dist/css/bootstrap.min.css";
+import "bootstrap/dist/css/bootstrap.css";
+import "bootstrap-vue/dist/bootstrap-vue.css";
 
 Vue.config.productionTip = false;
 
 /* eslint-disable no-new */
+Vue.component("modal", {
+  template: "#modal-template"
+});
+
+Vue.component("select2", {
+  props: ["options", "value"],
+  template: "#select2-template",
+  mounted: function() {
+    var vm = this;
+    $(this.$el)
+      // init select2
+      .select2({ data: this.options })
+      .val(this.value)
+      .trigger("change")
+      // emit event on change.
+      .on("change", function() {
+        vm.$emit("input", this.value);
+      });
+  },
+  watch: {
+    value: function(value) {
+      // update value
+      $(this.$el)
+        .val(value)
+        .trigger("change");
+    },
+    options: function(options) {
+      // update options
+      $(this.$el)
+        .empty()
+        .select2({ data: options });
+    }
+  },
+  destroyed: function() {
+    $(this.$el)
+      .off()
+      .select2("destroy");
+  }
+});
+
 new Vue({
   el: "#app",
   router,
   components: { App },
-  template: "<App/>"
+  template: "<App/>",
+  data: {
+    selected: 2,
+    options: [{ id: 1, text: "Hello" }, { id: 2, text: "World" }]
+  }
 });
