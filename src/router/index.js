@@ -1,6 +1,6 @@
 import Vue from "vue";
 import Router from "vue-router";
-import HelloWorld from "@/components/HelloWorld";
+import Main from "@/components/Main";
 import Example from "@/components/Example";
 import Todo from "@/components/Todos";
 import Datastore from "@/components/Datastore";
@@ -12,8 +12,8 @@ export default new Router({
   routes: [
     {
       path: "/",
-      name: "Hello",
-      component: HelloWorld
+      name: "Main",
+      component: Main
     },
     {
       path: "/sub",

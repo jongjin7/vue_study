@@ -6,18 +6,14 @@ import router from "./router";
 //import "expose-loader?$!expose-loader?jQuery!jquery";
 import axios from "axios";
 Vue.prototype.$http = axios;
-import BootstrapVue from "bootstrap-vue";
-Vue.use(BootstrapVue);
+
+import Bootstrap from "bootstrap";
+//Vue.use(Bootstrap);
 
 import "bootstrap/dist/css/bootstrap.css";
-import "bootstrap-vue/dist/bootstrap-vue.css";
+import "bootstrap/dist/js/bootstrap.js";
 
 Vue.config.productionTip = false;
-
-/* eslint-disable no-new */
-Vue.component("modal", {
-  template: "#modal-template"
-});
 
 Vue.component("select2", {
   props: ["options", "value"],
