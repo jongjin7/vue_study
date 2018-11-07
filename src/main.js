@@ -3,12 +3,12 @@
 import Vue from "vue";
 import App from "./App";
 import router from "./router";
-//import "expose-loader?$!expose-loader?jQuery!jquery";
 import axios from "axios";
-Vue.prototype.$http = axios;
 
-import Bootstrap from "bootstrap";
-//Vue.use(Bootstrap);
+const base = axios.create({
+  baseURL: "https://jsonplaceholder.typicode.com"
+});
+Vue.prototype.$http = base;
 
 import "bootstrap/dist/css/bootstrap.css";
 import "bootstrap/dist/js/bootstrap.js";

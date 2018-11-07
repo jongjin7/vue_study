@@ -1,17 +1,17 @@
 <template>
-  <section class="main text-center">
+  <div class="main">
     <about-banner />
 
     <div class="container mb-4">
-      <h2 class="title">최신 게시물</h2>
+      <h2 class="h4">새로운 소식</h2>
       <latest-list />
     </div>
     
     <div class="container mb-4">
-      <h2 class="title">전체 Links</h2>
+      <h2 class="h4">전체 페이지 보기</h2>
       <app-all-link />
     </div> 
-  </section>
+  </div>
 </template>
 
 <script>
@@ -42,7 +42,6 @@ export default {
       color: green;
       border: 1px solid red;
       .name {
-        display: block;
         color: blue;
         font-weight: bold;
       }
@@ -58,4 +57,9 @@ export default {
     } 
   }
 }
+</style>
+<style scoped>
+  h2.h4{
+    font-weight:bold;
+  }
 </style>

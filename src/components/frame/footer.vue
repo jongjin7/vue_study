@@ -1,13 +1,27 @@
 <template>
   <footer class="container">
     <p class="float-right"><a href="#">Back to top</a></p>
-    <p>© 2017-2018 Company, Inc. · <a href="#">Privacy</a> · <a href="#">Terms</a></p>
+    <p>
+      <span>© 2018 Jongjin Lim </span> 
+      <a href="#" v-on:click.stop.prevent="showModal = true">로그인 팝업</a>
+    </p>
+    <!-- modal popup -->
+    <common-modal v-if="showModal" @close="showModal = false"></common-modal>
   </footer>
 </template>
 
 <script>
+import modal from "./modal.vue"; 
 export default {
-  name:'commonFooter'
+  name:'Footer',
+  data() {
+    return {
+      showModal: false
+    };
+  },
+  components:{
+    "common-modal": modal
+  }
 }
 </script>
 

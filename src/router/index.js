@@ -1,10 +1,11 @@
 import Vue from "vue";
 import Router from "vue-router";
 import Main from "@/components/Main";
-import Example from "@/components/Example";
+import Board from "@/components/Board";
 import Todo from "@/components/Todos";
-import Datastore from "@/components/Datastore";
+import Contact from "@/components/ContactUs";
 import Grid from "@/components/Grid";
+import SignUp from "@/components/SignUp";
 
 Vue.use(Router);
 
@@ -16,9 +17,9 @@ export default new Router({
       component: Main
     },
     {
-      path: "/sub",
-      name: "Example",
-      component: Example
+      path: "/board",
+      name: "Board",
+      component: Board
     },
     {
       path: "/todo",
@@ -26,14 +27,19 @@ export default new Router({
       component: Todo
     },
     {
-      path: "/datastore",
-      name: "DataStore",
-      component: Datastore
+      path: "/contact",
+      name: "ContactUs",
+      component: Contact
     },
     {
       path: "/grid",
-      name: "gridTable",
+      name: "Grid",
       component: Grid
+    },
+    {
+      path: "/signup",
+      name: "SignUp",
+      component: SignUp
     }
   ]
 });

@@ -26,12 +26,11 @@
               <button type="submit" class="btn btn-primary">Sign in</button>
             </form>
             <div class="dropdown-divider"></div>
-            <a class="dropdown-item" href="#">New around here? Sign up</a>
-            <a class="dropdown-item" href="#">Forgot password?</a>
+            <a class="dropdown-item" href="#">회원가입</a>
+            <a class="dropdown-item" href="#">비밀번호를 잃어버렸네?</a>
           </div>
 
           <div class="modal-footer">
-            
             <button class="modal-default-button" @click="$emit('close')">
             팝업닫기
             </button>
