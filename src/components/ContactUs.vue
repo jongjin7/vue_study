@@ -17,7 +17,7 @@
       <button type="sumit" class="btn btn-primary" @click="addComment">저장하기</button>
        <button type="button" class="btn btn-primary" @click="updateComment">업데이트</button>
     </form>
-    
+
     <!-- 저장후 출력 -->
     <div class="mt-4" v-if="hasResult">
       <h5>DB에 저장된 내용 출력하기</h5>
@@ -25,13 +25,24 @@
         <li v-for="post in posts" v-bind:key="post.id">{{ post.body }}</li>
       </ol>
     </div>
-    
+
   </div>
 </template>
 
 <script>
-import axios from "axios";
+// Setup Firebase
+const config = {
+  apiKey: "AIzaSyAi_yuJciPXLFr_PYPeU3eTvtXf8jbJ8zw",
+  authDomain: "vue-demo-537e6.firebaseapp.com",
+  databaseURL: "https://vue-demo-537e6.firebaseio.com"
+}
+import firebase from "firebase";
+firebase.initializeApp(config)
 
+const usersRef = firebase.database().ref('users')
+
+//import axios from "axios";
+console.log('db', usersRef)
 export default {
   name: "ContactUs",
   data() {
@@ -42,6 +53,11 @@ export default {
       error: null,
       posts: []
     };
+  },
+  // firebase binding
+  // https://github.com/vuejs/vuefire
+  firebase: {
+    users: usersRef
   },
   computed: {
     hasResult: function() {
@@ -61,6 +77,7 @@ export default {
     addComment() {
       console.log("aaa", this.comment);
       var idCount = 0;
+      const dataUrl = '';
       this.$http
         .post("/posts/1/comments", {
           title: this.postTitle,
