@@ -20,7 +20,7 @@
 
     <!-- 저장후 출력 -->
     <div class="mt-4" v-if="hasResult">
-      <h5>DB에 저장된 내용 출력하기 없다.</h5>
+      <h5>DB에 저장된 내용 출력하기 이제 된다.</h5>
       <ol v-if="posts && posts.length">
         <li v-for="post in posts" v-bind:key="post.id">{{ post.body }}</li>
       </ol>
