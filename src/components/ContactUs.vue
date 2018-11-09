@@ -14,15 +14,15 @@
         <label for="exampleFormControlTextarea1">의견사항 등록하기</label>
         <textarea class="form-control" rows="3" v-model="comment"></textarea>
       </div>
-      <button type="sumit" class="btn btn-primary" @click="addComment">저장하기</button>
-       <button type="button" class="btn btn-primary" @click="updateComment">업데이트</button>
+      <button type="sumit" class="btn btn-primary" @click="addComment">마지막에 추가하기</button>
+       <button type="button" class="btn btn-primary" @click="deleteComment">선택한 데이터 삭제하기</button>
     </form>
 
     <!-- 저장후 출력 -->
-    <div class="mt-4" v-if="hasResult">
-      <h5>DB에 저장된 내용 출력하기 이제 된다.</h5>
-      <ol v-if="posts && posts.length">
-        <li v-for="post in posts" v-bind:key="post.id">{{ post.body }}</li>
+    <div class="mt-4" v-if="hasResult && posts && posts.length">
+      <h5>DB에는 현재 {{ posts.length }}개의 게시물이 등록되어 있습니다.</h5>
+      <ol>
+        <li v-for="post in posts" v-bind:key="post.id">{{ post.first }}</li>
       </ol>
     </div>
 
@@ -31,18 +31,54 @@
 
 <script>
 // Setup Firebase
-const config = {
-  apiKey: "AIzaSyAi_yuJciPXLFr_PYPeU3eTvtXf8jbJ8zw",
-  authDomain: "vue-demo-537e6.firebaseapp.com",
-  databaseURL: "https://vue-demo-537e6.firebaseio.com"
-}
-import firebase from "firebase";
-firebase.initializeApp(config)
+var config = {
+  apiKey: "AIzaSyCV7xlKQfRLoBfgGYGF3Jpy9z48-oSgpX8",
+  authDomain: "model-vue-data.firebaseapp.com",
+  databaseURL: "https://model-vue-data.firebaseio.com",
+  projectId: "model-vue-data",
+  storageBucket: "model-vue-data.appspot.com",
+  messagingSenderId: "155764866443"
+};
 
-const usersRef = firebase.database().ref('users')
+import firebase from 'firebase/app';
+import 'firebase/firestore';
+firebase.initializeApp(config);
 
-//import axios from "axios";
-console.log('db', usersRef)
+const db = firebase.firestore();
+db.settings({
+  timestampsInSnapshots: true
+});
+
+// 생성:documentName은 랜덤정의
+// db.collection("users").add({
+//   first: "jong",
+//   middle: "jin",
+//   last: "Lim",
+//   born: 20000
+// })
+// .then(function(docRef) {
+//   console.log("Document written with ID: ", docRef.id);
+// })
+// .catch(function(error) {
+//   console.error("Error adding document: ", error);
+// });
+
+// 읽기
+// db.collection('users').get().then((querySnapshot) => {
+//   querySnapshot.forEach((doc) =>{
+//     console.log('read', `${doc.id} :=> ${doc.data().first}`)
+//   })
+// })
+
+// db.collection('users').doc('mirra').set({
+//   first:'태태태태',
+//   middle:'md',
+//   last:'lmi'
+// })
+
+
+
+
 export default {
   name: "ContactUs",
   data() {
@@ -56,9 +92,10 @@ export default {
   },
   // firebase binding
   // https://github.com/vuejs/vuefire
-  firebase: {
-    users: usersRef
+  firebase:{
+    users:db
   },
+
   computed: {
     hasResult: function() {
       return this.posts.length > 0;
@@ -75,41 +112,58 @@ export default {
   },
   methods: {
     addComment() {
-      console.log("aaa", this.comment);
-      var idCount = 0;
-      const dataUrl = '';
-      this.$http
-        .post("/posts/1/comments", {
-          title: this.postTitle,
-          body: this.comment,
-          userId: 1
-        })
-        .then(response => {
-          this.posts.push(response.data);
-          console.log("create", this.posts, response.data);
-        })
-        .catch(e => {
-          console.error(e);
-        });
+      console.log("입력받은 내용", this.comment);
+      var that = this;
+      db.collection('users').add({
+        first:this.comment,
+        middle:'md',
+        last:'lmi'
+      }).then(function(){
+        that.posts = []
+        that.fetchData();
+        that.updateComment();
+      })
     },
 
     updateComment() {
+      console.log('update list')
       this.comment = null;
+
+    },
+
+    deleteComment(){
+      var that = this;
+      const selectedDoc = prompt('현재 삭제고픈 게시물 이름', '')
+      db.collection("users").doc(selectedDoc).delete().then(function() {
+        that.posts = []
+        that.fetchData();
+        console.log(selectedDoc + "Document successfully deleted!");
+      }).catch(function(error) {
+        console.error("Error removing document: ", error);
+      });
+
     },
 
     fetchData() {
-      this.error = null;
-      this.loading = true;
+      console.log('fetchData!!!')
 
-      this.$http
-        .get("posts/1/comments")
-        .then(response => {
-          this.loading = false;
-          this.posts = response.data;
+      db.collection('users').get().then((querySnapshot) => {
+        querySnapshot.forEach((doc) =>{
+          //console.log('read', `${doc.id} :=> ${doc.data().first}`)
+          this.posts.push(doc.data());
+
+         // console.log(this.posts[0])
         })
-        .catch(e => {
-          console.error(e);
-        });
+      })
+      // this.$http
+      //   .get("posts/1/comments")
+      //   .then(response => {
+      //     //this.posts = response.data;
+      //     console.log(response.data)
+      //   })
+      //   .catch(e => {
+      //     console.error(e);
+      //   });
     }
   }
 };
