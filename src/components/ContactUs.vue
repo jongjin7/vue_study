@@ -11,11 +11,23 @@
     <h4>DB에 데이터 저장하고 출력하기</h4>
     <form>
       <div class="form-group">
-        <label for="exampleFormControlTextarea1">의견사항 등록하기</label>
-        <textarea class="form-control" rows="3" v-model="comment"></textarea>
+        <label>의견사항 등록하기</label>
+        <textarea class="form-control" id="tarea"  rows="3" v-model="comment"></textarea>
       </div>
-      <button type="sumit" class="btn btn-primary" @click="addComment">마지막에 추가하기</button>
-       <button type="button" class="btn btn-primary" @click="deleteComment">선택한 데이터 삭제하기</button>
+
+      <div class="form-group">
+        <div v-if="!image">
+          <input type="file" @change="onFileChange" id="img-input">
+        </div>
+
+        <div v-else>
+          <img :src="image" width="300" />
+          <button @click="removeImage">Remove image</button>
+        </div>
+      </div>
+
+      <button type="button" class="btn btn-primary" @click="addComment">마지막에 추가하기</button>
+      <button type="button" class="btn btn-primary" @click="deleteComment">선택한 데이터 삭제하기</button>
     </form>
 
     <!-- 저장후 출력 -->
@@ -42,9 +54,11 @@ var config = {
 
 import firebase from 'firebase/app';
 import 'firebase/firestore';
-firebase.initializeApp(config);
+import 'firebase/storage';
 
+firebase.initializeApp(config);
 const db = firebase.firestore();
+
 db.settings({
   timestampsInSnapshots: true
 });
@@ -87,7 +101,8 @@ export default {
       comment: null,
       loading: false,
       error: null,
-      posts: []
+      posts: [],
+      image:'',
     };
   },
   // firebase binding
@@ -151,20 +166,55 @@ export default {
         querySnapshot.forEach((doc) =>{
           //console.log('read', `${doc.id} :=> ${doc.data().first}`)
           this.posts.push(doc.data());
-
-         // console.log(this.posts[0])
         })
       })
-      // this.$http
-      //   .get("posts/1/comments")
-      //   .then(response => {
-      //     //this.posts = response.data;
-      //     console.log(response.data)
-      //   })
-      //   .catch(e => {
-      //     console.error(e);
-      //   });
+    },
+
+    sendImage(img_file){
+      console.log('sendImage!!');
+
+      // Create a root reference
+      var storageRef = firebase.storage().ref();
+
+      var mountainsRef = storageRef.child('img_upload');
+      // disk에서 가져오는 이미지를 참조하는 폴더에 정의한다.
+      var mountainImagesRef = storageRef.child('img_upload/'+  img_file.name);
+      // While the file names are the same, the references point to different files
+      mountainsRef.name === mountainImagesRef.name            // true
+      mountainsRef.fullPath === mountainImagesRef.fullPath    // false
+
+
+
+      var file = img_file // use the Blob or File API
+      var that = this;
+      mountainImagesRef.put(file).then(function(snapshot) {
+        console.log(snapshot.metadata, 'Uploaded a blob or file!');
+        that.comment = snapshot.metadata.fullPath;
+      });
+    },
+
+    onFileChange(e) {
+      var files = e.target.files || e.dataTransfer.files;
+      if (!files.length)
+        return;
+      this.createImage(files[0]);
+      this.sendImage(files[0])
+    },
+    createImage(file) {
+      var image = new Image();
+      var reader = new FileReader();
+      var vm = this;
+
+      reader.onload = (e) => {
+        vm.image = e.target.result;
+      };
+      reader.readAsDataURL(file);
+
+    },
+    removeImage(e) {
+      this.image = '';
     }
+
   }
 };
 </script>
