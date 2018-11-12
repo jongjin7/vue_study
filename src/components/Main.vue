@@ -6,11 +6,11 @@
       <h2 class="h4">새로운 소식</h2>
       <latest-list />
     </div>
-    
+
     <div class="container mb-4">
       <h2 class="h4">전체 페이지 보기</h2>
       <app-all-link />
-    </div> 
+    </div>
   </div>
 </template>
 
@@ -25,7 +25,9 @@ export default {
     return {};
   },
   methods: {},
-  create: function() {},
+  create() {
+    //console.log('main에서 시작하는 순간')
+  },
   components: {
     "about-banner": aboutBanner,
     "latest-list": latestList,
@@ -53,8 +55,8 @@ export default {
 
   .list-group-item{
     p {
-      margin-bottom:0; 
-    } 
+      margin-bottom:0;
+    }
   }
 }
 </style>

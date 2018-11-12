@@ -1,7 +1,8 @@
 import Vue from "vue";
 import Router from "vue-router";
 import Main from "@/components/Main";
-import Board from "@/components/Board";
+import BoardPhoto from "@/components/BoardPhoto";
+import BoardCommunity from "@/components/BoardCommunity";
 import Todo from "@/components/Todos";
 import Contact from "@/components/ContactUs";
 import Grid from "@/components/Grid";
@@ -17,9 +18,14 @@ export default new Router({
       component: Main
     },
     {
-      path: "/board",
-      name: "Board",
-      component: Board
+      path: "/photo",
+      name: "BoardPhoto",
+      component: BoardPhoto
+    },
+    {
+      path: "/community",
+      name: "BoardCommunity",
+      component: BoardCommunity
     },
     {
       path: "/todo",

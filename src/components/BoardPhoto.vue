@@ -2,7 +2,7 @@
   <div class="album py-5 bg-light">
     <div class="container">
       <button class="btn btn-lg btn-block btn-outline-primary mb-2" v-on:click="searchTerm">글 불러오기</button>
-      
+
       <div class="row" v-if="hasResult">
         <div class="col-md-4" v-if="post.id <= 100" v-for="post in posts" v-bind:key="post.id">
           <div class="card mb-4 box-shadow">
@@ -21,15 +21,15 @@
           </div>
         </div>
       </div>
-      
+
     </div>
-  </div>  
+  </div>
 </template>
 
 <script>
 import axios from "axios";
 export default {
-  name: "Board",
+  name: "BoardPhoto",
   data() {
     return {
       msg: "Album Component",

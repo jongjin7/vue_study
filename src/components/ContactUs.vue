@@ -26,7 +26,7 @@
         </div>
       </div>
 
-      <button type="button" class="btn btn-primary" @click="addComment">왜 랜덤하게 추가되는지 모르지만 내용 입력생성</button>
+      <button type="button" class="btn btn-primary" @click="addComment">내용 입력 후 리스트 추가</button>
       <button type="button" class="btn btn-primary" @click="deleteComment">선택한 데이터 삭제하기</button>
     </form>
 
