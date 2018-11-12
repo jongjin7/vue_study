@@ -26,7 +26,7 @@
         </div>
       </div>
 
-      <button type="button" class="btn btn-primary" @click="addComment">마지막에 추가하기</button>
+      <button type="button" class="btn btn-primary" @click="addComment">왜 랜덤하게 추가되는지 모르지만 내용 입력생성</button>
       <button type="button" class="btn btn-primary" @click="deleteComment">선택한 데이터 삭제하기</button>
     </form>
 
@@ -34,7 +34,10 @@
     <div class="mt-4" v-if="hasResult && posts && posts.length">
       <h5>DB에는 현재 {{ posts.length }}개의 게시물이 등록되어 있습니다.</h5>
       <ol>
-        <li v-for="post in posts" v-bind:key="post.id">{{ post.first }}</li>
+        <li v-for="post in posts" v-bind:key="post.id">
+          <div v-if="post.type"><img :src="post.first" alt="" width="100"></div>
+          <div v-else class="txt">{{ post.first }}</div>
+        </li>
       </ol>
     </div>
 
@@ -62,6 +65,8 @@ const db = firebase.firestore();
 db.settings({
   timestampsInSnapshots: true
 });
+
+const storage = firebase.storage();
 
 // 생성:documentName은 랜덤정의
 // db.collection("users").add({
@@ -103,6 +108,7 @@ export default {
       error: null,
       posts: [],
       image:'',
+      isDataImage: false
     };
   },
   // firebase binding
@@ -127,23 +133,25 @@ export default {
   },
   methods: {
     addComment() {
-      console.log("입력받은 내용", this.comment);
+      console.log("입력받은 내용", this.isDataImage);
       var that = this;
       db.collection('users').add({
         first:this.comment,
         middle:'md',
-        last:'lmi'
+        last:'lmi',
+        type:this.isDataImage
       }).then(function(){
-        that.posts = []
+        that.isDataImage = false;
+        that.posts = [];
         that.fetchData();
         that.updateComment();
+        that.image = '';
       })
     },
 
     updateComment() {
       console.log('update list')
       this.comment = null;
-
     },
 
     deleteComment(){
@@ -164,7 +172,7 @@ export default {
 
       db.collection('users').get().then((querySnapshot) => {
         querySnapshot.forEach((doc) =>{
-          //console.log('read', `${doc.id} :=> ${doc.data().first}`)
+          console.log('read', `${doc.id} :=> ${doc.data().type}`)
           this.posts.push(doc.data());
         })
       })
@@ -172,24 +180,23 @@ export default {
 
     sendImage(img_file){
       console.log('sendImage!!');
-
       // Create a root reference
+      this.isDataImage = true;
       var storageRef = firebase.storage().ref();
 
       var mountainsRef = storageRef.child('img_upload');
       // disk에서 가져오는 이미지를 참조하는 폴더에 정의한다.
-      var mountainImagesRef = storageRef.child('img_upload/'+  img_file.name);
+      var mountainImagesRef = storageRef.child('img_upload/'+ img_file.name);
       // While the file names are the same, the references point to different files
       mountainsRef.name === mountainImagesRef.name            // true
       mountainsRef.fullPath === mountainImagesRef.fullPath    // false
 
-
-
-      var file = img_file // use the Blob or File API
       var that = this;
-      mountainImagesRef.put(file).then(function(snapshot) {
-        console.log(snapshot.metadata, 'Uploaded a blob or file!');
-        that.comment = snapshot.metadata.fullPath;
+      mountainImagesRef.put(img_file).then(function(snapshot) {
+        //console.log(snapshot, 'Uploaded a blob or file!');
+        storageRef.child(snapshot.metadata.fullPath).getDownloadURL().then(function(url){
+          that.comment = url;
+        });
       });
     },
 
@@ -198,7 +205,7 @@ export default {
       if (!files.length)
         return;
       this.createImage(files[0]);
-      this.sendImage(files[0])
+      this.sendImage(files[0]);
     },
     createImage(file) {
       var image = new Image();
@@ -207,6 +214,7 @@ export default {
 
       reader.onload = (e) => {
         vm.image = e.target.result;
+        //console.log('read', e.target.result)
       };
       reader.readAsDataURL(file);
 

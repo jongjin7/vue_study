@@ -2,16 +2,16 @@
   <footer class="container">
     <p class="float-right"><a href="#">Back to top</a></p>
     <p>
-      <span>© 2018 Jongjin Lim </span> 
+      <span>© 2018 Jongjin Lim </span>
       <a href="#" v-on:click.stop.prevent="showModal = true">로그인 팝업</a>
     </p>
     <!-- modal popup -->
-    <common-modal v-if="showModal" @close="showModal = false"></common-modal>
+    <modal-login v-if="showModal" @close="showModal = false"></modal-login>
   </footer>
 </template>
 
 <script>
-import modal from "./modal.vue"; 
+import modalLogin from "./modalLogin.vue";
 export default {
   name:'Footer',
   data() {
@@ -20,7 +20,7 @@ export default {
     };
   },
   components:{
-    "common-modal": modal
+    "modal-login": modalLogin
   }
 }
 </script>

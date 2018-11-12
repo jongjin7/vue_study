@@ -10,24 +10,24 @@
           <div class="modal-body">
             <form class="">
               <div class="form-group">
-                <label for="exampleDropdownFormEmail1">Email address</label>
-                <input type="email" class="form-control" id="exampleDropdownFormEmail1" placeholder="email@example.com">
+                <label for="exampleDropdownFormEmail1">이메일</label>
+                <input type="email" class="form-control" id="exampleDropdownFormEmail1" placeholder="email@example.com" required>
               </div>
               <div class="form-group">
-                <label for="exampleDropdownFormPassword1">Password</label>
-                <input type="password" class="form-control" id="exampleDropdownFormPassword1" placeholder="Password">
+                <label for="exampleDropdownFormPassword1">비밀번호</label>
+                <input type="password" class="form-control" id="exampleDropdownFormPassword1" placeholder="Password"  required>
               </div>
               <div class="form-check">
                 <label class="form-check-label">
                   <input type="checkbox" class="form-check-input">
-                  Remember me
+                  이메일 주소 기억하기
                 </label>
               </div>
               <button type="submit" class="btn btn-primary">Sign in</button>
             </form>
-            <div class="dropdown-divider"></div>
-            <a class="dropdown-item" href="#">회원가입</a>
-            <a class="dropdown-item" href="#">비밀번호를 잃어버렸네?</a>
+            <hr class="mb-4">
+            <a class="d-block" href="#">회원가입을 할래요~</a>
+            <a class="d-block" href="#">비밀번호를 잃어버렸어요.</a>
           </div>
 
           <div class="modal-footer">
@@ -39,12 +39,12 @@
         </div>
       </div>
     </div>
-  </transition>         
+  </transition>
 </template>
 
 <script>
 export default {
-  name: "modalFrame"
+  name: "modalLoginFrame"
 };
 </script>
 
