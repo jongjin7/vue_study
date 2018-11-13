@@ -8,10 +8,11 @@
           </div>
 
           <div class="modal-body">
-            <loginContent />
-            <sample1 v-if="app.currentContent == 'content1'" />
-            <sample2 v-if="app.currentContent == 'content2'" />
-            <sample3 v-if="app.currentContent == 'content3'" />
+
+            <sample1 v-if="currentPop == 'sample1'" />
+            <sample2 v-if="currentPop == 'sample2'" />
+            <sample3 v-if="currentPop == 'sample3'" />
+            <loginContent v-if="currentPop == 'login'" />
           </div>
 
           <div class="modal-footer">
@@ -34,8 +35,11 @@ export default{
   name: "modalPopupFrame",
   data(){
     return {
-
+      currentPop: this.app.currentContent
     }
+  },
+  created(){
+    console.log('this.app.currentContent', this.currentPop)
   },
   components:{
     loginContent: loginContent,

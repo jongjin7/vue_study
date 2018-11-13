@@ -1,12 +1,6 @@
 <template>
   <div class="contact">
-    <div class="loading" v-if="loading">
-      Loading...
-    </div>
-
-    <div v-if="error" class="error">
-      {{ error }}
-    </div>
+    <a href="#" v-on:click.stop.prevent="app.showModal = true; app.currentContent = 'sample3';">모달 3 팝업</a>
 
     <h4>DB에 데이터 저장하고 출력하기</h4>
     <form>
@@ -108,7 +102,8 @@ export default {
       error: null,
       posts: [],
       image:'',
-      isDataImage: false
+      isDataImage: false,
+
     };
   },
   // firebase binding
