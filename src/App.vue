@@ -12,6 +12,7 @@
 </template>
 
 <script>
+
 import header from "./components/frame/header.vue";
 import footer from "./components/frame/footer.vue";
 

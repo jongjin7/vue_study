@@ -13,6 +13,9 @@ Vue.prototype.$http = base;
 import "bootstrap/dist/css/bootstrap.css";
 import "bootstrap/dist/js/bootstrap.js";
 
+Vue.prototype.app = {};
+app.currentContent='';
+
 Vue.config.productionTip = false;
 
 Vue.component("select2", {
