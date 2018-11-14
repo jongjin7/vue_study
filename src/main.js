@@ -16,8 +16,6 @@ Vue.config.productionTip = false;
 
 import "bootstrap/dist/css/bootstrap.css";
 import "bootstrap/dist/js/bootstrap.js";
-import "datatables/media/css/jquery.dataTables.css";
-import "datatables/media/js/jquery.dataTables.js";
 import "chart.js";
 
 new Vue({

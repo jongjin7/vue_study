@@ -3,12 +3,12 @@
     <p class="float-right"><a href="#">Back to top</a></p>
     <p>
       <span>© 2018 Jongjin Lim </span>
-      <a href="#" v-on:click.stop.prevent="showModalpopup('login');">로그인 팝업</a>
-      <a href="#" v-on:click.stop.prevent="showModalpopup('sample1');">/ 모달 1 팝업</a>
-      <a href="#" v-on:click.stop.prevent="showModalpopup('sample2');">/ 모달 2 팝업 </a>
+      <a href="#" v-on:click.stop.prevent="showModalpopup('로그인','login');">로그인 팝업</a>
+      <a href="#" v-on:click.stop.prevent="showModalpopup('모달 첫번째','sample1');">/ 모달 1 팝업</a>
+      <a href="#" v-on:click.stop.prevent="showModalpopup('모달 두번째','sample2');">/ 모달 2 팝업 </a>
     </p>
     <!-- modal popup -->
-    <modal-popup v-if="showModal" @close="showModal=false"></modal-popup>
+    <modal-popup v-if="showModal" @close="showModal=false" />
   </footer>
 </template>
 
@@ -31,9 +31,10 @@ export default {
     "modal-popup": popup
   },
   methods: {
-    showModalpopup(content){
+    showModalpopup(title, componentName){
       this.showModal = true;
-      this.$store.state.pop_content = content;
+      this.$store.state.pop_title = title;
+      this.$store.state.pop_content = componentName;
     }
   }
 }

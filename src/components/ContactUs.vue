@@ -1,6 +1,6 @@
 <template>
   <div class="contact">
-    <a href="#" v-on:click.stop.prevent="$store.state.pop_content = 'sample3'; $EventBus.$emit('showModal');">모달 3 팝업</a>
+
 
     <h4>DB에 데이터 저장하고 출력하기</h4>
     <form>
@@ -128,6 +128,8 @@ export default {
     $route: "fetchData"
   },
   methods: {
+
+
     addComment() {
       console.log("입력받은 내용", this.isDataImage);
       var that = this;

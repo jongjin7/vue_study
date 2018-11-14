@@ -1,14 +1,12 @@
 <template>
 <div>
-  <form id="search">
-    Search <input name="query" v-model="searchQuery">
-  </form>
+  <h1 class="mb-4">DataTableJs를 이용한 DataGrid</h1>
   <demo-grid
     :data="gridData"
     :columns="gridColumns"
     :filter-key="searchQuery">
   </demo-grid>
-</div>  
+</div>
 </template>
 
 <script>

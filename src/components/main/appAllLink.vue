@@ -20,7 +20,7 @@ export default {
           class:''
         },
         {
-          title: "썸네일 게시판",
+          title: "갤러리 게시판",
           content: "썸네일형 게시판 패키지 (목록,상세,등록 및 수정) - 이미지 등록, 스마트 에디터, 원페이지 구현 가능할지...",
           link: "/photo",
           class:''

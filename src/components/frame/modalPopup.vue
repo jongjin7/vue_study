@@ -4,15 +4,15 @@
       <div class="modal-wrapper">
         <div class="modal-container">
           <div class="modal-header">
-            <h1 class="title">로그인팝업</h1>
+            <h1 class="title">{{ currentPopContentTitle }}</h1>
           </div>
 
           <div class="modal-body">
 
-            <sample1 v-if="currentPop == 'sample1'" />
-            <sample2 v-if="currentPop == 'sample2'" />
-            <sample3 v-if="currentPop == 'sample3'" />
-            <loginContent v-if="currentPop == 'login'" />
+            <sample1 v-if="currentPopContent == 'sample1'" />
+            <sample2 v-if="currentPopContent == 'sample2'" />
+            <photo-editor v-if="currentPopContent == 'photo-editor'" />
+            <login-content v-if="currentPopContent == 'login'" />
           </div>
 
           <div class="modal-footer">
@@ -30,23 +30,23 @@
 import loginContent from "../Login.vue"
 import sample1 from "../sample_1.vue"
 import sample2 from "../sample_2.vue"
-import sample3 from "../sample_3.vue"
+import photoEditor from "../board_photo/BoardPhotoEditor.vue"
 export default{
   name: "modalPopupFrame",
-  props: ['currentContent'],
   data(){
     return {
-      currentPop: this.$store.state.pop_content
+      currentPopContent: this.$store.state.pop_content,
+      currentPopContentTitle: this.$store.state.pop_title
     }
   },
   created(){
-    console.log('this.app.currentContent', this.currentPop)
+    console.log('this.app.currentContent', this.currentPopContent)
   },
   components:{
-    loginContent: loginContent,
+    'login-content': loginContent,
     sample1: sample1,
     sample2: sample2,
-    sample3: sample3
+    'photo-editor': photoEditor
   }
 }
 </script>
