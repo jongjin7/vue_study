@@ -33,9 +33,10 @@ import sample2 from "../sample_2.vue"
 import sample3 from "../sample_3.vue"
 export default{
   name: "modalPopupFrame",
+  props: ['currentContent'],
   data(){
     return {
-      currentPop: this.app.currentContent
+      currentPop: this.$store.state.pop_content
     }
   },
   created(){

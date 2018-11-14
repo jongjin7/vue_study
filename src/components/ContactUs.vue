@@ -1,6 +1,6 @@
 <template>
   <div class="contact">
-    <a href="#" v-on:click.stop.prevent="app.showModal = true; app.currentContent = 'sample3';">모달 3 팝업</a>
+    <a href="#" v-on:click.stop.prevent="$store.state.pop_content = 'sample3'; $EventBus.$emit('showModal');">모달 3 팝업</a>
 
     <h4>DB에 데이터 저장하고 출력하기</h4>
     <form>
@@ -94,6 +94,7 @@ const storage = firebase.storage();
 
 export default {
   name: "ContactUs",
+  props:['currentContent'],
   data() {
     return {
       postTitle: null,

@@ -5,7 +5,7 @@ import BoardPhoto from "@/components/BoardPhoto";
 import BoardCommunity from "@/components/BoardCommunity";
 import Todo from "@/components/Todos";
 import Contact from "@/components/ContactUs";
-import Grid from "@/components/Grid";
+import DataGrid from "@/components/DataGrid";
 import SignUp from "@/components/SignUp";
 
 Vue.use(Router);
@@ -33,14 +33,14 @@ export default new Router({
       component: Todo
     },
     {
+      path: "/grid",
+      name: "Grid",
+      component: DataGrid
+    },
+    {
       path: "/contact",
       name: "ContactUs",
       component: Contact
-    },
-    {
-      path: "/grid",
-      name: "Grid",
-      component: Grid
     },
     {
       path: "/signup",
