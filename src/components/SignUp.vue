@@ -121,7 +121,7 @@
           <h3 class="h6">생년월일</h3>
           <div class="form-row">
             <div class="col-md-5 mb-1">
-              <input type="number" class="form-control" id="input-year" placeholder="년(4자)" required="">
+              <input type="number" min="1979" class="form-control" id="input-year" placeholder="년(4자)" required="">
             </div>
             <div class="col-md-2 mb-1">
               <select class="custom-select" id="input-month" required="">
@@ -132,7 +132,7 @@
               </select>
             </div>
             <div class="col-md-5">
-              <input type="number" class="form-control" id="input-day" placeholder="일(숫자)" required="">
+              <input type="number" min="1" max="31" class="form-control" id="input-day" placeholder="일(숫자)" required="">
             </div>
           </div>
           <div class="invalid-feedback">
@@ -187,7 +187,7 @@
               <a href="#" class="btn btn-info btn-md btn-block" id="verify">인증번호 받기</a>
             </div>
             <div class="col-lg  mb-3">
-              <input type="number" class="form-control" id="inp-verify" placeholder="인증번호를 입력하세요" required="">
+              <input type="number" min="0" class="form-control" id="inp-verify" placeholder="인증번호를 입력하세요" required="">
               <div class="invalid-feedback">
                 인증번호를 입력하여 주세요.
               </div>

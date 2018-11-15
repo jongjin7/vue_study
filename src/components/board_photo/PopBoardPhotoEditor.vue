@@ -10,8 +10,12 @@
     </div>
 
     <div class="form-group">
+      <label>첨부파일</label>
       <div v-if="!image">
-        <input type="file" @change="onFileChange" id="img-input">
+        <div class="custom-file mb-3">
+          <input type="file" class="custom-file-input" id="customFile" name="filename" @change="onFileChange">
+          <label class="custom-file-label" for="customFile">Choose file</label>
+        </div>
       </div>
 
       <div v-else>

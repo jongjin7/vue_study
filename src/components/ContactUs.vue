@@ -35,6 +35,44 @@
       </ol>
     </div>
 
+    <div class="contact-block">
+      <div class="section-header">
+        <h2 class="section-title">Contact <span>Us</span></h2>
+        <hr>
+      </div>
+      <form id="contactForm" novalidate="true">
+        <div class="row">
+          <div class="col-md-6">
+            <div class="form-group">
+              <input type="text" class="form-control" id="name" name="name" placeholder="Your Name" required="" data-error="Please enter your name">
+              <div class="invalid-feedback">에러정보 출력</div>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="form-group has-error">
+              <input type="text" placeholder="Your Email" id="email" class="form-control" name="name" required="" data-error="Please enter your email">
+              <div class="invalid-feedback">에러정보 출력</div>
+            </div>
+          </div>
+          <div class="col-md-12">
+            <div class="form-group">
+              <input type="text" placeholder="Subject" id="msg_subject" class="form-control" required="" data-error="Please enter your subject">
+              <div class="invalid-feedback">에러정보 출력</div>
+            </div>
+          </div>
+          <div class="col-md-12">
+            <div class="form-group">
+              <textarea class="form-control" placeholder="Your Message" rows="11" data-error="Write your message" required=""></textarea>
+              <div class="invalid-feedback">에러정보 출력</div>
+            </div>
+            <div class="submit-button text-center">
+              <button class="btn btn-common disabled" id="submit" type="submit" style="pointer-events: all; cursor: pointer;">Send Message</button>
+            </div>
+          </div>
+        </div>
+      </form>
+    </div>
+
   </div>
 </template>
 

@@ -4,7 +4,10 @@
       <div class="modal-wrapper">
         <div class="modal-container">
           <div class="modal-header">
-            <h1 class="title">{{ currentPopContentTitle }}</h1>
+            <h1 class="h3 modal-title">{{ currentPopContentTitle }}</h1>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close" @click="$emit('close')">
+              <span aria-hidden="true">&times;</span>
+            </button>
           </div>
 
           <div class="modal-body">
@@ -16,9 +19,7 @@
           </div>
 
           <div class="modal-footer">
-            <button class="modal-default-button" @click="$emit('close')">
-              팝업닫기
-            </button>
+            <!-- 추가 내용 -->
           </div>
         </div>
       </div>
@@ -67,7 +68,7 @@ export default{
   }
 
   .modal-container {
-    width: 300px;
+    width: 50%; min-width:360px; max-width:600px;
     margin: 0px auto;
     padding: 20px 20px;
     background-color: #fff;
