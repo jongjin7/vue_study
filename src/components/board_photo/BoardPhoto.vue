@@ -1,6 +1,6 @@
 <template>
   <div>
-    <a href="#" v-on:click.stop.prevent="showModalpopup('갤러리 수정하기', 'photo-editor'); $EventBus.$emit('showModal');">모달 3 팝업</a>
+    <a href="#" v-on:click.stop.prevent="showModalpopup('갤러리 수정하기', 'photo'); $EventBus.$emit('showModal');">모달 3 팝업</a>
     <h1 class="mb-4">갤러리 게시판</h1>
 
 

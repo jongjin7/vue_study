@@ -29,7 +29,7 @@ export default {
           title: "커뮤니티 게시판",
           content: "일반 커뮤니티 게시판 패키지 (목록,상세,등록 및 수정) - 파일첨부, 스마트 에디터 구현, 원페이지 구현 가능할지...",
           link: "/community",
-          class:'disabled bg-secondary text-muted'
+          class:''
         },
         {
           title: "데이타 그리드(DataGrid)",

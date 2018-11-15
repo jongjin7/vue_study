@@ -10,8 +10,8 @@
           <div class="modal-body">
 
             <sample1 v-if="currentPopContent == 'sample1'" />
-            <sample2 v-if="currentPopContent == 'sample2'" />
-            <photo-editor v-if="currentPopContent == 'photo-editor'" />
+            <general-editor v-if="currentPopContent == 'general'" />
+            <photo-editor v-if="currentPopContent == 'photo'" />
             <login-content v-if="currentPopContent == 'login'" />
           </div>
 
@@ -29,8 +29,7 @@
 <script>
 import loginContent from "../Login.vue"
 import sample1 from "../sample_1.vue"
-import sample2 from "../sample_2.vue"
-import photoEditor from "../board_photo/BoardPhotoEditor.vue"
+import photoEditor from "../board_photo/PopBoardPhotoEditor.vue"
 export default{
   name: "modalPopupFrame",
   data(){
@@ -45,7 +44,6 @@ export default{
   components:{
     'login-content': loginContent,
     sample1: sample1,
-    sample2: sample2,
     'photo-editor': photoEditor
   }
 }

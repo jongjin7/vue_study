@@ -1,6 +1,6 @@
 <template>
   <div class="sign-up">
-    <h1 class="h3 mb-4">회원가입</h1>
+    <h1 class="mb-4">회원가입</h1>
     <form class="needs-validation" novalidate="">
       <div class="row">
         <h2 class="text-hide">기본정보</h2>
