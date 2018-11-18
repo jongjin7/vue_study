@@ -2,6 +2,7 @@
   <transition name="modal">
     <div class="modal-mask">
       <div class="modal-wrapper">
+        <div class="overlay" @click="$emit('close')"></div>
         <div class="modal-container">
           <div class="modal-header">
             <h1 class="h3 modal-title">{{ currentPopContentTitle }}</h1>
@@ -61,6 +62,14 @@ export default{
     display: table;
     transition: opacity 0.3s ease;
   }
+  .overlay{
+    position: fixed;
+    z-index: 1;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+  }
 
   .modal-wrapper {
     display: table-cell;
@@ -68,6 +77,8 @@ export default{
   }
 
   .modal-container {
+    position: relative;
+    z-index: 2;
     width: 50%; min-width:360px; max-width:600px;
     margin: 0px auto;
     padding: 20px 20px;

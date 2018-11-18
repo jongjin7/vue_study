@@ -99,6 +99,9 @@
         link: "/community",
       }
     },
+    created(){
+      //Kakao.Auth.setAccessToken(localStorage.loginTokken);
+    },
     methods:{
       showModalpopup(title, componentName){
         this.$store.state.pop_title = title;

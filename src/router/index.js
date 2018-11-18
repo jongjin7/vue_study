@@ -7,7 +7,7 @@ import BoardCommunityDetail from "@/components/board_community/BoardCommunityDet
 import BoardCommunityEditor from "@/components/board_community/BoardCommunityEditor";
 import Todo from "@/components/Todos";
 import Contact from "@/components/ContactUs";
-import DataGrid from "@/components/DataGrid";
+import DataGrid from "@/components/data_grid/DataGridMain";
 import SignUp from "@/components/SignUp";
 
 Vue.use(Router);
@@ -46,7 +46,7 @@ export default new Router({
     },
     {
       path: "/grid",
-      name: "Grid",
+      name: "DataGrid",
       component: DataGrid
     },
     {

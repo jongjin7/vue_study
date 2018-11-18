@@ -15,9 +15,20 @@
       </div>
       <button type="submit" class="btn btn-primary">Sign in</button>
     </form>
+
+    <!-- SNS Login -->
+    <div class="login-wrap">
+      <a id="kakao-login-btn" v-show="!iskakaoLogined"></a>
+      <a href="#" @click.stop.prevent="kakaoLogout();" v-show="iskakaoLogined">카카오 로그아웃</a>
+    </div>
+
+    <a id="kakao-link-btn" href="javascript:;">
+      <img src="//developers.kakao.com/assets/img/about/logos/kakaolink/kakaolink_btn_medium.png"/>
+    </a>
+
     <hr class="mb-4">
-    <a class="d-block" href="#">회원가입을 해요.</a>
-    <a class="d-block" href="#">비밀번호를 잃어버렸어요.</a>
+    <a class="d-block" href="#" v-show="!iskakaoLogined">회원가입을 해요.</a>
+    <a class="d-block" href="#" v-show="iskakaoLogined">비밀번호를 잃어버렸어요.</a>
   </div>
 </template>
 
@@ -27,9 +38,91 @@
     name: "Login",
     data(){
       return{
-
+        loginKakaoTokken: this.$store.state.loginTokken,
+        iskakaoLogined:false
       }
     },
+    created(){
+
+    },
+    mounted(){
+      this.kakaoLogin();
+    },
+    methods:{
+      closePopup(){
+        this.$EventBus.$emit('showModal');
+      },
+
+      kakaoLogout(){
+        let that = this;
+        Kakao.Auth.logout(function() {
+          console.log('로그아웃 후 호출할 콜백 함수!!')
+          localStorage.removeItem('kakaoTokken');
+          that.loginKakaoTokken = null;
+          Kakao.Auth.cleanup();
+          that.iskakaoLogined =false;
+          that.kakaoLogin();
+        });
+      },
+      kakaoLogin(){
+        let that = this;
+        if(localStorage.kakaoTokken !== undefined){
+          that.iskakaoLogined = true;
+          that.loginKakaoTokken = Kakao.Auth.getAccessToken();
+        }
+
+        console.log('::before::','localStorageKakaoTokken:'+ localStorage.kakaoTokken, ' appTokken:'+ this.loginKakaoTokken);
+        if(!this.iskakaoLogined){
+          Kakao.Auth.createLoginButton({
+            container: '#kakao-login-btn',
+            success: function (authObj) {
+              alert(JSON.stringify(authObj));
+              localStorage.kakaoTokken = authObj.access_token;
+              that.loginKakaoTokken = authObj.access_token;
+              that.iskakaoLogined = true;
+             // that.closePopup();
+            }, fail: function (err) {
+              alert(JSON.stringify(err));
+            }
+          });
+        }
+
+        Kakao.Link.createDefaultButton({
+          container: '#kakao-link-btn',
+          objectType: 'feed',
+          content: {
+            title: '딸기 치즈 케익',
+            description: '#케익 #딸기 #삼평동 #카페 #분위기 #소개팅',
+            imageUrl: 'http://mud-kage.kakao.co.kr/dn/Q2iNx/btqgeRgV54P/VLdBs9cvyn8BJXB3o7N8UK/kakaolink40_original.png',
+            link: {
+              mobileWebUrl: 'https://developers.kakao.com',
+              webUrl: 'https://developers.kakao.com'
+            }
+          },
+          social: {
+            likeCount: 286,
+            commentCount: 45,
+            sharedCount: 845
+          },
+          buttons: [
+            {
+              title: '웹으로 보기',
+              link: {
+                mobileWebUrl: 'https://developers.kakao.com',
+                webUrl: 'https://developers.kakao.com'
+              }
+            },
+            {
+              title: '앱으로 보기',
+              link: {
+                mobileWebUrl: 'https://developers.kakao.com',
+                webUrl: 'https://developers.kakao.com'
+              }
+            }
+          ]
+        });
+      }
+    }
 
   };
 </script>

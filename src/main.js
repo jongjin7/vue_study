@@ -14,9 +14,12 @@ Vue.prototype.$http = base;
 Vue.prototype.$EventBus = new Vue();
 Vue.config.productionTip = false;
 
+// import { Kakao } from "./vendors/kakao.min.js";
 import "bootstrap/dist/css/bootstrap.css";
 import "bootstrap/dist/js/bootstrap.js";
 import "chart.js";
+// kakao login & JavaScript Key
+Kakao.init('aa310add55217b47727f8374a302f5c2');
 
 new Vue({
   el: "#app",
