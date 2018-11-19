@@ -10,8 +10,8 @@
         </small>
       </div>
       <div class="form-group">
-        <label for="inp-pop-cont">본문내용</label>
-        <textarea class="form-control" id="inp-pop-cont"  rows="3"></textarea>
+        <label>본문내용</label>
+        <div id="summernote">Hello Summernote</div>
         <small class="text-muted">
           내용을 입력하세요.
         </small>
@@ -19,16 +19,9 @@
 
       <div class="form-group">
         <label>첨부파일</label>
-        <div v-if="!image">
-          <div class="custom-file mb-3">
-            <input type="file" class="custom-file-input" id="customFile" name="filename" @change="onFileChange">
-            <label class="custom-file-label" for="customFile">Choose file</label>
-          </div>
-        </div>
-
-        <div v-else>
-          <img :src="image" width="300" />
-          <button @click="removeImage">Remove image</button>
+        <div class="custom-file mb-3">
+          <input type="file" class="custom-file-input" id="customFile" name="filename">
+          <label class="custom-file-label" for="customFile">Choose file</label>
         </div>
       </div>
       <router-link :to="link" class="btn btn-primary w-100">
@@ -38,12 +31,35 @@
   </div>
 </template>
 <script>
+  import $ from "jquery";
+  //summer editor
+  import "summernote/dist/summernote-bs4.js"
+  import "summernote/dist/summernote-bs4.css"
+  import "codemirror/lib/codemirror.css";
+  //import "codemirror/theme/monokai.css";
+  import "codemirror/theme/dracula.css";
+  import "codemirror/lib/codemirror.js";
+  import "codemirror-formatting/formatting.js";
+
   export default {
     name:'boardGeneralEditor',
     data(){
       return{
         link:'/community'
       }
+    },
+    created(){
+      $(document).ready(function() {
+        $('#summernote').summernote({
+          height: 300,                 // set editor height
+          minHeight: null,             // set minimum height of editor
+          maxHeight: null,             // set maximum height of editor
+          focus: true,
+          codemirror: { // codemirror options
+            theme: 'dracula'
+          }
+        });
+      });
     }
   }
 </script>

@@ -21,6 +21,7 @@ import "chart.js";
 // kakao login & JavaScript Key
 Kakao.init('aa310add55217b47727f8374a302f5c2');
 
+
 new Vue({
   el: "#app",
   router,

@@ -71,7 +71,7 @@
           that.loginKakaoTokken = Kakao.Auth.getAccessToken();
         }
 
-        console.log('::before::','localStorageKakaoTokken:'+ localStorage.kakaoTokken, ' appTokken:'+ this.loginKakaoTokken);
+        console.log('::before::','localStorageTokken:'+ localStorage.kakaoTokken, ' appTokken:'+ this.loginKakaoTokken);
         if(!this.iskakaoLogined){
           Kakao.Auth.createLoginButton({
             container: '#kakao-login-btn',
