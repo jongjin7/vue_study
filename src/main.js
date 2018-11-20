@@ -21,6 +21,27 @@ import "chart.js";
 // kakao login & JavaScript Key
 Kakao.init('aa310add55217b47727f8374a302f5c2');
 
+// Setup Firebase
+const config = {
+  apiKey: "AIzaSyCV7xlKQfRLoBfgGYGF3Jpy9z48-oSgpX8",
+  authDomain: "model-vue-data.firebaseapp.com",
+  databaseURL: "https://model-vue-data.firebaseio.com",
+  projectId: "model-vue-data",
+  storageBucket: "model-vue-data.appspot.com",
+  messagingSenderId: "155764866443"
+};
+
+import firebase from 'firebase/app';
+firebase.initializeApp(config);
+import 'firebase/firestore';
+import 'firebase/storage';
+const dbFireStore = firebase.firestore();
+dbFireStore.settings({ timestampsInSnapshots: true });
+
+Vue.prototype.$firebase = firebase;
+Vue.prototype.$firebaseDB = dbFireStore;
+Vue.prototype.$firebaseStorage = firebase.storage();
+
 
 new Vue({
   el: "#app",

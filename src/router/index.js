@@ -5,10 +5,10 @@ import BoardPhoto from "@/components/board_photo/BoardPhoto";
 import BoardCommunity from "@/components/board_community/BoardCommunity";
 import BoardCommunityDetail from "@/components/board_community/BoardCommunityDetail";
 import BoardCommunityEditor from "@/components/board_community/BoardCommunityEditor";
-import Todo from "@/components/Todos";
-import Contact from "@/components/ContactUs";
 import DataGrid from "@/components/data_grid/DataGridMain";
-import SignUp from "@/components/SignUp";
+import Todo from "@/components/etc/Todos";
+import Contact from "@/components/etc/ContactUs";
+import SignUp from "@/components/members/SignUp";
 
 Vue.use(Router);
 

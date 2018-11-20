@@ -57,7 +57,7 @@
         let that = this;
         Kakao.Auth.logout(function() {
           console.log('로그아웃 후 호출할 콜백 함수!!')
-          localStorage.removeItem('kakaoTokken');
+          sessionStorage.removeItem('kakaoTokken');
           that.loginKakaoTokken = null;
           Kakao.Auth.cleanup();
           that.iskakaoLogined =false;
@@ -66,18 +66,18 @@
       },
       kakaoLogin(){
         let that = this;
-        if(localStorage.kakaoTokken !== undefined){
+        if(sessionStorage.kakaoTokken !== undefined){
           that.iskakaoLogined = true;
           that.loginKakaoTokken = Kakao.Auth.getAccessToken();
         }
 
-        console.log('::before::','localStorageTokken:'+ localStorage.kakaoTokken, ' appTokken:'+ this.loginKakaoTokken);
+        console.log('::before::','SessionStorageTokken:'+ sessionStorage.kakaoTokken, ' appTokken:'+ this.loginKakaoTokken);
         if(!this.iskakaoLogined){
           Kakao.Auth.createLoginButton({
             container: '#kakao-login-btn',
             success: function (authObj) {
               alert(JSON.stringify(authObj));
-              localStorage.kakaoTokken = authObj.access_token;
+              sessionStorage.kakaoTokken = authObj.access_token;
               that.loginKakaoTokken = authObj.access_token;
               that.iskakaoLogined = true;
              // that.closePopup();

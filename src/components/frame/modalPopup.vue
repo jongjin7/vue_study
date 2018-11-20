@@ -29,7 +29,7 @@
 </template>
 
 <script>
-import loginContent from "../Login.vue"
+import loginContent from "../members/Login.vue"
 import sample1 from "../sample_1.vue"
 import photoEditor from "../board_photo/PopBoardPhotoEditor.vue"
 export default{

@@ -77,28 +77,7 @@
 </template>
 
 <script>
-// Setup Firebase
-var config = {
-  apiKey: "AIzaSyCV7xlKQfRLoBfgGYGF3Jpy9z48-oSgpX8",
-  authDomain: "model-vue-data.firebaseapp.com",
-  databaseURL: "https://model-vue-data.firebaseio.com",
-  projectId: "model-vue-data",
-  storageBucket: "model-vue-data.appspot.com",
-  messagingSenderId: "155764866443"
-};
 
-import firebase from 'firebase/app';
-import 'firebase/firestore';
-import 'firebase/storage';
-
-firebase.initializeApp(config);
-const db = firebase.firestore();
-
-db.settings({
-  timestampsInSnapshots: true
-});
-
-const storage = firebase.storage();
 
 // 생성:documentName은 랜덤정의
 // db.collection("users").add({
@@ -130,6 +109,7 @@ const storage = firebase.storage();
 
 
 
+
 export default {
   name: "ContactUs",
   props:['currentContent'],
@@ -148,7 +128,7 @@ export default {
   // firebase binding
   // https://github.com/vuejs/vuefire
   firebase:{
-    users:db
+    users:this.$firebaseDB
   },
 
   computed: {
@@ -171,7 +151,7 @@ export default {
     addComment() {
       console.log("입력받은 내용", this.isDataImage);
       var that = this;
-      db.collection('users').add({
+      this.$firebaseDB.collection('users').add({
         first:this.comment,
         middle:'md',
         last:'lmi',
@@ -193,7 +173,7 @@ export default {
     deleteComment(){
       var that = this;
       const selectedDoc = prompt('현재 삭제고픈 게시물 이름', '')
-      db.collection("users").doc(selectedDoc).delete().then(function() {
+      this.$firebaseDB.collection("users").doc(selectedDoc).delete().then(function() {
         that.posts = []
         that.fetchData();
         console.log(selectedDoc + "Document successfully deleted!");
@@ -206,7 +186,7 @@ export default {
     fetchData() {
       console.log('fetchData!!!')
 
-      db.collection('users').get().then((querySnapshot) => {
+      this.$firebaseDB.collection('users').get().then((querySnapshot) => {
         querySnapshot.forEach((doc) =>{
           console.log('read', `${doc.id} :=> ${doc.data().type}`)
           this.posts.push(doc.data());
@@ -218,7 +198,7 @@ export default {
       console.log('sendImage!!');
       // Create a root reference
       this.isDataImage = true;
-      var storageRef = firebase.storage().ref();
+      var storageRef = this.$firebaseStorage.ref();
 
       var mountainsRef = storageRef.child('img_upload');
       // disk에서 가져오는 이미지를 참조하는 폴더에 정의한다.
