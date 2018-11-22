@@ -1,74 +1,218 @@
 <template>
 <div>
   <h2>Todo List</h2>
-  <div class="input-group" style="margin-bottom:10px;">
+  <div class="input-group input-group-lg mb-2">
+    <div class="input-group-prepend">
+        <span class="input-group-text">
+          <input id="chk-todo-all" type="checkbox" v-model="allDone">
+        </span>
+    </div>
     <input type="text" class="form-control" placeholder="할일을 입력하세요"
-      v-model="name"
-      @keyup.enter="createTodo(name)">
-    <span class="input-group-append">
-      <button type="button" class="btn btn-info" @click="createTodo(name)">추가</button>
-    </span>
+           v-model="newTodo" autofocus autocomplete="off"
+           @keyup.enter="addTodo">
+      <span class="input-group-append">
+        <button type="button" class="btn btn-info" @click="addTodo">추가</button>
+      </span>
   </div>
-  <ul class="list-group">
-    <li class="list-group-item d-inline-flex justify-content-between" v-for="(todo, index) in todos">
-      <div  v-show="!state" :class="{'bg-success w-50': state}" >{{todo.name}}</div>
-      <input v-show="state" type="text" v-model="edit_data" @keyup.enter="modifyCompleted()">
-      <div class="buttons">
-        <button type="button" class="btn btn-warning btn-sm"  @click="modifyTodo(index, edit_data)">수정</button>
-        <button type="button" class="btn btn-danger btn-sm"  @click="deleteTodo(index)">삭제</button>
+
+  <ul class="list-group todo-list" v-show="todos.length" v-cloak>
+    <li class="list-group-item  d-flex justify-content-between" v-for="todo in filteredTodos"
+        :key="todo.id"
+        :class="{ completed: todo.completed, editing: todo == editedTodo }">
+      <div class="view">
+        <input :id="todo.id" type="checkbox" v-model="todo.completed">
+        <label :for="todo.id" @dblclick="editTodo(todo)">{{todo.title}}</label>
+      </div>
+      <input class="edit" type="text"
+             v-model="todo.title"
+             v-todo-focus="todo == editedTodo"
+             @blur="doneEdit(todo)"
+             @keyup.enter="doneEdit(todo)"
+             @keyup.esc="cancelEdit(todo)">
+      <div class="buttons ml-auto">
+        <button type="button" class="btn btn-warning btn-sm"  @click="editTodo(todo)">수정</button>
+        <button type="button" class="btn btn-danger btn-sm btn-del"  @click="removeTodo(todo)">삭제</button>
       </div>
     </li>
   </ul>
+
+  <div class="d-flex justify-content-between py-2">
+    <span class="todo-count">
+      <strong>{{ remaining }}</strong> {{ remaining | pluralize }} 남음
+    </span>
+
+    <div class="btn-group">
+      <button class="btn btn-secondary" :class="{ selected: visibility == 'all' }">All</button>
+      <button class="btn btn-secondary" :class="{ selected: visibility == 'active' }">Active</button>
+      <button class="btn btn-secondary" :class="{ selected: visibility == 'completed' }">Completed</button>
+    </div>
+
+    <button class="btn btn-danger" @click="removeCompleted" v-show="todos.length > remaining">
+      완료된 항목 삭제
+    </button>
+  </div>
+
 </div>
 </template>
 
 <script>
+  const STORAGE_KEY = 'todos-vuejs-2.0';
+  const todoStorage = {
+    fetch: function () {
+      let set_data = [
+        {
+          id:1,
+          title: "청소"
+        },
+        {
+          id:2,
+          title: "블로그 쓰기"
+        },
+        {
+          id:3,
+          title: "밥먹기"
+        },
+        {
+          id:4,
+          title: "안녕"
+        }
+      ]
+
+      let todos = set_data || JSON.parse(localStorage.getItem(STORAGE_KEY) ||  '[]')
+      todos.forEach(function (todo, index) {
+        //console.log(todo, index)
+        todo.id = index
+      })
+      todoStorage.uid = todos.length
+      return todos
+    },
+    save: function (todos) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(todos))
+    },
+  }
+
+  // visibility filters
+  var filters = {
+    all: function (todos) {
+      return todos
+    },
+    active: function (todos) {
+      return todos.filter(function (todo) {
+        return !todo.completed
+      })
+    },
+    completed: function (todos) {
+      return todos.filter(function (todo) {
+        return todo.completed
+      })
+    }
+  }
+
+
 export default {
   name: "TodoPage",
   data() {
     return {
-      name: null,
-      state:false,
-      edit_data:'',
-
-      todos: [
-        {
-          name: "청소"
-        },
-        {
-          name: "블로그 쓰기"
-        },
-        {
-          name: "밥먹기"
-        },
-        {
-          name: "안녕"
-        }
-      ]
+      todos: todoStorage.fetch(),
+      newTodo: '',
+      editedTodo: null,
+      visibility: 'all'
     };
   },
-  methods: {
-    deleteTodo(i) {
-      console.log(i)
-      this.todos.splice(i, 1);
+  watch:{
+    todos: {
+      handler: function (todos) {
+        todoStorage.save(todos)
+      },
+      deep: true
+    }
+  },
+  computed: {
+    filteredTodos: function () {
+      return filters[this.visibility](this.todos)
     },
-    modifyTodo(i,data){
-      console.log('수정', this.todos[i], data);
-      if(data != null){
-        this.state = true;
-        //this.todos[i].name = this.edit_data;
+    remaining: function () {
+      return filters.active(this.todos).length
+    },
+    allDone: {
+      get: function () {
+        return this.remaining === 0
+      },
+      set: function (value) {
+        this.todos.forEach(function (todo) {
+          todo.completed = value
+        })
+      }
+    }
+  },
+  filters: {
+    pluralize: function (n) {
+      return n === 1 ? 'item' : 'items'
+    }
+  },
+  methods: {
+    addTodo: function () {
+      var value = this.newTodo && this.newTodo.trim()
+      if (!value) {
+        return
+      }
+      this.todos.push({
+        id: todoStorage.uid++,
+        title: value,
+        completed: false
+      })
+      this.newTodo = ''
+    },
+
+    editTodo(todo){
+      console.log('editTodo',todo)
+      this.beforeEditCache = todo.title;
+      this.editedTodo = todo;
+    },
+    doneEdit: function (todo) {
+      if (!this.editedTodo) {
+        return
+      }
+      this.editedTodo = null
+      todo.title = todo.title.trim();
+
+      if (!todo.title) {
+        this.removeTodo(todo)
       }
     },
-    modifyCompleted(){
-      this.state = false;
-      this.edit_data = '';
+    removeTodo(todo) {
+      console.log('removeTodo')
+      this.todos.splice(this.todos.indexOf(todo), 1);
     },
-    createTodo(name) {
-      if (name != null) {
-        this.todos.push({ name: name });
-        this.name = null;
+
+    cancelEdit: function (todo) {
+      //console.log('cancelEdit!', this.beforeEditCache)
+      this.editedTodo = null;
+      todo.title = this.beforeEditCache;
+    },
+
+    removeCompleted: function () {
+      this.todos = filters.active(this.todos)
+    }
+
+  },
+
+  directives: {
+    'todo-focus': function (el, binding) {
+     // console.log('todo-focus', el, binding)
+      if (binding.value) {
+        el.focus()
       }
     }
   }
 };
 </script>
+<style scoped>
+  .completed{background: #eaeaea;}
+  .completed .view label{color:#666;}
+  .view + input{display:none; position: absolute; left:20px; }
+  .editing .view {display:none;}
+  .editing .view + input{display:block;}
+  .btn-del{display:none}
+  .todo-list li:hover .btn-del{display:inline-block;}
+</style>

@@ -15,7 +15,7 @@ export default {
       linklist: [
         {
           title: "todo 심플앱",
-          content: "내가 할 일 관리하기, 리스트 생성/삭제",
+          content: "내가 할 일 관리하기, 리스트 생성/삭제/서버와 로컬스토리지에 저장",
           link: "/todo",
           class:''
         },
