@@ -36,18 +36,18 @@
     </li>
   </ul>
 
-  <div class="d-flex justify-content-between py-2">
-    <span class="todo-count">
+  <div class="d-md-flex justify-content-between py-2">
+    <div class="todo-count my-1">
       <strong>{{ remaining }}</strong> {{ remaining | pluralize }} 남음
-    </span>
+    </div>
 
-    <div class="btn-group category">
+    <div class="btn-group category my-1">
       <button class="btn btn-secondary" @click="changeCategory('all')" :class="{ selected: visibility == 'all' }">All</button>
       <button class="btn btn-secondary" @click="changeCategory('active')" :class="{ selected: visibility == 'active' }">Active</button>
       <button class="btn btn-secondary" @click="changeCategory('completed')" :class="{ selected: visibility == 'completed' }">Completed</button>
     </div>
 
-    <button class="btn btn-danger" @click="removeCompleted" v-show="todos.length > remaining">
+    <button class="btn btn-danger my-1" @click="removeCompleted" v-show="todos.length > remaining">
       완료된 항목 삭제
     </button>
   </div>
@@ -78,7 +78,7 @@
         }
       ]
 
-      let todos = set_data || JSON.parse(localStorage.getItem(STORAGE_KEY) ||  '[]')
+      let todos = JSON.parse(localStorage.getItem(STORAGE_KEY) ||  '[]')
       todos.forEach(function (todo, index) {
         //console.log(todo, index)
         todo.id = index
@@ -87,6 +87,7 @@
       return todos
     },
     save: function (todos) {
+      console.log('save', todos)
       localStorage.setItem(STORAGE_KEY, JSON.stringify(todos))
     },
   }
@@ -217,8 +218,8 @@ export default {
   .view + input{display:none; position: absolute; left:20px; }
   .editing .view {display:none;}
   .editing .view + input{display:block;}
-  .btn-del{display:none}
-  .todo-list li:hover .btn-del{display:inline-block;}
+  .buttons{opacity:0.1}
+  .todo-list li:hover .buttons{opacity:1;}
   .category button{
     background-color: #8594a0;
     border-color: #8594a0;
