@@ -41,10 +41,10 @@
       <strong>{{ remaining }}</strong> {{ remaining | pluralize }} 남음
     </span>
 
-    <div class="btn-group">
-      <button class="btn btn-secondary" :class="{ selected: visibility == 'all' }">All</button>
-      <button class="btn btn-secondary" :class="{ selected: visibility == 'active' }">Active</button>
-      <button class="btn btn-secondary" :class="{ selected: visibility == 'completed' }">Completed</button>
+    <div class="btn-group category">
+      <button class="btn btn-secondary" @click="changeCategory('all')" :class="{ selected: visibility == 'all' }">All</button>
+      <button class="btn btn-secondary" @click="changeCategory('active')" :class="{ selected: visibility == 'active' }">Active</button>
+      <button class="btn btn-secondary" @click="changeCategory('completed')" :class="{ selected: visibility == 'completed' }">Completed</button>
     </div>
 
     <button class="btn btn-danger" @click="removeCompleted" v-show="todos.length > remaining">
@@ -185,14 +185,18 @@ export default {
       this.todos.splice(this.todos.indexOf(todo), 1);
     },
 
-    cancelEdit: function (todo) {
+    cancelEdit(todo) {
       //console.log('cancelEdit!', this.beforeEditCache)
       this.editedTodo = null;
       todo.title = this.beforeEditCache;
     },
 
-    removeCompleted: function () {
+    removeCompleted() {
       this.todos = filters.active(this.todos)
+    },
+
+    changeCategory(category){
+      this.visibility = category;
     }
 
   },
@@ -215,4 +219,14 @@ export default {
   .editing .view + input{display:block;}
   .btn-del{display:none}
   .todo-list li:hover .btn-del{display:inline-block;}
+  .category button{
+    background-color: #8594a0;
+    border-color: #8594a0;
+    color:#adb7bf;
+  }
+  .category .selected{
+    background-color:#6c757d;
+    border-color: #6c757d;
+    color:#fff;
+  }
 </style>
