@@ -225,8 +225,8 @@ export default {
     color:#adb7bf;
   }
   .category .selected{
-    background-color:#6c757d;
-    border-color: #6c757d;
+    background-color:#6d7b86;
+    border-color: #6d7b86;
     color:#fff;
   }
 </style>

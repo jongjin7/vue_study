@@ -49,4 +49,8 @@ main{
 		padding:0 !important;
 	}
 }
+
+*:focus{
+  box-shadow:none !important;
+}
 </style>
