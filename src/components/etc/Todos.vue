@@ -58,38 +58,8 @@
 <script>
   const STORAGE_KEY = 'todos-vuejs-2.0';
   const todoStorage = {
-    fetch: function () {
-      let set_data = [
-        {
-          id:1,
-          title: "청소"
-        },
-        {
-          id:2,
-          title: "블로그 쓰기"
-        },
-        {
-          id:3,
-          title: "밥먹기"
-        },
-        {
-          id:4,
-          title: "안녕"
-        }
-      ]
 
-      let todos = JSON.parse(localStorage.getItem(STORAGE_KEY) ||  '[]')
-      todos.forEach(function (todo, index) {
-        //console.log(todo, index)
-        todo.id = index
-      })
-      todoStorage.uid = todos.length
-      return todos
-    },
-    save: function (todos) {
-      console.log('save', todos)
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(todos))
-    },
+
   }
 
   // visibility filters
@@ -114,28 +84,32 @@ export default {
   name: "TodoPage",
   data() {
     return {
-      todos: todoStorage.fetch(),
+      todos: [],
       newTodo: '',
       editedTodo: null,
-      visibility: 'all'
+      visibility: 'all',
+      uid : '',
+      timestamp:'',
     };
   },
   watch:{
     todos: {
       handler: function (todos) {
-        todoStorage.save(todos)
+        this.saveToLocalStorage(todos)
       },
       deep: true
     }
   },
   created(){
-    console.log('todo', this.todos.length)
-
+   this.fetchData();
   },
   computed: {
     hasTodoList: function() {
       return this.todos.length > 0;
     },
+
+
+
 
     filteredTodos: function () {
       return filters[this.visibility](this.todos)
@@ -160,6 +134,15 @@ export default {
     }
   },
   methods: {
+
+
+    updateTotalIndex(){
+      var that = this;
+      this.$firebaseDB.collection('todo-app').doc('todos').update({
+        lastIndex: that.uid
+      });
+    },
+
     addTodo: function () {
       var value = this.newTodo && this.newTodo.trim()
       if (!value) {
@@ -167,14 +150,16 @@ export default {
       }
 
       var that = this;
-      this.$firebaseDB.collection('todo-app').doc('doc'+ (++todoStorage.uid)).set({
-        id: todoStorage.uid++,
+      this.$firebaseDB.collection('todo-app').doc('todos').collection('todo_data').doc('data_'+(++that.uid)).set({
+        id: that.uid,
         title:value,
         completed: false
       }).then(function(){
+        that.updateTotalIndex();
+        //로컬스토리지에 저장
         that.todos.push({
-          id: todoStorage.uid,
-          title: value,
+          id: that.uid,
+          title:value,
           completed: false
         })
       })
@@ -193,18 +178,24 @@ export default {
       }
       this.editedTodo = null
       todo.title = todo.title.trim();
+      this.updateTodo(todo);
 
       if (!todo.title) {
         this.removeTodo(todo)
       }
     },
+
+    saveToLocalStorage(todos){
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(todos))
+    },
+
     removeTodo(todo) {
-      console.log('removeTodo')
+      console.log('removeTodo', todo.id)
 
       var that = this;
-      this.$firebaseDB.collection("todo-app").doc('doc'+ todoStorage.uid).delete().then(function() {
+      this.$firebaseDB.collection('todo-app').doc('todos').collection('todo_data').doc('data_'+todo.id).delete().then(function() {
         that.todos.splice(that.todos.indexOf(todo), 1);
-        that.todoStorage.uid--
+
       }).catch(function(error) {
         console.error("Error removing document: ", error);
       });
@@ -216,13 +207,40 @@ export default {
       todo.title = this.beforeEditCache;
     },
 
+    updateTodo(todo){
+      this.$firebaseDB.collection('todo-app').doc('todos').collection('todo_data').doc('data_'+todo.id).update({
+        title: todo.title,
+        //timestamp: this.$firebaseDB.FieldValue.serverTimestamp()
+      })
+      .then(function() {
+        console.log("Document successfully updated!");
+      });
+    },
+
     removeCompleted() {
       this.todos = filters.active(this.todos)
     },
 
     changeCategory(category){
       this.visibility = category;
-    }
+    },
+
+    fetchData() {
+      console.log('fetchData!!!')
+
+      var that = this;
+      this.$firebaseDB.collection('todo-app').doc('todos').get().then((doc)=>{
+        console.log('current idx', doc.data().lastIndex)
+        that.uid = doc.data().lastIndex;
+      })
+
+      this.$firebaseDB.collection('todo-app').doc('todos').collection('todo_data').get().then((querySnapshot) => {
+        querySnapshot.forEach((doc) =>{
+          console.log('fetchData!!!!!!', doc.data())
+          this.todos.push(doc.data());
+        })
+      })
+    },
 
   },
 
