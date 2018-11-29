@@ -128,7 +128,15 @@ export default {
       deep: true
     }
   },
+  created(){
+    console.log('todo', this.todos.length)
+
+  },
   computed: {
+    hasTodoList: function() {
+      return this.todos.length > 0;
+    },
+
     filteredTodos: function () {
       return filters[this.visibility](this.todos)
     },
@@ -157,11 +165,20 @@ export default {
       if (!value) {
         return
       }
-      this.todos.push({
+
+      var that = this;
+      this.$firebaseDB.collection('todo-app').doc('doc'+ (++todoStorage.uid)).set({
         id: todoStorage.uid++,
-        title: value,
+        title:value,
         completed: false
+      }).then(function(){
+        that.todos.push({
+          id: todoStorage.uid,
+          title: value,
+          completed: false
+        })
       })
+
       this.newTodo = ''
     },
 
@@ -183,7 +200,14 @@ export default {
     },
     removeTodo(todo) {
       console.log('removeTodo')
-      this.todos.splice(this.todos.indexOf(todo), 1);
+
+      var that = this;
+      this.$firebaseDB.collection("todo-app").doc('doc'+ todoStorage.uid).delete().then(function() {
+        that.todos.splice(that.todos.indexOf(todo), 1);
+        that.todoStorage.uid--
+      }).catch(function(error) {
+        console.error("Error removing document: ", error);
+      });
     },
 
     cancelEdit(todo) {

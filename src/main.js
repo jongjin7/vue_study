@@ -42,7 +42,6 @@ Vue.prototype.$firebase = firebase;
 Vue.prototype.$firebaseDB = dbFireStore;
 Vue.prototype.$firebaseStorage = firebase.storage();
 
-
 new Vue({
   el: "#app",
   router,
