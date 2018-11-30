@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="mb-5">
     <h1 class="mb-4">내용 입력하기</h1>
     <form class="">
       <div class="form-group">

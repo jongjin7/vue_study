@@ -1,5 +1,5 @@
   <template>
-    <div>
+    <div class="mb-5">
 
       <h1 class="mb-4">커뮤니티 게시판</h1>
       <ul class="breadcrumb">

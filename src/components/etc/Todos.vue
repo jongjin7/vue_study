@@ -1,6 +1,19 @@
 <template>
 <div>
-  <h2>Todo List</h2>
+  <h1 class="mb-2">Todo List</h1>
+  <div class="mb-4">
+    <div class="card">
+      <div class="card-body">
+        <h4 class="card-title">학습 목표</h4>
+        <ol class="col mb-0">
+          <li>Todo App 템플릿을 바탕으로 커스텀화된 App 구현</li>
+          <li>LocalStorage/FireBaseDB와 연동화 된 Todo App</li>
+          <li>내가 진행할 일, 완료된 일 관리(Todo 생성,수정,삭제)</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+
   <div class="input-group input-group-lg mb-2">
     <div class="input-group-prepend">
         <span class="input-group-text">
@@ -57,10 +70,6 @@
 
 <script>
   const STORAGE_KEY = 'todos-vuejs-2.0';
-  const todoStorage = {
-
-
-  }
 
   // visibility filters
   var filters = {
@@ -89,6 +98,7 @@ export default {
       editedTodo: null,
       visibility: 'all',
       uid : '',
+      localChangedData: false,
       timestamp:'',
     };
   },
@@ -101,7 +111,7 @@ export default {
     }
   },
   created(){
-   this.fetchData();
+    this.fetchData();
   },
   computed: {
     hasTodoList: function() {
@@ -134,7 +144,18 @@ export default {
     }
   },
   methods: {
-
+    checkChangeDB(){
+      console.log('checkData', this.localChangedData)
+      var that = this;
+      if(that.localChangedData){
+        this.$firebaseDB.collection('todo-app').doc('todos').update({
+          changedData: true
+        }).then(()=>{
+          console.log('DB에 데이터가 변경되었습니다.')
+          that.localChangedData = false;
+        });
+      }
+    },
 
     updateTotalIndex(){
       var that = this;
@@ -156,12 +177,14 @@ export default {
         completed: false
       }).then(function(){
         that.updateTotalIndex();
+        that.checkChangeDB();
         //로컬스토리지에 저장
         that.todos.push({
           id: that.uid,
           title:value,
           completed: false
-        })
+        });
+
       })
 
       this.newTodo = ''
@@ -225,21 +248,34 @@ export default {
       this.visibility = category;
     },
 
-    fetchData() {
-      console.log('fetchData!!!')
-
-      var that = this;
-      this.$firebaseDB.collection('todo-app').doc('todos').get().then((doc)=>{
-        console.log('current idx', doc.data().lastIndex)
-        that.uid = doc.data().lastIndex;
-      })
-
+    loadServerData(){
       this.$firebaseDB.collection('todo-app').doc('todos').collection('todo_data').get().then((querySnapshot) => {
         querySnapshot.forEach((doc) =>{
-          console.log('fetchData!!!!!!', doc.data())
+          console.log('fetchData ==>', doc.data())
           this.todos.push(doc.data());
         })
       })
+    },
+
+    fetchData() {
+      //console.log('fetchData')
+
+      var that = this;
+      this.$firebaseDB.collection('todo-app').doc('todos').get().then((doc)=>{
+        console.log('Last Index to DB', doc.data().lastIndex)
+        that.uid = doc.data().lastIndex;
+      })
+console.log('this.todos', this.todos, this.localChangedData)
+      if(this.localChangedData){
+        this.loadServerData()
+      }else if(this.todos == null){
+        this.loadServerData()
+      }else{
+        console.log('localData is')
+        //let localData = JSON.parse(localStorage.getItem('todos-vuejs-2.0'));
+        //console.log('no change DB', localData);
+        //this.todos = localData;
+      }
     },
 
   },
