@@ -28,26 +28,31 @@
       </span>
   </div>
 
-  <ul class="list-group todo-list" v-show="todos.length" v-cloak>
-    <li class="list-group-item  d-flex justify-content-between" v-for="todo in filteredTodos"
-        :key="todo.id"
-        :class="{ completed: todo.completed, editing: todo == editedTodo }">
-      <div class="view">
-        <input :id="todo.id" type="checkbox" v-model="todo.completed">
-        <label :for="todo.id" @dblclick="editTodo(todo)">{{todo.title}}</label>
-      </div>
-      <input class="edit" type="text"
-             v-model="todo.title"
-             v-todo-focus="todo == editedTodo"
-             @blur="doneEdit(todo)"
-             @keyup.enter="doneEdit(todo)"
-             @keyup.esc="cancelEdit(todo)">
-      <div class="buttons ml-auto">
-        <button type="button" class="btn btn-warning btn-sm"  @click="editTodo(todo)">수정</button>
-        <button type="button" class="btn btn-danger btn-sm btn-del"  @click="removeTodo(todo)">삭제</button>
-      </div>
-    </li>
-  </ul>
+  <div class="scrolling-wrap">
+    <div class="inner-wrap">
+      <ul class="list-group todo-list" v-show="todos.length" v-cloak>
+        <li class="list-group-item  d-flex justify-content-between" v-for="todo in filteredTodos"
+            :key="todo.id"
+            :class="{ completed: todo.completed, editing: todo == editedTodo }">
+          <div class="view">
+            <input :id="todo.id" type="checkbox" v-model="todo.completed">
+            <label :for="todo.id" @dblclick="editTodo(todo)">{{todo.title}}</label>
+          </div>
+          <input class="edit" type="text"
+                 v-model="todo.title"
+                 v-todo-focus="todo == editedTodo"
+                 @blur="doneEdit(todo)"
+                 @keyup.enter="doneEdit(todo)"
+                 @keyup.esc="cancelEdit(todo)">
+          <div class="buttons ml-auto">
+            <button type="button" class="btn btn-warning btn-sm"  @click="editTodo(todo)">수정</button>
+            <button type="button" class="btn btn-danger btn-sm btn-del"  @click="removeTodo(todo)">삭제</button>
+          </div>
+        </li>
+      </ul>
+    </div>
+  </div>
+
 
   <div class="d-md-flex justify-content-between py-2">
     <div class="todo-count my-1">
@@ -117,11 +122,8 @@ export default {
     hasTodoList: function() {
       return this.todos.length > 0;
     },
-
-
-
-
     filteredTodos: function () {
+
       return filters[this.visibility](this.todos)
     },
     remaining: function () {
@@ -129,9 +131,11 @@ export default {
     },
     allDone: {
       get: function () {
+        console.log('allDone get')
         return this.remaining === 0
       },
       set: function (value) {
+        console.log('allDone set')
         this.todos.forEach(function (todo) {
           todo.completed = value
         })
@@ -176,8 +180,7 @@ export default {
         title:value,
         completed: false
       }).then(function(){
-        that.updateTotalIndex();
-        that.checkChangeDB();
+        that.updateTotalIndex(); //서버에 인덱스 저장
         //로컬스토리지에 저장
         that.todos.push({
           id: that.uid,
@@ -185,6 +188,8 @@ export default {
           completed: false
         });
 
+
+        console.log(':: Register New Todo')
       })
 
       this.newTodo = ''
@@ -193,15 +198,18 @@ export default {
     editTodo(todo){
       console.log('editTodo',todo)
       this.beforeEditCache = todo.title;
+
+      console.log('editTodo', this.editedTodo)
       this.editedTodo = todo;
     },
     doneEdit: function (todo) {
+      console.log('doneEdit', this.editedTodo)
       if (!this.editedTodo) {
         return
       }
       this.editedTodo = null
       todo.title = todo.title.trim();
-      this.updateTodo(todo);
+      this.updateTodo(todo); //서버에 업데이트
 
       if (!todo.title) {
         this.removeTodo(todo)
@@ -231,9 +239,10 @@ export default {
     },
 
     updateTodo(todo){
+      let that = this;
       this.$firebaseDB.collection('todo-app').doc('todos').collection('todo_data').doc('data_'+todo.id).update({
         title: todo.title,
-        //timestamp: this.$firebaseDB.FieldValue.serverTimestamp()
+        //timestamp: that.$firebaseDB.FieldValue.serverTimestamp()
       })
       .then(function() {
         console.log("Document successfully updated!");
@@ -248,41 +257,35 @@ export default {
       this.visibility = category;
     },
 
-    loadServerData(){
-      this.$firebaseDB.collection('todo-app').doc('todos').collection('todo_data').get().then((querySnapshot) => {
-        querySnapshot.forEach((doc) =>{
-          console.log('fetchData ==>', doc.data())
-          this.todos.push(doc.data());
-        })
-      })
-    },
-
     fetchData() {
-      //console.log('fetchData')
+      let that = this;
+      let localData = localStorage.getItem('todos-vuejs-2.0');
 
-      var that = this;
+      //서버에 저장된 최종 인덱스 값 얻기
       this.$firebaseDB.collection('todo-app').doc('todos').get().then((doc)=>{
         console.log('Last Index to DB', doc.data().lastIndex)
         that.uid = doc.data().lastIndex;
-      })
-console.log('this.todos', this.todos, this.localChangedData)
-      if(this.localChangedData){
-        this.loadServerData()
-      }else if(this.todos == null){
-        this.loadServerData()
+      });
+
+
+      if(localData == null){
+        console.log('none LocalData')
+        this.$firebaseDB.collection('todo-app').doc('todos').collection('todo_data').get().then((querySnapshot) => {
+          querySnapshot.forEach((doc) =>{
+            console.log('loadingServerData ==>', doc.data())
+            this.todos.push(doc.data());
+          })
+        })
       }else{
-        console.log('localData is')
-        //let localData = JSON.parse(localStorage.getItem('todos-vuejs-2.0'));
-        //console.log('no change DB', localData);
-        //this.todos = localData;
+        console.log('has LocalData ==>', localData);
+        this.todos = JSON.parse(localData);
       }
     },
-
   },
 
   directives: {
     'todo-focus': function (el, binding) {
-     // console.log('todo-focus', el, binding)
+      //console.log('todo-focus', el, binding)
       if (binding.value) {
         el.focus()
       }
@@ -291,6 +294,13 @@ console.log('this.todos', this.todos, this.localChangedData)
 };
 </script>
 <style scoped>
+  .scrolling-wrap{
+    background: #f0f0f0;
+    padding:4px;
+  }
+  .scrolling-wrap .inner-wrap{
+    max-height: 400px; overflow-y: auto;
+  }
   .completed{background: #eaeaea;}
   .completed .view label{color:#666;}
   .view + input{display:none; position: absolute; left:20px; }
