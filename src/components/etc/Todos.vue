@@ -4,11 +4,16 @@
   <div class="mb-4">
     <div class="card">
       <div class="card-body">
-        <h4 class="card-title">학습 목표</h4>
-        <ol class="col mb-0">
-          <li><a href="https://kr.vuejs.org/v2/examples/todomvc.html" target="_blank" title="demo보기">Todo App Demo</a>를 바탕으로 커스텀화된 App 구현</li>
+        <h4 class="card-title mb-2">학습 목표</h4>
+        <ol class="col mb-4">
+          <li><a href="https://kr.vuejs.org/v2/examples/todomvc.html" target="_blank" title="Vue2.x 예제 TodoApp 보기">Todos App Demo</a>를 바탕으로 데이터 연동형 Todos App 구현</li>
           <li>Todo 항목 생성/수정/삭제, 필터(Todo 완료, 미완료)</li>
-          <li>LocalStorage와 FireBaseDB간의 데이터 연동</li>
+          <li>LocalStorage와 FireBaseDB의 데이타 연동(기준 데이터는 서버데이타, 로컬스토리지에 저장된 데이타 사용)</li>
+        </ol>
+
+        <h5 class="card-title mb-2">기능 정의 <button class="btn btn-sm btn-light">더보기...</button></h5>
+        <ol class="col mb-0">
+          <li>로컬/서버 데이터 비교 평가(수량), 로컬스토리지 API사용 </li>
         </ol>
       </div>
     </div>
@@ -35,7 +40,7 @@
             :key="todo.id"
             :class="{ completed: todo.completed, editing: todo == editedTodo }">
           <div class="view">
-            <input :id="todo.id" type="checkbox" v-model="todo.completed">
+            <input :id="todo.id" type="checkbox" v-model="todo.completed" class="mr-1">
             <label :for="todo.id" @dblclick="editTodo(todo)">{{todo.title}}</label>
           </div>
           <input class="edit" type="text"
@@ -174,9 +179,7 @@ export default {
           title:value,
           completed: false
         });
-
-
-        console.log(':: Register New Todo')
+        console.log(':: Register to Server... New Todo')
       })
 
       this.newTodo = ''
@@ -227,9 +230,9 @@ export default {
 
     updateTodo(todo,value){
       let that = this;
-      let valCompleted = value!== undefined? value : todo.completed;
+      let valCompleted = value !== undefined? value : todo.completed;
 
-      console.log('updatedTodo', valCompleted)
+      console.log('updatedTodo', '::value Completed==>',valCompleted)
       this.$firebaseDB.collection('todo-app').doc('todos').collection('todo_data').doc('data_'+todo.id).update({
         title: todo.title,
         completed: valCompleted
@@ -248,9 +251,9 @@ export default {
       this.visibility = category;
     },
 
+
     fetchData() {
       let that = this;
-      let localData = localStorage.getItem('todos-vuejs-2.0');
 
       //서버에 저장된 최종 인덱스 값 얻기
       this.$firebaseDB.collection('todo-app').doc('todos').get().then((doc)=>{
@@ -258,19 +261,41 @@ export default {
         that.uid = doc.data().lastIndex;
       });
 
-
-      if(localData == null){
-        console.log('none LocalData')
-        this.$firebaseDB.collection('todo-app').doc('todos').collection('todo_data').get().then((querySnapshot) => {
+      //데이타 받기
+      this.$firebaseDB.collection('todo-app').doc('todos').collection('todo_data').get().then((querySnapshot) => {
+        let localData = localStorage.getItem('todos-vuejs-2.0');
+        //console.log('querySnapshot', localDataLength, dbDataLength)
+        if(localData == null){
+          console.log('none LocalData ==> 서버데이터 사용');
           querySnapshot.forEach((doc) =>{
             console.log('loadingServerData ==>', doc.data())
             this.todos.push(doc.data());
           })
-        })
-      }else{
-        console.log('has LocalData ==>', localData);
-        this.todos = JSON.parse(localData);
-      }
+        }else{
+          console.log('has LocalData ==> 로컬과 서버데이터 갯수 불일치시 무조건 서버데이터 기준, 같으면 로컬데이터 사용');
+
+          let dbDataLength = querySnapshot.docs.length;
+          let localDataLength = JSON.parse(localData).length;
+
+          if(dbDataLength != localDataLength){
+            let confirmCondition = confirm('서버의 자료와 일치하지 않습니다. 연동하시겠습니까?');
+            if(confirmCondition){
+              console.log('서버데이터를 사용합니다.')
+              querySnapshot.forEach((doc) =>{
+                this.todos.push(doc.data());
+              })
+            }else{
+              console.log('로컬데이터를 사용합니다.')
+              this.todos = JSON.parse(localData);
+            }
+          }else{
+            this.todos = JSON.parse(localData);
+          }
+        }
+      })
+      .catch(function(error) {
+        console.log("Error getting documents: ", error);
+      });
     },
   },
 

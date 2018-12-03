@@ -77,7 +77,7 @@
 
       <div class="row">
         <div class="col text-right">
-          <router-link :to="link.editor" class="btn btn-primary btn-block">
+          <router-link :to="link.editor" class="btn btn-primary btn-block d-md-none">
             글쓰기
           </router-link>
         </div>

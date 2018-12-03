@@ -13,10 +13,16 @@
         <input id="chk-save-email" name="save-email" type="checkbox" class="custom-control-input" checked="">
         <label class="custom-control-label" for="chk-save-email">이메일 주소 기억하기</label>
       </div>
-      <button type="submit" class="btn btn-primary">Sign in</button>
+      <button type="submit" class="btn btn-primary w-100">로그인</button>
     </form>
 
+    <div class="pt-4 d-md-flex">
+      <a href="#" class="d-block mr-3">* 회원가입을 해요.</a>
+      <a href="#" class="d-block text-danger">* 비밀번호를 잃어버렸어요.</a>
+    </div>
+    <hr class="mb-4">
     <!-- SNS Login -->
+    <h3 class="h5">SNS 로그인</h3>
     <div class="login-wrap">
       <a id="kakao-login-btn" v-show="!iskakaoLogined"></a>
       <a href="#" @click.stop.prevent="kakaoLogout();" v-show="iskakaoLogined">카카오 로그아웃</a>
@@ -25,10 +31,6 @@
     <a id="kakao-link-btn" href="javascript:;">
       <img src="//developers.kakao.com/assets/img/about/logos/kakaolink/kakaolink_btn_medium.png"/>
     </a>
-
-    <hr class="mb-4">
-    <a class="d-block" href="#" v-show="!iskakaoLogined">회원가입을 해요.</a>
-    <a class="d-block" href="#" v-show="iskakaoLogined">비밀번호를 잃어버렸어요.</a>
   </div>
 </template>
 
