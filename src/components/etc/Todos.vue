@@ -6,9 +6,9 @@
       <div class="card-body">
         <h4 class="card-title">학습 목표</h4>
         <ol class="col mb-0">
-          <li>Todo App 템플릿을 바탕으로 커스텀화된 App 구현</li>
-          <li>LocalStorage/FireBaseDB와 연동화 된 Todo App</li>
-          <li>내가 진행할 일, 완료된 일 관리(Todo 생성,수정,삭제)</li>
+          <li><a href="https://kr.vuejs.org/v2/examples/todomvc.html" target="_blank" title="demo보기">Todo App Demo</a>를 바탕으로 커스텀화된 App 구현</li>
+          <li>Todo 항목 생성/수정/삭제, 필터(Todo 완료, 미완료)</li>
+          <li>LocalStorage와 FireBaseDB간의 데이터 연동</li>
         </ol>
       </div>
     </div>
@@ -74,24 +74,25 @@
 </template>
 
 <script>
-  const STORAGE_KEY = 'todos-vuejs-2.0';
+const STORAGE_KEY = 'todos-vuejs-2.0';
 
-  // visibility filters
-  var filters = {
-    all: function (todos) {
-      return todos
-    },
-    active: function (todos) {
-      return todos.filter(function (todo) {
-        return !todo.completed
-      })
-    },
-    completed: function (todos) {
-      return todos.filter(function (todo) {
-        return todo.completed
-      })
-    }
+// visibility filters
+const filters = {
+  all: function (todos) {
+    return todos
+  },
+  active: function (todos) {
+    return todos.filter(function (todo) {
+      return !todo.completed
+    })
+  },
+  completed: function (todos) {
+    console.log('filter completed')
+    return todos.filter(function (todo) {
+      return todo.completed
+    })
   }
+}
 
 
 export default {
@@ -103,7 +104,6 @@ export default {
       editedTodo: null,
       visibility: 'all',
       uid : '',
-      localChangedData: false,
       timestamp:'',
     };
   },
@@ -119,25 +119,25 @@ export default {
     this.fetchData();
   },
   computed: {
-    hasTodoList: function() {
-      return this.todos.length > 0;
-    },
     filteredTodos: function () {
-
+      console.log('computed filterTodo')
       return filters[this.visibility](this.todos)
     },
     remaining: function () {
+      console.log('remaining', this.todos)
       return filters.active(this.todos).length
     },
     allDone: {
       get: function () {
-        console.log('allDone get')
+        console.log('allDone get!!')
         return this.remaining === 0
       },
       set: function (value) {
         console.log('allDone set')
+        let that = this;
         this.todos.forEach(function (todo) {
-          todo.completed = value
+          that.updateTodo(todo, value);
+          todo.completed = value;
         })
       }
     }
@@ -148,19 +148,6 @@ export default {
     }
   },
   methods: {
-    checkChangeDB(){
-      console.log('checkData', this.localChangedData)
-      var that = this;
-      if(that.localChangedData){
-        this.$firebaseDB.collection('todo-app').doc('todos').update({
-          changedData: true
-        }).then(()=>{
-          console.log('DB에 데이터가 변경되었습니다.')
-          that.localChangedData = false;
-        });
-      }
-    },
-
     updateTotalIndex(){
       var that = this;
       this.$firebaseDB.collection('todo-app').doc('todos').update({
@@ -203,13 +190,13 @@ export default {
       this.editedTodo = todo;
     },
     doneEdit: function (todo) {
-      console.log('doneEdit', this.editedTodo)
+      console.log('doneEdit', todo)
       if (!this.editedTodo) {
         return
       }
       this.editedTodo = null
       todo.title = todo.title.trim();
-      this.updateTodo(todo); //서버에 업데이트
+      this.updateTodo(todo); //서버에 업데이트 ==> title이 수정안되었으면 호출안되게...
 
       if (!todo.title) {
         this.removeTodo(todo)
@@ -238,10 +225,14 @@ export default {
       todo.title = this.beforeEditCache;
     },
 
-    updateTodo(todo){
+    updateTodo(todo,value){
       let that = this;
+      let valCompleted = value!== undefined? value : todo.completed;
+
+      console.log('updatedTodo', valCompleted)
       this.$firebaseDB.collection('todo-app').doc('todos').collection('todo_data').doc('data_'+todo.id).update({
         title: todo.title,
+        completed: valCompleted
         //timestamp: that.$firebaseDB.FieldValue.serverTimestamp()
       })
       .then(function() {

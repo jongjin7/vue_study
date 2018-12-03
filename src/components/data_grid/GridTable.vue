@@ -41,11 +41,15 @@ export default {
 
   },
   created(){
-    $(document).ready(function() {
-      setTimeout(function(){
-        $('#example').DataTable();
-      },700)
-    });
+    // Vue.js가 데이터 변경 후 DOM 업데이트를 마칠 때까지 기다리려면 데이터가 변경된 직후에 nexTick.Callback
+    //this.nexTick(function(){
+      //$(document).ready(function() {
+        setTimeout(function(){
+          $('#example').DataTable();
+        },1000)
+      //});
+   //});
+
   },
 
   filters: {
