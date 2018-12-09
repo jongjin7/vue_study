@@ -1,5 +1,6 @@
 import Vue from "vue";
 import Router from "vue-router";
+
 import Main from "@/components/Main";
 import BoardPhoto from "@/components/board_photo/BoardPhoto";
 import BoardCommunity from "@/components/board_community/BoardCommunity";

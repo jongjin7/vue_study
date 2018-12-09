@@ -44,10 +44,6 @@ export default {
 }
 main{
 	padding-top:10px;
-
-	p{
-		padding:0 !important;
-	}
 }
 
 *:focus{

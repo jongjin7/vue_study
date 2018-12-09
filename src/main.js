@@ -6,7 +6,7 @@ import router from "./router";
 import { store } from "./store";
 
 import axios from "axios";
-
+Vue.prototype.$this = Vue; //vue인스턴스에서 사용할 this범위 설정
 const base = axios.create({
   baseURL: "https://jsonplaceholder.typicode.com"
 });

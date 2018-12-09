@@ -17,8 +17,8 @@
     </form>
 
     <div class="pt-4 d-md-flex">
-      <a href="#" class="d-block mr-3">* 회원가입을 해요.</a>
-      <a href="#" class="d-block text-danger">* 비밀번호를 잃어버렸어요.</a>
+      <a href="#" class="d-block mr-3">* 회원가입 하기</a>
+      <a href="#" class="d-block text-danger">* 비밀번호 찾기</a>
     </div>
     <hr class="mb-4">
     <!-- SNS Login -->
