@@ -10,11 +10,11 @@
     </div>
 
     <div class="form-group">
-      <label>이미지</label>
+      <label>등록 이미지</label>
       <div v-if="!newGalleryListItem.imagePath">
         <div class="custom-file mb-3">
           <input type="file" class="custom-file-input" id="customFile" name="filename" @change="onFileChange">
-          <label class="custom-file-label" for="customFile">Choose file</label>
+          <label class="custom-file-label" for="customFile">이미지...</label>
         </div>
       </div>
 
@@ -23,7 +23,10 @@
         <button @click="removeImage"><span>이미지 다시 선택</span></button>
       </div>
     </div>
-    <button type="button" class="btn btn-primary w-100" @click="addContent(); $EventBus.$emit('close');">등록하기</button>
+    <button type="button" class="btn btn-primary w-100" @click="addContent(); $EventBus.$emit('close');">
+      <span v-if="newInsertMode">등록하기</span>
+      <span v-else>수정하기</span>
+    </button>
   </form>
 </template>
 <script>
@@ -37,7 +40,16 @@
           imagePath:'',
           id:0,
         },
+        localImage:'',
+        newInsertMode:true,
       }
+    },
+    created(){
+      if(this.$store.state.popGalleryContent !== undefined ){
+        this.newGalleryListItem = this.$store.state.popGalleryContent;
+        this.newInsertMode = false;
+      }
+      console.log('created', this.$store.state.latestGalleryListIndex , this.newGalleryListItem.id);
     },
     methods:{
       updateServerLastIndex(){
@@ -50,18 +62,26 @@
       addContent: function () {
         const vmThis = this;
         console.log('newContent', this.newGalleryListItem)
+        this.uploadServerStorageImage();
+      },
+
+      insertToDBstorage(){
+        console.log('insertToDBstorage');
+        const vmThis = this;
         this.newGalleryListItem.title = this.newGalleryListItem.title && this.newGalleryListItem.title.trim()
         this.newGalleryListItem.body = this.newGalleryListItem.body && this.newGalleryListItem.body.trim();
-        this.newGalleryListItem.id = ++this.$store.state.latestGalleryListIndex;
-        this.$firebaseDB.collection('photo-gallery').doc('content').collection('gallery-data')
-          .doc('galley-data-'+this.newGalleryListItem.id).set(vmThis.newGalleryListItem).then(function(){
-          vmThis.updateServerLastIndex(); //서버에 인덱스 저장
+        this.newGalleryListItem.id = (this.newGalleryListItem.id == 0)? ++this.$store.state.latestGalleryListIndex : this.newGalleryListItem.id;
 
-          //폼 밸리데이션 조건적기
-          //새 글 내용을 부모창에서 사용할 수 있도록 Vuex에 값 저장
-          vmThis.$store.state.popNewGalleryListItem = vmThis.newGalleryListItem;
-          vmThis.newGalleryListItem ='';
-          console.log(':: Add Content to Server... New Content')
+        this.$firebaseDB.collection('photo-gallery').doc('content').collection('gallery-data')
+          .doc('galley-data-'+this.newGalleryListItem.id).set(this.newGalleryListItem).then(function(){
+            vmThis.updateServerLastIndex(); //서버에 인덱스 저장
+
+            //폼 밸리데이션 조건적기
+            vmThis.newGalleryListItem =[];
+            vmThis.localImage ='';
+            vmThis.$store.state.popGalleryContent = '';
+            vmThis.newInsertMode = true;
+            console.log(':: Add Content to Server... New Content')
         })
       },
 
@@ -70,16 +90,16 @@
         if (!files.length)
           return;
         this.createImage(files[0]);
-        this.sendImage(files[0]);
+
       },
       createImage(file) {
-        var image = new Image();
+        this.localImage = file;
         var reader = new FileReader();
-        var vm = this;
-
+        console.log('createImage')
         reader.onload = (e) => {
-          vm.image = e.target.result;
-          //console.log('read', e.target.result)
+          this.newGalleryListItem.imagePath = e.target.result;
+
+          console.log('read', this.localImage)
         };
         reader.readAsDataURL(file);
 
@@ -87,25 +107,24 @@
       removeImage(e) {
         this.newGalleryListItem.imagePath = '';
       },
-      sendImage(img_file){
-        console.log('sendImage!!');
+      uploadServerStorageImage(){
+        console.log('uploadServerStorageImage!!', this.localImage);
         // Create a root reference
-        this.isDataImage = true;
         var storageRef = this.$firebaseStorage.ref();
 
         var mountainsRef = storageRef.child('gallery_upload');
         // disk에서 가져오는 이미지를 참조하는 폴더에 정의한다.
-        var mountainImagesRef = storageRef.child('gallery_upload/'+ img_file.name);
+        var mountainImagesRef = storageRef.child('gallery_upload/'+ this.localImage.name);
         // While the file names are the same, the references point to different files
         mountainsRef.name === mountainImagesRef.name            // true
         mountainsRef.fullPath === mountainImagesRef.fullPath    // false
 
         var that = this;
-        mountainImagesRef.put(img_file).then(function(snapshot) {
+        mountainImagesRef.put(this.localImage).then(function(snapshot) {
           //console.log(snapshot, 'Uploaded a blob or file!');
           storageRef.child(snapshot.metadata.fullPath).getDownloadURL().then(function(url){
-            console.log('img url');
             that.newGalleryListItem.imagePath = url;
+            that.insertToDBstorage();
           });
         });
       },
@@ -135,5 +154,9 @@
         }
       }
     }
+  }
+
+  .custom-file-label:after{
+     content:'파일찾기'
   }
 </style>

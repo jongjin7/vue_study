@@ -39,7 +39,7 @@ export default{
     }
   },
   created(){
-    console.log('this.app.currentContent', this.currentPopContent)
+    console.log('this.currentPopContent', this.currentPopContent)
   },
   methods:{
 
