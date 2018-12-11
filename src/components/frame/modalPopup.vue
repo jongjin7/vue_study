@@ -5,7 +5,7 @@
         <div class="modal-content">
           <div class="modal-header">
             <h1 class="h3 modal-title">{{ currentPopContentTitle }}</h1>
-            <button type="button" class="close" data-dismiss="modal" aria-label="Close"  @click="$emit('close')">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"  @click="$emit('toggleClose')">
               <span aria-hidden="true">&times;</span>
             </button>
           </div>
@@ -18,7 +18,7 @@
           <div class="modal-footer d-none"></div>
         </div>
       </div>
-      <div class="modal-backdrop fade show" @click="$emit('close')"></div>
+      <div class="modal-backdrop fade show" @click="$emit('toggleClose')"></div>
     </div>
   </transition>
 </template>

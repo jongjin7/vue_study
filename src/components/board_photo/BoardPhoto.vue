@@ -1,7 +1,7 @@
 <template>
   <div>
     <h1 class="mb-4">갤러리 게시판</h1>
-    <div class="card mb-4">
+    <div class="card mb-4 d-none">
       <div class="card-body">
         <h2 class="card-title mb-2">학습 목표</h2>
         <ol class="col mb-4">
@@ -24,7 +24,7 @@
       <div class="container">
         <div class="top-btns d-flex justify-content-between pt-2 pb-3">
           <button class="btn btn-lg btn-outline-danger my-2">선택한 게시물 삭제</button>
-          <button class="btn btn-lg btn-outline-primary my-2" @click="showModalpopup('새글 등록하기', 'photo'); $EventBus.$emit('showModal');">새글 등록</button>
+          <button class="btn btn-lg btn-outline-primary my-2" @click="showModalpopup('새글 등록하기', 'photo');">새글 등록</button>
         </div>
         <div class="row" v-if="hasResult">
           <div class="col-lg-4 col-md-6" v-for="post in posts" v-bind:key="post.id">
@@ -36,7 +36,7 @@
 
                 <div class="author text-right">
                   <small class="text-muted mr-2">작성자: hong.kim</small>
-                  <small class="text-muted">등록일: 2018.12.12/ {{ post.id }}</small>
+                  <small class="text-muted">등록일: {{ changeDateValue }} / {{ post.id }}</small>
                 </div>
 
                 <div class="card-foot">
@@ -75,6 +75,7 @@ export default {
       getData:[],
       showingListLength:3,
       totalListLength:'',
+      tmp:''
     };
   },
 
@@ -88,19 +89,59 @@ export default {
   },
 
   computed: {
-    hasResult: function() {
-      console.log("posts", this.posts.length);
+    changeDateValue(){
+      this.posts.forEach((todo) =>{
+        var a = JSON.stringify(todo.timeStamp);
+        var b = JSON.stringify(a)
+        console.log('changeDateValue', todo.timeStamp , a)
+        return a;
+
+      })
+
+
+      function formatSecondsAsTime(secs, format) {
+        var hr  = Math.floor(secs / 3600);
+        var min = Math.floor((secs - (hr * 3600))/60);
+        var sec = Math.floor(secs - (hr * 3600) -  (min * 60));
+
+        if (hr < 10)  { hr    = "0" + hr; }
+        if (min < 10) { min = "0" + min; }
+        if (sec < 10) { sec  = "0" + sec; }
+        if (hr)       { hr   = "00"; }
+
+        if (format != null) {
+          var formatted_time = format.replace('hh', hr);
+          formatted_time = formatted_time.replace('h', hr*1+""); // check for single hour formatting
+          formatted_time = formatted_time.replace('mm', min);
+          formatted_time = formatted_time.replace('m', min*1+""); // check for single minute formatting
+          formatted_time = formatted_time.replace('ss', sec);
+          formatted_time = formatted_time.replace('s', sec*1+""); // check for single second formatting
+          return formatted_time;
+        } else {
+          return hr + ':' + min + ':' + sec;
+        }
+      }
+
+      var ttt = formatSecondsAsTime(1544524707)
+      console.log('time', ttt)
+
+      //dateValue = JSON.stringify(dateValue)
+      //return dateValue
+    },
+    hasResult() {
       return this.posts.length > 0;
     },
     compareDataLength(){
-      console.log('로컬과 서버 데이터 갯수 비교',this.posts.length,this.totalListLength)
+      console.log('로컬과 서버 데이터 갯수 비교',this.posts.length+' : '+this.totalListLength)
       return this.posts.length !== this.totalListLength;
     },
   },
 
   created(){
     this.getServerData();
+    this.$EventBus.$on('closeBtn', () => {
 
+    });
   },
 
   methods: {
@@ -108,6 +149,8 @@ export default {
       this.$store.state.pop_title = title;
       this.$store.state.pop_content = componentName;
       if(post !== undefined) this.$store.state.popGalleryContent = post; //수정용 post
+      this.$EventBus.$emit('toggleClose');
+      console.log('팝업활성체크', this.$store.state.statusShowModalPopup)
     },
 
     getServerData(){
@@ -115,29 +158,32 @@ export default {
 
       //서버에 저장된 최종 인덱스 값 얻기
       this.$firebaseDB.collection('photo-gallery').doc('content').get().then((doc)=>{
-        console.log('Last Index to DB', doc.data().lastIndex)
+        //console.log('Last Index to DB', doc.data().lastIndex)
         this.$store.state.latestGalleryListIndex = doc.data().lastIndex;
       });
 
+
+
       this.$firebaseDB.collection('photo-gallery').doc('content').collection('gallery-data').get().then((querySnapshot) => {
         let dataLength = 0;
+        var tmpDate= new Date();
+        //var ff= new this.$firebase.firestore.Timestamp.fromDate(tmpDate);
+        //console.log('Timestamp',tmpDate, ff)
         querySnapshot.forEach((doc) => {
           //console.log('loadingServerData ==>', doc.data())
+
           dataLength++;
           this.getData.push(doc.data())
         });
         this.totalListLength = dataLength;
         //console.log('querySnapshot', dataLength, querySnapshot)
         this.fetchData();
+      })
+      .catch(function(error) {
+        console.log("Error getting document:", error);
       });
 
-      /*let that = this;
-      this.$http.get(`/photos`).then(result => {
-        console.log("result", result);
-        this.getData = result.data;
-        this.totalListLength = result.data.length;
-        this.fetchData();
-      });*/
+
     },
 
     saveToLocalStorage(todos){

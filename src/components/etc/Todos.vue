@@ -112,6 +112,7 @@ export default {
       timestamp:'',
     };
   },
+
   watch:{
     todos: {
       handler: function (todos) {
@@ -120,9 +121,11 @@ export default {
       deep: true
     }
   },
+
   created(){
     this.fetchData();
   },
+
   computed: {
     filteredTodos: function () {
       console.log('computed filterTodo')
@@ -130,7 +133,7 @@ export default {
     },
     remaining: function () {
       console.log('remaining')
-      return filters.active(this.todos).length
+      return filters.active(this.todos).length;
     },
     allDone: {
       get: function () {

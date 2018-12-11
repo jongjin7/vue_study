@@ -12,6 +12,6 @@ export const store = new Vuex.Store({
     pop_content : '',
     popNewGalleryListItem:'',
     latestGalleryListIndex:'',
-    showModalPopup:'',
+    statusShowModalPopup:false,
   },
 });
