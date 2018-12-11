@@ -36,7 +36,7 @@
 
                 <div class="author text-right">
                   <small class="text-muted mr-2">작성자: hong.kim</small>
-                  <small class="text-muted">등록일: {{ changeDateValue(post) }} / {{ post.id }}</small>
+                  <small class="text-muted">등록일: {{ post.timeStamp }} / {{ post.id }}</small>
                 </div>
 
                 <div class="card-foot">
@@ -106,8 +106,8 @@ export default {
   },
 
   methods: {
-    changeDateValue(post) {
-      console.log('changeDateValue', post.timeStamp.seconds)
+    changeDateValue(date) {
+      console.log('changeDateValue', date)
       function unixTime(unixtime) {
         var u = new Date(unixtime*1000);
 
@@ -119,8 +119,8 @@ export default {
           ':' + ('0' + u.getSeconds()).slice(-2) +
           '.' + (u.getMilliseconds() / 1000).toFixed(3).slice(2, 5)
       };
-      var changeDate = unixTime(post.timeStamp.seconds).split(' ')[0];
-      console.log('변환',unixTime(post.timeStamp.seconds))
+      var changeDate = unixTime(date).split(' ')[0];
+      console.log('변환',unixTime(date))
       return changeDate;
     },
 
@@ -145,14 +145,12 @@ export default {
 
       this.$firebaseDB.collection('photo-gallery').doc('content').collection('gallery-data').get().then((querySnapshot) => {
         let dataLength = 0;
-        var tmpDate= new Date();
-        //var ff= new this.$firebase.firestore.Timestamp.fromDate(tmpDate);
-        //console.log('Timestamp',tmpDate, ff)
         querySnapshot.forEach((doc) => {
           //console.log('loadingServerData ==>', doc.data())
-
           dataLength++;
-          this.getData.push(doc.data())
+          var tmp = doc.data();
+          tmp.timeStamp = this.changeDateValue(tmp.timeStamp.seconds);
+          this.getData.push(tmp)
         });
         this.totalListLength = dataLength;
         //console.log('querySnapshot', dataLength, querySnapshot)
