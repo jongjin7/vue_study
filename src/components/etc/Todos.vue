@@ -119,7 +119,8 @@ export default {
         this.saveToLocalStorage(todos)
       },
       deep: true
-    }
+    },
+    $route: "fetchData"
   },
 
   created(){

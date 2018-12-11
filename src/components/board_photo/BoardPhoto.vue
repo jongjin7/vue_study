@@ -36,7 +36,7 @@
 
                 <div class="author text-right">
                   <small class="text-muted mr-2">작성자: hong.kim</small>
-                  <small class="text-muted">등록일: {{ changeDateValue }} / {{ post.id }}</small>
+                  <small class="text-muted">등록일: {{ changeDateValue(post) }} / {{ post.id }}</small>
                 </div>
 
                 <div class="card-foot">
@@ -75,7 +75,6 @@ export default {
       getData:[],
       showingListLength:3,
       totalListLength:'',
-      tmp:''
     };
   },
 
@@ -85,49 +84,11 @@ export default {
         this.saveToLocalStorage(todos)
       },
       deep: true
-    }
+    },
+    $route: "fetchData"
   },
 
   computed: {
-    changeDateValue(){
-      this.posts.forEach((todo) =>{
-        var a = JSON.stringify(todo.timeStamp);
-        var b = JSON.stringify(a)
-        console.log('changeDateValue', todo.timeStamp , a)
-        return a;
-
-      })
-
-
-      function formatSecondsAsTime(secs, format) {
-        var hr  = Math.floor(secs / 3600);
-        var min = Math.floor((secs - (hr * 3600))/60);
-        var sec = Math.floor(secs - (hr * 3600) -  (min * 60));
-
-        if (hr < 10)  { hr    = "0" + hr; }
-        if (min < 10) { min = "0" + min; }
-        if (sec < 10) { sec  = "0" + sec; }
-        if (hr)       { hr   = "00"; }
-
-        if (format != null) {
-          var formatted_time = format.replace('hh', hr);
-          formatted_time = formatted_time.replace('h', hr*1+""); // check for single hour formatting
-          formatted_time = formatted_time.replace('mm', min);
-          formatted_time = formatted_time.replace('m', min*1+""); // check for single minute formatting
-          formatted_time = formatted_time.replace('ss', sec);
-          formatted_time = formatted_time.replace('s', sec*1+""); // check for single second formatting
-          return formatted_time;
-        } else {
-          return hr + ':' + min + ':' + sec;
-        }
-      }
-
-      var ttt = formatSecondsAsTime(1544524707)
-      console.log('time', ttt)
-
-      //dateValue = JSON.stringify(dateValue)
-      //return dateValue
-    },
     hasResult() {
       return this.posts.length > 0;
     },
@@ -145,6 +106,24 @@ export default {
   },
 
   methods: {
+    changeDateValue(post) {
+      console.log('changeDateValue', post.timeStamp.seconds)
+      function unixTime(unixtime) {
+        var u = new Date(unixtime*1000);
+
+        return u.getFullYear() +
+          '-' + ('0' + u.getMonth()).slice(-2) +
+          '-' + ('0' + u.getDate()).slice(-2) +
+          ' ' + ('0' + u.getHours()).slice(-2) +
+          ':' + ('0' + u.getMinutes()).slice(-2) +
+          ':' + ('0' + u.getSeconds()).slice(-2) +
+          '.' + (u.getMilliseconds() / 1000).toFixed(3).slice(2, 5)
+      };
+      var changeDate = unixTime(post.timeStamp.seconds).split(' ')[0];
+      console.log('변환',unixTime(post.timeStamp.seconds))
+      return changeDate;
+    },
+
     showModalpopup(title, componentName, post){
       this.$store.state.pop_title = title;
       this.$store.state.pop_content = componentName;

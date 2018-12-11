@@ -6,7 +6,7 @@
       <a href="#" @click.stop.prevent="showModalpopup('로그인','login');">로그인 팝업</a>
     </p>
     <!-- modal popup -->
-    <modal-popup v-if="showModal" @toggleClose="showModal=false; changeBodyStyle('component');" :modalOpened="showModal" />
+    <modal-popup v-if="showModal" @toggleClose="showModal=false; changeBodyStyle();" :modalOpened="showModal" />
   </footer>
 </template>
 
@@ -22,7 +22,7 @@ export default {
   created(){
     this.$EventBus.$on('toggleClose', () => {
       this.showModal = !this.showModal;
-      this.changeBodyStyle('closeEventBus');
+      this.changeBodyStyle();
       //this.$store.state.statusShowModalPopup = !this.showModal;
     });
   },
@@ -40,11 +40,11 @@ export default {
       this.showModal = true;
       this.$store.state.pop_title = title;
       this.$store.state.pop_content = componentName;
-      this.changeBodyStyle('footer-moldule');
+      this.changeBodyStyle();
     },
 
-    changeBodyStyle(id){
-      console.log('toShowModal', this.showModal, id)
+    changeBodyStyle(){
+      //console.log('toShowModal', this.showModal)
       let $body = document.querySelector('body');
       if(this.showModal){
         $body.style.overflow ='hidden';

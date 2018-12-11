@@ -47,12 +47,12 @@
     },
 
     created(){
-      if(this.$store.state.popGalleryContent !== undefined ){
+      console.log('created', 'store:',this.$store.state.popGalleryContent, 'new:',this.newGalleryListItem);
+      if(this.$store.state.popGalleryContent !== null ){
         this.oldGalleryListItem = this.$store.state.popGalleryContent;
         this.newGalleryListItem = this.$store.state.popGalleryContent;
         this.newAddMode = false;
       }
-      console.log('created', this.oldGalleryListItem);
     },
 
     methods:{
@@ -73,14 +73,14 @@
         }
       },
 
-      insertToDBstorage(){
-        console.log('insertToDBstorage');
+      writeToDataBase(){
+        console.log('writeToDataBase', this.newGalleryListItem);
         const vmThis = this;
         this.newGalleryListItem.title = this.newGalleryListItem.title && this.newGalleryListItem.title.trim()
         this.newGalleryListItem.body = this.newGalleryListItem.body && this.newGalleryListItem.body.trim();
         this.newGalleryListItem.id = (this.newGalleryListItem.id == 0)? ++this.$store.state.latestGalleryListIndex : this.newGalleryListItem.id;
         var tmpDate= new Date();
-        this.newGalleryListItem.timeStamp= new this.$firebase.firestore.Timestamp.fromDate(tmpDate); //firestore 시간 얻기
+        if(this.newAddMode) this.newGalleryListItem.timeStamp= new this.$firebase.firestore.Timestamp.fromDate(tmpDate); //firestore 시간 얻기
         //this.newGalleryListItem.timeStamp= new Date();
 
         this.$firebaseDB.collection('photo-gallery').doc('content').collection('gallery-data')
@@ -90,10 +90,8 @@
 
 
             //폼 밸리데이션 조건적기
-            vmThis.newGalleryListItem =[];
-            vmThis.localImage ='';
-            vmThis.$store.state.popGalleryContent = '';
-            vmThis.newAddMode = true;
+            vmThis.$store.state.popGalleryContent = null;
+
             vmThis.$EventBus.$emit('toggleClose');
             console.log(':: Add Content to Server... New Content')
           });
@@ -139,11 +137,11 @@
             //console.log(snapshot, 'Uploaded a blob or file!');
             storageRef.child(snapshot.metadata.fullPath).getDownloadURL().then(function (url) {
               vueThis.newGalleryListItem.imagePath = url;
-              vueThis.insertToDBstorage();
+              vueThis.writeToDataBase();
             });
           });
         }else{
-          vueThis.insertToDBstorage();
+          vueThis.writeToDataBase();
         }
       },
     },

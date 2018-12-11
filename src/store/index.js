@@ -10,7 +10,7 @@ export const store = new Vuex.Store({
     loginTokken:'',
     pop_title:'타이틀',
     pop_content : '',
-    popNewGalleryListItem:'',
+    popGalleryContent:null,
     latestGalleryListIndex:'',
     statusShowModalPopup:false,
   },
