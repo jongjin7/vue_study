@@ -24,7 +24,7 @@
       </div>
     </div>
     <button type="button" class="btn btn-primary w-100" @click="addContent();">
-      <span v-if="newAddMode">등록하기</span>
+      <span v-if="addNewItemMode">등록하기</span>
       <span v-else>수정하기</span>
     </button>
   </form>
@@ -42,7 +42,7 @@
           id:0,
         },
         localImage:null,
-        newAddMode:true,
+        addNewItemMode:true,
       }
     },
 
@@ -51,7 +51,7 @@
       if(this.$store.state.popGalleryContent !== null ){
         this.oldGalleryListItem = this.$store.state.popGalleryContent;
         this.newGalleryListItem = this.$store.state.popGalleryContent;
-        this.newAddMode = false;
+        this.addNewItemMode = false;
       }
     },
 
@@ -79,9 +79,7 @@
         this.newGalleryListItem.title = this.newGalleryListItem.title && this.newGalleryListItem.title.trim()
         this.newGalleryListItem.body = this.newGalleryListItem.body && this.newGalleryListItem.body.trim();
         this.newGalleryListItem.id = (this.newGalleryListItem.id == 0)? ++this.$store.state.latestGalleryListIndex : this.newGalleryListItem.id;
-        var tmpDate= new Date();
-        if(this.newAddMode) this.newGalleryListItem.timeStamp= new this.$firebase.firestore.Timestamp.fromDate(tmpDate); //firestore 시간 얻기
-        //this.newGalleryListItem.timeStamp= new Date();
+        if(this.addNewItemMode) this.newGalleryListItem.timeStamp= new Date(); //firestore timestamp 객체로 저장
 
         this.$firebaseDB.collection('photo-gallery').doc('content').collection('gallery-data')
           .doc('galley-data-'+this.newGalleryListItem.id).set(this.newGalleryListItem).then(function(){
@@ -91,7 +89,7 @@
 
             //폼 밸리데이션 조건적기
             vmThis.$store.state.popGalleryContent = null;
-
+          if(vmThis.addNewItemMode) vmThis.$EventBus.$emit('refreshList');
             vmThis.$EventBus.$emit('toggleClose');
             console.log(':: Add Content to Server... New Content')
           });

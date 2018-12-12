@@ -23,69 +23,71 @@
     <div class="album bg-light">
       <div class="container">
         <div class="top-btns d-flex justify-content-between pt-2 pb-3">
-          <button class="btn btn-lg btn-outline-danger my-2">선택한 게시물 삭제</button>
+          <button class="btn btn-lg btn-outline-danger my-2" @click="removeMultipleListItem();">선택한 게시물({{ arrCheckedPost.length }}) 삭제</button>
           <button class="btn btn-lg btn-outline-primary my-2" @click="showModalpopup('새글 등록하기', 'photo');">새글 등록</button>
         </div>
-        <div class="row" v-if="hasResult">
-          <div class="col-lg-4 col-md-6" v-for="post in posts" v-bind:key="post.id">
-            <div class="card mb-4 box-shadow">
-              <p class="img-holder"><span :style="'background-image: url(' + post.imagePath + ');'"></span></p>
-              <div class="card-body">
-                <h2 class="card-title h5">{{ post.title }}</h2>
-                <p class="card-text">{{ post.body }}</p>
+        <div class="pb-3" v-if="hasResult">
+          <div class="row">
+            <div class="col-lg-4 col-md-6" v-for="post in posts" v-bind:key="post.id">
+              <div class="card mb-4 box-shadow">
+                <p class="img-holder"><span :style="'background-image: url(' + post.imagePath + ');'"></span></p>
+                <div class="card-body">
+                  <h2 class="card-title h5">{{ post.title }}</h2>
+                  <p class="card-text">{{ post.body }}</p>
 
-                <div class="author text-right">
-                  <small class="text-muted mr-2">작성자: hong.kim</small>
-                  <small class="text-muted">등록일: {{ post.timeStamp }} / {{ post.id }}</small>
-                </div>
+                  <div class="author text-right">
+                    <small class="text-muted mr-2">작성자: hong.kim</small>
+                    <small class="text-muted">등록일: {{ post.newTimeStamp }} / {{ post.id }}</small>
+                  </div>
 
-                <div class="card-foot">
-                  <hr>
-                  <div class="d-flex justify-content-end">
-                    <div class="remove-chkbox">
-                      <input type="checkbox" :id="'remove-chk-' + post.id">
-                      <label :for="'remove-chk-' + post.id">선택</label>
-                    </div>
-                    <div class="btn-group">
-                      <button type="button" class="btn btn-sm btn-outline-light text-danger">삭제하기</button>
-                      <button type="button" class="btn btn-sm btn-outline-light text-success" @click="showModalpopup('갤러리 수정하기', 'photo', post); $EventBus.$emit('showModal');">수정하기</button>
+                  <div class="card-foot">
+                    <hr>
+                    <div class="d-flex justify-content-end">
+                      <div class="remove-chkbox">
+                        <input type="checkbox" :id="'remove-chk-' + post.id" @change="checkedItem(post)">
+                        <label :for="'remove-chk-' + post.id">선택</label>
+                      </div>
+                      <div class="btn-group">
+                        <button type="button" class="btn btn-sm btn-outline-light text-danger" @click="removeSingleListItem(post);">삭제하기</button>
+                        <button type="button" class="btn btn-sm btn-outline-light text-success" @click="showModalpopup('갤러리 수정하기', 'photo', post); $EventBus.$emit('showModal');">수정하기</button>
+                      </div>
                     </div>
                   </div>
                 </div>
               </div>
             </div>
           </div>
+
+          <button class="btn btn-lg btn-block btn-outline-secondary" @click="showMoreListItems();" v-if="compareDataLength">리스트 더 보기</button>
+        </div>
+        <div class="row" v-else>
+          <div class="col">
+            <div class="alert alert-success text-center">
+              <strong>등록된 글</strong>이 없습니다.
+            </div>
+          </div>
         </div>
       </div>
     </div>
 
-    <button class="btn btn-lg btn-block btn-outline-secondary my-2" @click="showMoreList();" v-if="compareDataLength">리스트 더 보기</button>
   </div>
 </template>
 
 <script>
-const STORAGE_KEY_PHOTO_GALLERY = 'board-photo-gallery';
-
 export default {
   name: "BoardPhoto",
   data() {
     return {
-      msg: "Album Component",
       posts: [],
       getData:[],
       showingListLength:3,
       totalListLength:'',
+      arrCheckedPost :[],
     };
   },
 
   watch:{
-    posts: {
-      handler: function (todos) {
-        this.saveToLocalStorage(todos)
-      },
-      deep: true
-    },
-    $route: "fetchData"
+    $route: "getServerData"
   },
 
   computed: {
@@ -100,16 +102,18 @@ export default {
 
   created(){
     this.getServerData();
-    this.$EventBus.$on('closeBtn', () => {
 
+    //글 등록후 새로고침
+    this.$EventBus.$on('refreshList', () => {
+      console.log('refresh' ,this);
+      this.refreshGalleryList();
     });
   },
 
   methods: {
-    changeDateValue(date) {
-      console.log('changeDateValue', date)
+    changeDateFormat(date) {
       function unixTime(unixtime) {
-        var u = new Date(unixtime*1000);
+        let u = new Date(unixtime*1000);
 
         return u.getFullYear() +
           '-' + ('0' + u.getMonth()).slice(-2) +
@@ -119,17 +123,20 @@ export default {
           ':' + ('0' + u.getSeconds()).slice(-2) +
           '.' + (u.getMilliseconds() / 1000).toFixed(3).slice(2, 5)
       };
-      var changeDate = unixTime(date).split(' ')[0];
-      console.log('변환',unixTime(date))
+      let changeDate = unixTime(date).split(' ')[0];
+      //console.log('변환',unixTime(date))
       return changeDate;
     },
 
     showModalpopup(title, componentName, post){
       this.$store.state.pop_title = title;
       this.$store.state.pop_content = componentName;
-      if(post !== undefined) this.$store.state.popGalleryContent = post; //수정용 post
+      if(post !== undefined){
+        this.$store.state.popGalleryContent = post; //수정용 post
+      }else{
+        this.$store.state.popGalleryContent = null //등록용
+      }
       this.$EventBus.$emit('toggleClose');
-      console.log('팝업활성체크', this.$store.state.statusShowModalPopup)
     },
 
     getServerData(){
@@ -141,51 +148,75 @@ export default {
         this.$store.state.latestGalleryListIndex = doc.data().lastIndex;
       });
 
-
-
       this.$firebaseDB.collection('photo-gallery').doc('content').collection('gallery-data').get().then((querySnapshot) => {
         let dataLength = 0;
         querySnapshot.forEach((doc) => {
           //console.log('loadingServerData ==>', doc.data())
           dataLength++;
-          var tmp = doc.data();
-          tmp.timeStamp = this.changeDateValue(tmp.timeStamp.seconds);
+          let tmp = doc.data();
+          tmp.newTimeStamp = this.changeDateFormat(tmp.timeStamp.seconds);
           this.getData.push(tmp)
         });
         this.totalListLength = dataLength;
-        //console.log('querySnapshot', dataLength, querySnapshot)
         this.fetchData();
       })
       .catch(function(error) {
         console.log("Error getting document:", error);
       });
-
-
-    },
-
-    saveToLocalStorage(todos){
-      localStorage.setItem(STORAGE_KEY_PHOTO_GALLERY, JSON.stringify(todos))
     },
 
     fetchData(newIndex) {
-
       const vmThis = this;
-
-
-
       let startIndex = newIndex === undefined? 0 : this.showingListLength;
       let endIndex = newIndex === undefined? this.showingListLength : newIndex;
-     // console.log('fetchData', this.showingListLength, endIndex, this.totalListLength)
+      //console.log('fetchData', this.showingListLength, endIndex, this.totalListLength)
       let addData = this.getData.slice(startIndex, endIndex);
       this.posts = this.posts.concat(addData);
-      console.log('fatchData', addData, this.posts);
     },
 
-    showMoreList(){
+    showMoreListItems(){
       let addIndex = this.showingListLength + 3;
       this.fetchData(addIndex);
       this.showingListLength = addIndex;
       console.log('등록되는 새글', this.$store.state.popGalleryContent);
+    },
+
+    refreshGalleryList(){
+      this.posts= [];
+      this.getData = [];
+      this.totalListLength='';
+      //this.showingListLength = 3; //새로고침시 리스트 노출 초기값으로
+      this.getServerData();
+      this.arrCheckedPost =[];
+    },
+
+    removeSingleListItem(post) { //개별 게시물 삭제
+      console.log('removeSingleListItem', post.id)
+      const vmThis = this;
+      this.$firebaseDB.collection('photo-gallery').doc('content').collection('gallery-data').doc('galley-data-' + post.id).delete()
+        .then(function() {
+          console.log("DB Document successfully Removed!");
+          //vmThis.refreshGalleryList();
+        }).catch(function(error) {
+        console.error("Error removing document: ", error);
+      });
+    },
+
+    checkedItem(post){
+      this.arrCheckedPost.push(post)
+      console.log('checked item', this.arrCheckedPost)
+    },
+
+    removeMultipleListItem(){
+      console.log('removeSingleListItem')
+      const vmThis = this;
+
+      const checkedItemLength = this.arrCheckedPost.length;
+      this.arrCheckedPost.forEach(function(post, index){
+        if(index == checkedItemLength-1) vmThis.refreshGalleryList();
+        console.log('index', index)
+        //vmThis.removeSingleListItem(post);
+      });
     },
   }
 };
@@ -229,7 +260,7 @@ export default {
             border-radius: 4px;
             box-shadow: 0 0 5px rgba(black,0.1);
             z-index: 2;
-            transform:scale(1.15);
+            transform:scale(1.03);
           }
         }
 

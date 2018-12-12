@@ -23,7 +23,6 @@ export default {
     this.$EventBus.$on('toggleClose', () => {
       this.showModal = !this.showModal;
       this.changeBodyStyle();
-      //this.$store.state.statusShowModalPopup = !this.showModal;
     });
   },
 
