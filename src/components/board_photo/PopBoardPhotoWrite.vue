@@ -80,7 +80,7 @@
         this.newGalleryListItem.body = this.newGalleryListItem.body && this.newGalleryListItem.body.trim();
         this.newGalleryListItem.id = (this.newGalleryListItem.id == 0)? ++this.$store.state.latestGalleryListIndex : this.newGalleryListItem.id;
         if(this.addNewItemMode) this.newGalleryListItem.timeStamp= new Date(); //firestore timestamp 객체로 저장
-
+        this.newGalleryListItem.modifyTimeStamp= new Date();
         this.$firebaseDB.collection('photo-gallery').doc('content').collection('gallery-data')
           .doc('galley-data-'+this.newGalleryListItem.id).set(this.newGalleryListItem).then(function(){
             vmThis.updateServerLastIndex(); //서버에 인덱스 저장

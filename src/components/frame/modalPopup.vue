@@ -25,7 +25,7 @@
 
 <script>
 import loginContent from "../members/Login.vue";
-import photoEditor from "../board_photo/PopBoardPhotoEditor.vue";
+import photoEditor from "../board_photo/PopBoardPhotoWrite.vue";
 
 export default{
   name: "modalPopupFrame",
@@ -51,31 +51,6 @@ export default{
 }
 </script>
 <style>
- /* .modal-mask {
-    position: fixed;
-    z-index: 9998;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.5);
-    display: table;
-    transition: opacity 0.3s ease;
-  }
-  .overlay{
-    position: fixed;
-    z-index: 1;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-  }
-
-  .modal-wrapper {
-    display: table-cell;
-    vertical-align: middle;
-  }
-*/
  .modal{
    overflow-x: hidden;
    overflow-y: auto;

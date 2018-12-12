@@ -5,7 +5,7 @@ import Main from "@/components/Main";
 import BoardPhoto from "@/components/board_photo/BoardPhoto";
 import BoardCommunity from "@/components/board_community/BoardCommunity";
 import BoardCommunityDetail from "@/components/board_community/BoardCommunityDetail";
-import BoardCommunityEditor from "@/components/board_community/BoardCommunityEditor";
+import BoardCommunityWrite from "@/components/board_community/BoardCommunityWrite";
 import DataGrid from "@/components/data_grid/DataGridMain";
 import Todo from "@/components/etc/Todos";
 import Contact from "@/components/etc/ContactUs";
@@ -37,8 +37,8 @@ export default new Router({
     },
     {
       path: "/community_editor",
-      name: "BoardCommunityEditor",
-      component: BoardCommunityEditor
+      name: "BoardCommunityWrite",
+      component: BoardCommunityWrite
     },
     {
       path: "/todo",

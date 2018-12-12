@@ -23,7 +23,7 @@
     <div class="album bg-light">
       <div class="container">
         <div class="top-btns d-flex justify-content-between pt-2 pb-3">
-          <button class="btn btn-lg btn-outline-danger my-2" @click="removeMultipleListItem();">선택한 게시물({{ arrCheckedPost.length }}) 삭제</button>
+          <button class="btn btn-lg btn-outline-danger my-2" @click="removeMultipleListItem();" :class="{ invisible : !hasResult }">선택한 게시물({{ arrCheckedPost.length }}) 삭제</button>
           <button class="btn btn-lg btn-outline-primary my-2" @click="showModalpopup('새글 등록하기', 'photo');">새글 등록</button>
         </div>
         <div class="pb-3" v-if="hasResult">
@@ -58,7 +58,7 @@
             </div>
           </div>
 
-          <button class="btn btn-lg btn-block btn-outline-secondary" @click="showMoreListItems();" v-if="compareDataLength">리스트 더 보기</button>
+          <button class="btn btn-lg btn-block btn-outline-secondary" @click="showMoreListItems();" v-if="isMoreListItems">리스트 더 보기</button>
         </div>
         <div class="row" v-else>
           <div class="col">
@@ -83,6 +83,7 @@ export default {
       showingListLength:3,
       totalListLength:'',
       arrCheckedPost :[],
+      doRefresh:true,
     };
   },
 
@@ -94,10 +95,14 @@ export default {
     hasResult() {
       return this.posts.length > 0;
     },
-    compareDataLength(){
-      console.log('로컬과 서버 데이터 갯수 비교',this.posts.length+' : '+this.totalListLength)
+    isMoreListItems(){
+      console.log('isMoreListItems 로컬과 서버 데이터 갯수 비교',this.posts.length+' : '+this.totalListLength)
       return this.posts.length !== this.totalListLength;
     },
+  },
+
+  mounted(){
+
   },
 
   created(){
@@ -105,7 +110,6 @@ export default {
 
     //글 등록후 새로고침
     this.$EventBus.$on('refreshList', () => {
-      console.log('refresh' ,this);
       this.refreshGalleryList();
     });
   },
@@ -166,6 +170,9 @@ export default {
     },
 
     fetchData(newIndex) {
+      console.log('fetch',this.posts,
+      'getData',this.getData,
+      'totalListLength:' + this.totalListLength, 'showingListLength:'+this.showingListLength)
       const vmThis = this;
       let startIndex = newIndex === undefined? 0 : this.showingListLength;
       let endIndex = newIndex === undefined? this.showingListLength : newIndex;
@@ -178,7 +185,6 @@ export default {
       let addIndex = this.showingListLength + 3;
       this.fetchData(addIndex);
       this.showingListLength = addIndex;
-      console.log('등록되는 새글', this.$store.state.popGalleryContent);
     },
 
     refreshGalleryList(){
@@ -190,13 +196,17 @@ export default {
       this.arrCheckedPost =[];
     },
 
-    removeSingleListItem(post) { //개별 게시물 삭제
-      console.log('removeSingleListItem', post.id)
+    removeSingleListItem(post, isMulti) { //개별 게시물 삭제
+      console.log('removeSingleListItem', post.id, isMulti)
+      let refreshType = isMulti === undefined? this.doRefresh : isMulti;
       const vmThis = this;
       this.$firebaseDB.collection('photo-gallery').doc('content').collection('gallery-data').doc('galley-data-' + post.id).delete()
         .then(function() {
           console.log("DB Document successfully Removed!");
-          //vmThis.refreshGalleryList();
+          if(refreshType) {
+            console.log('refresh!!!!!!')
+            vmThis.refreshGalleryList();
+          }
         }).catch(function(error) {
         console.error("Error removing document: ", error);
       });
@@ -208,14 +218,19 @@ export default {
     },
 
     removeMultipleListItem(){
-      console.log('removeSingleListItem')
-      const vmThis = this;
+      console.log('removeMultipleListItem',this.arrCheckedPost.length)
+      if(this.arrCheckedPost.length < 1) return;
 
+      const vmThis = this;
       const checkedItemLength = this.arrCheckedPost.length;
+
+      let tmpRefreshType = false;
+      this.showingListLength = 3
+
       this.arrCheckedPost.forEach(function(post, index){
-        if(index == checkedItemLength-1) vmThis.refreshGalleryList();
-        console.log('index', index)
-        //vmThis.removeSingleListItem(post);
+        if(index == checkedItemLength-1) tmpRefreshType = true;
+        console.log('index', index, vmThis.doRefresh)
+        vmThis.removeSingleListItem(post, tmpRefreshType);
       });
     },
   }
@@ -298,5 +313,8 @@ export default {
         }
       }
     }
+  }
+  [v-cloak]{
+    display: none;
   }
 </style>
