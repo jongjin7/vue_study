@@ -43,8 +43,15 @@
           <th>조회수</th>
         </tr>
         </thead>
-        <tbody>
-        <tr>
+        <tbody v-if="hasResult">
+        <tr v-for="post in posts">
+          <td>{{ post.id }}</td>
+          <td>{{ post.title }}</td>
+          <td>{{ post.author }}</td>
+          <td>{{ post.newTimeStamp }}</td>
+          <td>{{ post.hit }}</td>
+        </tr>
+        <!--<tr>
           <td>999</td>
           <td>
             <router-link :to="link.detail" class="community_detail">
@@ -57,14 +64,7 @@
           <td>멍구리</td>
           <td>2018.11.30</td>
           <td>99</td>
-        </tr>
-        <tr>
-          <td>88</td>
-          <td><a href="">게시물 제목입니다.</a></td>
-          <td>멍구리</td>
-          <td>2018.11.30</td>
-          <td>999</td>
-        </tr>
+        </tr>-->
         </tbody>
       </table>
       <ul class="pagination justify-content-end">
@@ -91,12 +91,74 @@
       return{
         link: {
           editor:'community_editor',
-          detail:'community_detail'
-        }
+          detail:'community_detail',
+        },
+        posts: [],
+        getData:[],
+        showingListLength:3,
+        totalListLength:'',
+        arrCheckedPost :[],
+        doRefresh:true,
+      }
+    },
+
+    created(){
+      this.getServerData();
+    },
+    computed:{
+      hasResult(){
+        return this.posts.length > 0;
       }
     },
     methods:{
+      changeDateFormat(date) {
+        function unixTime(unixtime) {
+          let u = new Date(unixtime*1000);
 
+          return u.getFullYear() +
+            '-' + ('0' + u.getMonth()).slice(-2) +
+            '-' + ('0' + u.getDate()).slice(-2) +
+            ' ' + ('0' + u.getHours()).slice(-2) +
+            ':' + ('0' + u.getMinutes()).slice(-2) +
+            ':' + ('0' + u.getSeconds()).slice(-2) +
+            '.' + (u.getMilliseconds() / 1000).toFixed(3).slice(2, 5)
+        };
+        let changeDate = unixTime(date).split(' ')[0];
+        //console.log('변환',unixTime(date))
+        return changeDate;
+      },
+      getServerData(){
+        const vmThis = this;
+
+        this.$firebaseDB.collection('photo-gallery').doc('content').collection('gallery-data').get().then((querySnapshot) => {
+          let dataLength = 0;
+          querySnapshot.forEach((doc) => {
+            //console.log('loadingServerData ==>', doc.data())
+            dataLength++;
+            let tmp = doc.data();
+            tmp.newTimeStamp = this.changeDateFormat(tmp.timeStamp.seconds);
+            this.getData.push(tmp)
+          });
+          this.getData  = this.getData.reverse();
+          this.totalListLength = dataLength;
+          this.fetchData();
+        })
+          .catch(function(error) {
+            console.log("Error getting document:", error);
+          });
+      },
+
+      fetchData(newIndex) {
+        console.log('fetch',this.posts,
+          'getData',this.getData,
+          'totalListLength:' + this.totalListLength, 'showingListLength:'+this.showingListLength)
+        const vmThis = this;
+        let startIndex = newIndex === undefined? 0 : this.showingListLength;
+        let endIndex = newIndex === undefined? this.showingListLength : newIndex;
+        //console.log('fetchData', this.showingListLength, endIndex, this.totalListLength)
+        let addData = this.getData.slice(startIndex, endIndex);
+        this.posts = this.posts.concat(addData);
+      },
     }
   }
   </script>

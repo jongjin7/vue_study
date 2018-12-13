@@ -10,6 +10,9 @@ export const store = new Vuex.Store({
     pop_title:'타이틀',
     pop_content : '',
     popGalleryContent:null,
-    latestGalleryListIndex:'',
+    latestGalleryItemIndex:'',
+    communityDetailContent:null,
+    latestCommunityItemIndex:'',
+
   },
 });

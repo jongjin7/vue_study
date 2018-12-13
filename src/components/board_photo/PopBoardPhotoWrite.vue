@@ -59,26 +59,26 @@
       updateServerLastIndex(){
         const vmThis = this;
         this.$firebaseDB.collection('photo-gallery').doc('content').update({
-          lastIndex: vmThis.$store.state.latestGalleryListIndex
+          lastIndex: vmThis.$store.state.latestGalleryItemIndex
         });
       },
 
       addContent: function () {
         const vmThis = this;
         console.log('newContent', typeof this.newGalleryListItem.title)
-        if(this.newGalleryListItem.title !== null || this.newGalleryListItem.body !== null ){
+        if(this.newGalleryListItem.title !== null && this.newGalleryListItem.body !== null ){
           this.uploadServerStorageImage();
         }else{
           console.log('내용을 입력하시요 form validation을 작성')
         }
       },
 
-      writeToDataBase(){
-        console.log('writeToDataBase', this.newGalleryListItem);
+      doWriteToDataBase(){
+        console.log('doWriteToDataBase', this.newGalleryListItem);
         const vmThis = this;
         this.newGalleryListItem.title = this.newGalleryListItem.title && this.newGalleryListItem.title.trim()
         this.newGalleryListItem.body = this.newGalleryListItem.body && this.newGalleryListItem.body.trim();
-        this.newGalleryListItem.id = (this.newGalleryListItem.id == 0)? ++this.$store.state.latestGalleryListIndex : this.newGalleryListItem.id;
+        this.newGalleryListItem.id = (this.newGalleryListItem.id == 0)? ++this.$store.state.latestGalleryItemIndex : this.newGalleryListItem.id;
         if(this.addNewItemMode) this.newGalleryListItem.timeStamp= new Date(); //firestore timestamp 객체로 저장
         this.newGalleryListItem.modifyTimeStamp= new Date();
         this.$firebaseDB.collection('photo-gallery').doc('content').collection('gallery-data')
@@ -118,7 +118,7 @@
       },
       uploadServerStorageImage(){
         console.log('uploadServerStorageImage!!', this.localImage);
-        var vueThis = this;
+        var vm = this;
 
         if(this.localImage !== null) { //이미지가 새로 등록되거나 수정되었다면?
           // Create a root reference
@@ -134,12 +134,12 @@
           mountainImagesRef.put(this.localImage).then(function (snapshot) {
             //console.log(snapshot, 'Uploaded a blob or file!');
             storageRef.child(snapshot.metadata.fullPath).getDownloadURL().then(function (url) {
-              vueThis.newGalleryListItem.imagePath = url;
-              vueThis.writeToDataBase();
+              vm.newGalleryListItem.imagePath = url;
+              vm.doWriteToDataBase();
             });
           });
         }else{
-          vueThis.writeToDataBase();
+          vm.doWriteToDataBase();
         }
       },
     },

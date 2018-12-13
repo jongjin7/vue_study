@@ -149,7 +149,7 @@ export default {
       //서버에 저장된 최종 인덱스 값 얻기
       this.$firebaseDB.collection('photo-gallery').doc('content').get().then((doc)=>{
         //console.log('Last Index to DB', doc.data().lastIndex)
-        this.$store.state.latestGalleryListIndex = doc.data().lastIndex;
+        this.$store.state.latestGalleryItemIndex = doc.data().lastIndex;
       });
 
       this.$firebaseDB.collection('photo-gallery').doc('content').collection('gallery-data').get().then((querySnapshot) => {
@@ -161,6 +161,7 @@ export default {
           tmp.newTimeStamp = this.changeDateFormat(tmp.timeStamp.seconds);
           this.getData.push(tmp)
         });
+        this.getData  = this.getData.reverse();
         this.totalListLength = dataLength;
         this.fetchData();
       })

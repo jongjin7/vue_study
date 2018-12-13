@@ -24,17 +24,7 @@
       }
     },
     created(){
-      $(document).ready(function() {
-        $('#summernote').summernote({
-          height: 300,                 // set editor height
-          minHeight: null,             // set minimum height of editor
-          maxHeight: null,             // set maximum height of editor
-          focus: true,
-          codemirror: { // codemirror options
-            theme: 'dracula'
-          }
-        });
-      });
+
     },
     mounted() {
       let config = {
@@ -49,7 +39,12 @@
           vm.$emit('update:model', $(vm.$el).summernote('code'));
         },
       };
+
+      console.log('editor', this.$el);
       $(this.$el).summernote(config);
+    },
+    methods:{
+
     }
   }
 </script>
