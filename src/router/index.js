@@ -3,7 +3,7 @@ import Router from "vue-router";
 
 import Main from "@/components/Main";
 import BoardPhoto from "@/components/board_photo/BoardPhoto";
-import BoardCommunity from "@/components/board_community/BoardCommunity";
+import BoardCommunityList from "@/components/board_community/BoardCommunityList";
 import BoardCommunityDetail from "@/components/board_community/BoardCommunityDetail";
 import BoardCommunityWrite from "@/components/board_community/BoardCommunityWrite";
 import DataGrid from "@/components/data_grid/DataGridMain";
@@ -27,16 +27,16 @@ export default new Router({
     },
     {
       path: "/community",
-      name: "BoardCommunity",
-      component: BoardCommunity
+      name: "BoardCommunityList",
+      component: BoardCommunityList
     },
     {
-      path: "/community_detail",
+      path: "/community-detail/:userId",
       name: "BoardCommunityDetail",
       component: BoardCommunityDetail
     },
     {
-      path: "/community_editor",
+      path: "/community-write",
       name: "BoardCommunityWrite",
       component: BoardCommunityWrite
     },

@@ -1,57 +1,31 @@
   <template>
     <div class="mb-5">
 
-      <h1 class="mb-4">커뮤니티 게시판 상세페이지</h1>
+      <p class="h6 mb-4">
+        <router-link :to="link">
+        커뮤니티 게시판 목록
+        </router-link>
+        > 상세페이지</p>
 
         <div class="container">
           <div class="row">
             <div class="col pt-2 pb-3 mx-auto">
               <!-- 게시글 출력 -->
-              <h1>Lorem Ipsum Dolor sit Amet</h1>
+              <h1>{{ post.title }}</h1>
               <div class="post-meta mb-4">
-                <a class="badge badge-pill badge-primary" href="post.html" title="등록자">홍길동</a>
-                <span class="badge badge-pill badge-secondary" title="닉네임">아이디 &amp; Culture</span>
-                <span class="badge badge-pill badge-secondary" title="등록일">2018.11.11</span>
+                <span class="badge badge-secondary" title="등록자">{{ post.author }}</span>
+                <span class="badge badge-secondary" title="등록일">{{ post.newTimeStamp }}</span>
+                <a class="badge badge-warning" title="첨부파일" :href=" post.filePath ">첨부파일: {{ post.fileName }}</a>
               </div>
-              <article>
+              <article v-html="post.body">
               <!-- 에디터 입력 출력 -->
-                <p class="subtitle">Pellentesque suscipit leo vitae venenatis congue. Pellentesque feugiat augue nisl, vitae aliquet ex accumsan quis. Duis quam sapien, volutpat quis dui at?</p>
+                <!--<p class="subtitle">Pellentesque suscipit leo vitae venenatis congue. Pellentesque feugiat augue nisl, vitae aliquet ex accumsan quis. Duis quam sapien, volutpat quis dui at?</p>
                 <figure>
                   <img class="img-fluid" src="https://picsum.photos/1600/900/?image=931" alt="">
                   <figcaption class="text-muted text-left pt-2">Suspendisse in lacus vel massa vulputate ornare. Ut sit amet auctor ex. Nulla quis nibh posuere, pulvinar enim eu, sagittis eros. Sed vehicula consequat ipsum quis ornare. (Unsplash/Paul Earle)</figcaption>
-                </figure>
+                </figure>-->
 
-                <p>
-                  Aliquam vitae nibh vel neque vehicula fermentum et id nunc.
-                  Aenean sit amet lectus in justo iaculis volutpat.
-                  Aliquam facilisis, ligula et bibendum laoreet, metus enim viverra nulla, euismod faucibus justo velit eu tortor.
-                  Nulla facilisi. Aliquam dui ligula, varius quis feugiat at, luctus ac dui.
-                  Suspendisse lobortis tincidunt orci, sed hendrerit sapien vulputate nec.
-                  Maecenas rhoncus, velit dictum pretium mollis.
-                </p>
-                <p>
-                  Morbi imperdiet ut arcu eu malesuada. Integer vestibulum leo eget enim facilisis scelerisque.
-                  Nam justo augue, mollis a porttitor sed, finibus interdum lacus.
-                  Pellentesque a lacus mi. Sed eleifend imperdiet arcu, eu sollicitudin neque rhoncus eu.
-                  Donec malesuada consectetur molestie. Praesent dignissim pellentesque enim, vel dictum nisi condimentum vitae.
-                  Duis pharetra ultricies nulla, a facilisis risus sodales id.
-                </p>
-                <p>
-                  Nunc mollis iaculis purus eu commodo. Vestibulum rutrum cursus purus, eu efficitur lorem.
-                  Pellentesque urna leo, faucibus vel lobortis vitae, congue et elit.
-                  Donec viverra purus ut elit sodales, quis feugiat nibh blandit.
-                  Praesent pellentesque molestie sem, ut feugiat diam aliquam vitae.
-                  Fusce dui nibh, condimentum sed quam eget, malesuada rhoncus massa.
-                  Suspendisse sapien urna, hendrerit nec tristique a, feugiat sed nibh.
-                </p>
-                <p>
-                  Curabitur ultricies tortor leo. Nullam eu leo vestibulum, dapibus nisl vitae, pellentesque leo.
-                  Vivamus sem nibh, placerat ut metus eu, tincidunt imperdiet leo.
-                  Cras tincidunt varius turpis sit amet vulputate. Vestibulum pretium velit eu viverra aliquet.
-                  Nullam sapien purus, venenatis id maximus vel, molestie ut mauris. Etiam commodo sem at luctus posuere.
-                </p>
-
-                <p>
+                <!--<p>
                   <span>에디터 입력시 이미지에는 width값 100%를 넣어줘야 한다.</span>
                   <img width="100%" src="https://picsum.photos/1600/900/?image=931" alt="">
                 </p>
@@ -61,14 +35,8 @@
                   Aenean eu odio dui. Sed non erat nulla. Pellentesque tempus mauris in ultrices rutrum.
                   Maecenas id lorem sit amet enim euismod ultricies at non orci.
                   Quisque tristique interdum dictum. Sed ut condimentum dolor. Morbi vel vulputate elit.
-                </p>
-                <p>
-                  Pellentesque suscipit leo vitae venenatis congue. Pellentesque feugiat augue nisl, vitae aliquet ex accumsan quis.
-                  Duis quam sapien, volutpat quis dui at, porta luctus quam.
-                  In sodales, ipsum id tempor suscipit, urna ligula iaculis nulla, nec sollicitudin sapien odio quis justo.
-                  Mauris scelerisque, dui nec cursus iaculis, tortor nisi ullamcorper arcu, nec efficitur dui arcu tincidunt neque.
-                  Nam at enim consectetur, facilisis nisl vitae, hendrerit orci.
-                </p>
+                </p>-->
+
               <!-- // 에디터 입력 출력 -->
               </article>
             </div>
@@ -91,39 +59,68 @@
       </div>
 
       <!-- comment -->
-      <div class="media border p-3 mt-4">
-        <img src="img_avatar3.png" alt="John Doe" class="mr-3 mt-3 rounded-circle" style="width:60px;">
-        <div class="media-body">
-          <h4>John Doe <small><i>Posted on February 19, 2016</i></small></h4>
-          <p>Lorem ipsum...</p>
-          <div class="media p-3">
-            <img src="img_avatar2.png" alt="Jane Doe" class="mr-3 mt-3 rounded-circle" style="width:45px;">
-            <div class="media-body">
-              <h4>Jane Doe <small><i>Posted on February 20 2016</i></small></h4>
-              <p>Lorem ipsum...</p>
-            </div>
-          </div>
-        </div>
-      </div>
+      <CommunityDetailComment />
 
     </div>
   </template>
   <script>
+    import CommunityDetailComment from './BoardCommunityDetailComment.vue'
   export default {
-    name: 'CommunityBoardDetail',
+    name: 'CommunityDetail',
+    props:{
+
+    },
     data(){
       return{
         link: "/community",
+        post: '',
+        currentPageId:'',
       }
     },
     created(){
-      //Kakao.Auth.setAccessToken(localStorage.loginTokken);
+      this.currentPageId = location.hash.split('/')[2];
+      this.fetchData();
     },
     methods:{
-      showModalpopup(title, componentName){
-        this.$store.state.pop_title = title;
-        this.$store.state.pop_content = componentName;
+      changeDateFormat(date) {
+        function unixTime(unixtime) {
+          let u = new Date(unixtime*1000);
+
+          return u.getFullYear() +
+            '-' + ('0' + u.getMonth()).slice(-2) +
+            '-' + ('0' + u.getDate()).slice(-2) +
+            ' ' + ('0' + u.getHours()).slice(-2) +
+            ':' + ('0' + u.getMinutes()).slice(-2) +
+            ':' + ('0' + u.getSeconds()).slice(-2) +
+            '.' + (u.getMilliseconds() / 1000).toFixed(3).slice(2, 5)
+        };
+        let changeDate = unixTime(date).split(' ')[0];
+        //console.log('변환',unixTime(date))
+        return changeDate;
       },
+
+      deCompileHtmlTag(str){
+        str = str.replace(/&lt;/g,"<");
+        str = str.replace(/&gt;/g,">");
+        str = str.replace(/&quot;/g,"\"");
+        str = str.replace(/&#39;/g,"\\'");
+        str = str.replace(/<br\/>/g,"\n");
+        return str;
+      },
+
+
+      fetchData() {
+        const vm = this;
+        this.$firebaseDB.collection('community').doc('content').collection('community-data').doc('community-data-'+ this.currentPageId).get().then((doc)=>{
+          console.log('get Last Index to DB', doc.data())
+          vm.post = doc.data();
+          vm.post.newTimeStamp = this.changeDateFormat(vm.post.timeStamp.seconds)
+        });
+      },
+    },
+
+    components:{
+      CommunityDetailComment,
     }
   }
   </script>

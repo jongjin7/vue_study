@@ -1,6 +1,6 @@
 <template>
   <div class="mb-5">
-    <h1 class="mb-4">내용 입력하기</h1>
+    <h1 class="mb-4">새글 입력하기</h1>
     <form class="">
       <div class="form-group">
         <label for="inp-pop-title">제목</label>
@@ -46,8 +46,10 @@
           title:'',
           body:'',
           author:'jongjin',
-          fileName:'',
-          filePath:'',
+          fileName:null,
+          filePath:null,
+          commentCount:0,
+          hit:0,
           id:0,
         },
         getData:[],
@@ -109,7 +111,7 @@
       addContent: function () {
         console.log('addContent')
         const vm = this;
-        if(vm.newPostItem.title !== null && vm.newPostItem.body !== null ){
+        if(vm.newPostItem.title != '' && vm.newPostItem.body != '' ){
           vm.uploadServerStorageFile();
         }else{
           console.log('내용을 입력하시요 form validation을 작성')
