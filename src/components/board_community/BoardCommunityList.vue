@@ -125,7 +125,7 @@
         this.$firebaseDB.collection('community').doc('content').collection('community-data').get().then((querySnapshot) => {
           let dataLength = 0;
           querySnapshot.forEach((doc) => {
-            //console.log('loadingServerData ==>', doc.data())
+            console.log('loadingServerData ==>', doc)
             dataLength++;
             let tmp = doc.data();
             tmp.newTimeStamp = this.changeDateFormat(tmp.timeStamp.seconds);
@@ -142,9 +142,8 @@
       },
 
       fetchData(newIndex) {
-        console.log('fetch',this.posts,
-          'getData',this.getData,
-          'totalListLength:' + this.totalListLength, 'showingListLength:'+this.showingListLength)
+        //console.log('fetch',this.posts, 'getData',this.getData, 'totalListLength:' + this.totalListLength, 'showingListLength:'+this.showingListLength)
+
         const vmThis = this;
         let startIndex = newIndex === undefined? 0 : this.showingListLength;
         let endIndex = newIndex === undefined? this.showingListLength : newIndex;
@@ -171,7 +170,7 @@
             text-align: right;
           }
           &:nth-child(2) {
-            width: auto;
+            width: 53%;
             text-align: center;
           }
           &:nth-child(3) {
@@ -196,6 +195,9 @@
             padding-right: 2%;
             text-align: right;
           }
+          &:nth-child(2){
+            word-break: break-all;
+          }
 
           &:nth-child(3){
             text-align: center;
@@ -214,7 +216,9 @@
           th {
             &:nth-child(1) {
               width: 8%;
-
+            }
+            &:nth-child(2){
+              width:43%;
             }
             &:nth-child(3) {
               width: 15%;

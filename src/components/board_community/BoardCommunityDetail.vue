@@ -15,7 +15,7 @@
               <div class="post-meta mb-4">
                 <span class="badge badge-secondary" title="등록자">{{ post.author }}</span>
                 <span class="badge badge-secondary" title="등록일">{{ post.newTimeStamp }}</span>
-                <a class="badge badge-warning" title="첨부파일" :href=" post.filePath ">첨부파일: {{ post.fileName }}</a>
+                <a class="badge badge-warning included-file" title="첨부파일" :href=" post.filePath ">첨부파일: {{ post.fileName }}</a>
               </div>
               <article v-html="post.body">
               <!-- 에디터 입력 출력 -->
@@ -124,3 +124,11 @@
     }
   }
   </script>
+  <style lang="scss" scoped>
+    h1{
+      word-break: break-all;
+    }
+    .included-file{
+
+    }
+  </style>
