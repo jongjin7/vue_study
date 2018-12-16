@@ -1,11 +1,13 @@
   <template>
     <div class="mb-5">
-
-      <p class="h6 mb-4">
-        <router-link :to="link">
-        커뮤니티 게시판 목록
-        </router-link>
-        > 상세페이지</p>
+      <ul class="breadcrumb small py-2 bg-light">
+        <li class="breadcrumb-item">
+          <router-link :to="link.toList">
+            커뮤니티 게시판 목록
+          </router-link>
+        </li>
+        <li class="breadcrumb-item active">상세페이지</li>
+      </ul>
 
         <div class="container">
           <div class="row">
@@ -15,7 +17,7 @@
               <div class="post-meta mb-4">
                 <span class="badge badge-secondary" title="등록자">{{ post.author }}</span>
                 <span class="badge badge-secondary" title="등록일">{{ post.newTimeStamp }}</span>
-                <a class="badge badge-warning included-file" title="첨부파일" :href=" post.filePath ">첨부파일: {{ post.fileName }}</a>
+                <a class="badge badge-warning included-file" title="첨부파일" :href="post.filePath" v-if="post.fileName !== null">첨부파일: {{ post.fileName }}</a>
               </div>
               <article v-html="post.body">
               <!-- 에디터 입력 출력 -->
@@ -50,8 +52,10 @@
           </div>
 
           <div class="btns">
-            <button type="button" class="btn btn-warning">수정하기</button>
-            <router-link :to="link" class="btn btn-dark">
+            <router-link :to="link.toModify" class="btn btn-warning">
+              수정하기
+            </router-link>
+            <router-link :to="link.toList" class="btn btn-dark">
               목록보기
             </router-link>
           </div>
@@ -72,7 +76,10 @@
     },
     data(){
       return{
-        link: "/community",
+        link: {
+         toList:'/community',
+         toModify:'/community-write'
+        },
         post: '',
         currentPageId:'',
       }
@@ -81,7 +88,11 @@
       this.currentPageId = location.hash.split('/')[2];
       this.fetchData();
     },
+    destroyed(){
+
+    },
     methods:{
+
       changeDateFormat(date) {
         function unixTime(unixtime) {
           let u = new Date(unixtime*1000);
@@ -108,12 +119,18 @@
         return str;
       },
 
+      saveCurrentPostData(){
+        this.$firebaseDB.collection('community').doc('content').update({
+          currentPost: this.post
+        });
+      },
 
       fetchData() {
         const vm = this;
         this.$firebaseDB.collection('community').doc('content').collection('community-data').doc('community-data-'+ this.currentPageId).get().then((doc)=>{
-          console.log('get Last Index to DB', doc.data())
+          console.log('get DB', doc.data())
           vm.post = doc.data();
+          vm.saveCurrentPostData();
           vm.post.newTimeStamp = this.changeDateFormat(vm.post.timeStamp.seconds)
         });
       },

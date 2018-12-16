@@ -161,7 +161,17 @@ export default {
           tmp.newTimeStamp = this.changeDateFormat(tmp.timeStamp.seconds);
           this.getData.push(tmp)
         });
-        this.getData  = this.getData.reverse();
+        // id 기준으로 내림 정렬
+        this.getData.sort(function (a, b) {
+          if (a.id < b.id) {
+            return 1;
+          }
+          if (a.id > b.id) {
+            return -1;
+          }
+          // a must be equal to b
+          return 0;
+        });
         this.totalListLength = dataLength;
         this.fetchData();
       })

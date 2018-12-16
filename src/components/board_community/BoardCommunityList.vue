@@ -1,13 +1,6 @@
   <template>
     <div class="mb-5">
-
       <h1 class="mb-4">커뮤니티 게시판</h1>
-      <ul class="breadcrumb">
-        <li class="breadcrumb-item"><a href="#">Photos</a></li>
-        <li class="breadcrumb-item"><a href="#">Summer 2017</a></li>
-        <li class="breadcrumb-item"><a href="#">Italy</a></li>
-        <li class="breadcrumb-item active">Rome</li>
-      </ul>
 
       <div class="row">
         <CommunityListSearch />
@@ -33,8 +26,8 @@
           </tr>
           </thead>
           <tbody v-if="hasResult">
-          <tr v-for="post in posts">
-            <td>{{ post.id }}</td>
+          <tr v-for="(post, index) in posts">
+            <td>{{ totalListLength - index }}</td>
             <td>
               <router-link :to="{ name: 'BoardCommunityDetail', params: { userId: post.id }}">{{ post.title }}</router-link>
               <span class="badge badge-warning" v-if="post.fileName !== null">첨부파일</span>
@@ -64,7 +57,7 @@
       </div>
 
 
-      <CommunityListPaging />
+      <CommunityListPaging :listPagination="totalListLength"/>
 
       <div class="row">
         <div class="col text-right">
@@ -89,13 +82,26 @@
         },
         posts: [],
         getData:[],
-        showingListLength:100,
-        totalListLength:'',
+        showingListLength:3,
+        totalListLength:0,
+        pagingData:{
+          tatalItemLength:'',
+          showingList: 3,
+          currentPage:0,
+        },
       }
     },
 
     created(){
+      console.log('list created')
       this.getServerData();
+      this.$EventBus.$on('changeList', (arg) => {
+        this.changeListHandler(arg);
+        console.log(arg, ':: changepageEvent', this)
+      })
+    },
+    mounted(){
+      console.log('list mounted')
     },
     computed:{
       hasResult(){
@@ -103,6 +109,13 @@
       }
     },
     methods:{
+      removeServerModifyData(){
+        console.log('CurrentPost값 제거')
+        this.$firebaseDB.collection('community').doc('content').update({
+          currentPost : null
+        });
+      },
+
       changeDateFormat(date) {
         function unixTime(unixtime) {
           let u = new Date(unixtime*1000);
@@ -122,19 +135,35 @@
       getServerData(){
         const vmThis = this;
 
-        this.$firebaseDB.collection('community').doc('content').collection('community-data').get().then((querySnapshot) => {
+        const dataCollection = this.$firebaseDB.collection('community').doc('content').collection('community-data');
+        dataCollection
+          .orderBy('timeStamp')
+          .get().then((querySnapshot) => {
           let dataLength = 0;
           querySnapshot.forEach((doc) => {
-            console.log('loadingServerData ==>', doc)
+            //console.log('loadingServerData ==>', doc.id)
             dataLength++;
+
             let tmp = doc.data();
             tmp.newTimeStamp = this.changeDateFormat(tmp.timeStamp.seconds);
             this.getData.push(tmp)
           });
-          //this.getData  = this.getData.reverse();
-          this.$store.state.communityDetailContent = this.getData;
+          this.getData.reverse();
+          // id 기준으로 내림 정렬
+          /*this.getData.sort(function (a, b) {
+            if (a.id < b.id) {
+              return 1;
+            }
+            if (a.id > b.id) {
+              return -1;
+            }
+            // a must be equal to b
+            return 0;
+          });*/
           this.totalListLength = dataLength;
+          this.$store.state.communityTotalList = dataLength;
           this.fetchData();
+          this.removeServerModifyData();
         })
           .catch(function(error) {
             console.log("Error getting document:", error);
@@ -142,15 +171,36 @@
       },
 
       fetchData(newIndex) {
-        //console.log('fetch',this.posts, 'getData',this.getData, 'totalListLength:' + this.totalListLength, 'showingListLength:'+this.showingListLength)
-
+        console.log('totalList',this.$store.state.communityTotalList)
         const vmThis = this;
-        let startIndex = newIndex === undefined? 0 : this.showingListLength;
-        let endIndex = newIndex === undefined? this.showingListLength : newIndex;
-        //console.log('fetchData', this.showingListLength, endIndex, this.totalListLength)
-        let addData = this.getData.slice(startIndex, endIndex);
+        this.pagingData.startPage = newIndex === undefined? 0 : this.showingListLength;
+        this.pagingData.endPage = newIndex === undefined? this.showingListLength : newIndex;
+        //console.log('fetchData', 'getData',this.getData, 'totalListLength:' + this.totalListLength, 'showingListLength:'+this.showingListLength)
+
+        let addData = this.getData.slice(this.pagingData.startPage, this.pagingData.endPage);
         this.posts = this.posts.concat(addData);
+
+        console.log('fetch',this.posts)
       },
+
+      //paging
+      gotoStartPageIndex(){
+
+      },
+      gotoEndPageIndex(){
+
+      },
+
+      changeListHandler(index){
+        console.log('changeListHandler', index)
+        // let addIndex = this.showingListLength + 3;
+        // this.fetchData(addIndex);
+        // this.showingListLength = addIndex;
+      },
+      showCurrentPage(){
+
+      },
+
     },
     components:{
       CommunityListSearch,
