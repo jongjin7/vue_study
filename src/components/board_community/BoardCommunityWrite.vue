@@ -1,6 +1,8 @@
 <template>
   <div class="mb-5">
-    <h1 class="mb-4">새글 입력하기</h1>
+    <h1 class="mb-4">
+      <span>{{ pageTitle }}</span>
+    </h1>
     <form class="">
       <div class="form-group">
         <label for="inp-pop-title">제목</label>
@@ -55,12 +57,19 @@
         getData:[],
         localFile:null,
         modeNewPost:true,
+        pageTitle:'',
+
+        modeDev:false,
       }
     },
     created(){
       console.log('created');
-
       this.fetchData();
+
+      if(this.modeDev) this.writeDummyData(); //Dev모드시 더미 데이터 넣기
+    },
+    mounted(){
+
     },
     destroyed(){
       this.removeServerModifyData();
@@ -81,6 +90,34 @@
     },
 
     methods:{
+      writeDummyData(){
+
+        this.$http.get(`/comments`).then(result => {
+          this.gridData = result.data;
+
+          var count=120;
+          var vm = this;
+          var autoAdd = setInterval(function(){
+            vm.newPost.title= result.data[count].name
+            vm.newPost.body= result.data[count].body
+            vm.getServerLastindex();
+            vm.writeToDataBase()
+
+            count++;
+            console.log("result", count, vm.newPost.title, vm.newPost.body)
+            if(count > 200){
+              window.clearInterval(autoAdd);
+              count =0;
+            }
+          },1000)
+
+        });
+      },
+
+      setPageTitle(){
+        if(this.modeNewPost) this.pageTitle ="새글 입력하기";
+        else this.pageTitle="글 수정하기";
+      },
       removeServerModifyData(){
         console.log('글쓰기 컴포넌트를 떠날때')
         this.$firebaseDB.collection('community').doc('content').update({
@@ -97,6 +134,7 @@
           }else{
             vm.getServerLastindex();
           }
+          vm.setPageTitle();
         });
       },
 
@@ -104,7 +142,7 @@
         //서버에 저장된 최종 인덱스 값 얻기
         const vm = this;
         this.$firebaseDB.collection('community').doc('content').get().then((doc)=>{
-          //console.log('get Last Index to DB', doc.data().lastIndex)
+          console.log('get Last Index to DB', doc.data().lastIndex)
           vm.newPost.id = doc.data().lastIndex;
         });
       },
@@ -152,8 +190,8 @@
         console.log('writeToDataBase', this.newPost);
         this.$firebaseDB.collection('community').doc('content').collection('community-data')
           .doc('community-data-'+this.newPost.id).set(this.newPost).then(function(){
-          vm.updateServerLastIndex(); //서버에 인덱스 저장
-          vm.completedWriteToDataBase();
+          if(vm.modeNewPost) vm.updateServerLastIndex(); //서버에 인덱스 저장
+          if(!vm.modeDev) vm.completedWriteToDataBase();
           if(!vm.modeNewPost) vm.modeNewPost = true;
         });
       },

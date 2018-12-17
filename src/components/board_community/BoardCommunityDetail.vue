@@ -98,7 +98,7 @@
           let u = new Date(unixtime*1000);
 
           return u.getFullYear() +
-            '-' + ('0' + u.getMonth()).slice(-2) +
+            '-' + ('0' + (u.getMonth()+1)).slice(-2) +
             '-' + ('0' + u.getDate()).slice(-2) +
             ' ' + ('0' + u.getHours()).slice(-2) +
             ':' + ('0' + u.getMinutes()).slice(-2) +

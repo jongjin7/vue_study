@@ -26,13 +26,13 @@
           </tr>
           </thead>
           <tbody v-if="hasResult">
-          <tr v-for="(post, index) in posts">
-            <td>{{ totalListLength - index }}</td>
+          <tr v-for="post in posts">
+            <td>{{ post.listCount }}</td>
             <td>
               <router-link :to="{ name: 'BoardCommunityDetail', params: { userId: post.id }}">{{ post.title }}</router-link>
               <span class="badge badge-warning" v-if="post.fileName !== null">첨부파일</span>
               <span class="badge badge-dark" v-if="post.commentCount > 1">{{ post.commentCount }}</span>
-              <span class="badge badge-primary">New</span>
+              <span class="badge badge-primary" v-if="post.latest">New</span>
             </td>
             <td>{{ post.author }}</td>
             <td>{{ post.newTimeStamp }}</td>
@@ -57,7 +57,7 @@
       </div>
 
 
-      <CommunityListPaging :listPagination="totalListLength"/>
+      <CommunityListPaging />
 
       <div class="row">
         <div class="col text-right">
@@ -81,126 +81,44 @@
           detail:'community-detail',
         },
         posts: [],
-        getData:[],
-        showingListLength:3,
-        totalListLength:0,
-        pagingData:{
-          tatalItemLength:'',
-          showingList: 3,
-          currentPage:0,
-        },
+        totalListLength:'',
+
       }
     },
 
+    beforeCreate(){
+      console.log('beforeCreate');
+    },
     created(){
-      console.log('list created')
-      this.getServerData();
+      console.log('created')
+      this.removeServerModifyData();
       this.$EventBus.$on('changeList', (arg) => {
         this.changeListHandler(arg);
-        console.log(arg, ':: changepageEvent', this)
+        this.totalListLength = this.$store.state.communityTotalList;
       })
     },
     mounted(){
-      console.log('list mounted')
+      console.log('mounted')
+
     },
     computed:{
       hasResult(){
         return this.posts.length > 0;
-      }
+      },
+
     },
     methods:{
       removeServerModifyData(){
-        console.log('CurrentPost값 제거')
+        //console.log('저장된 임시 CurrentPost값 제거')
         this.$firebaseDB.collection('community').doc('content').update({
           currentPost : null
         });
       },
 
-      changeDateFormat(date) {
-        function unixTime(unixtime) {
-          let u = new Date(unixtime*1000);
-
-          return u.getFullYear() +
-            '-' + ('0' + u.getMonth()).slice(-2) +
-            '-' + ('0' + u.getDate()).slice(-2) +
-            ' ' + ('0' + u.getHours()).slice(-2) +
-            ':' + ('0' + u.getMinutes()).slice(-2) +
-            ':' + ('0' + u.getSeconds()).slice(-2) +
-            '.' + (u.getMilliseconds() / 1000).toFixed(3).slice(2, 5)
-        };
-        let changeDate = unixTime(date).split(' ')[0];
-        //console.log('변환',unixTime(date))
-        return changeDate;
+      changeListHandler(pages){
+        //console.log('changeListHandler', pages)
+        this.posts = pages;
       },
-      getServerData(){
-        const vmThis = this;
-
-        const dataCollection = this.$firebaseDB.collection('community').doc('content').collection('community-data');
-        dataCollection
-          .orderBy('timeStamp')
-          .get().then((querySnapshot) => {
-          let dataLength = 0;
-          querySnapshot.forEach((doc) => {
-            //console.log('loadingServerData ==>', doc.id)
-            dataLength++;
-
-            let tmp = doc.data();
-            tmp.newTimeStamp = this.changeDateFormat(tmp.timeStamp.seconds);
-            this.getData.push(tmp)
-          });
-          this.getData.reverse();
-          // id 기준으로 내림 정렬
-          /*this.getData.sort(function (a, b) {
-            if (a.id < b.id) {
-              return 1;
-            }
-            if (a.id > b.id) {
-              return -1;
-            }
-            // a must be equal to b
-            return 0;
-          });*/
-          this.totalListLength = dataLength;
-          this.$store.state.communityTotalList = dataLength;
-          this.fetchData();
-          this.removeServerModifyData();
-        })
-          .catch(function(error) {
-            console.log("Error getting document:", error);
-          });
-      },
-
-      fetchData(newIndex) {
-        console.log('totalList',this.$store.state.communityTotalList)
-        const vmThis = this;
-        this.pagingData.startPage = newIndex === undefined? 0 : this.showingListLength;
-        this.pagingData.endPage = newIndex === undefined? this.showingListLength : newIndex;
-        //console.log('fetchData', 'getData',this.getData, 'totalListLength:' + this.totalListLength, 'showingListLength:'+this.showingListLength)
-
-        let addData = this.getData.slice(this.pagingData.startPage, this.pagingData.endPage);
-        this.posts = this.posts.concat(addData);
-
-        console.log('fetch',this.posts)
-      },
-
-      //paging
-      gotoStartPageIndex(){
-
-      },
-      gotoEndPageIndex(){
-
-      },
-
-      changeListHandler(index){
-        console.log('changeListHandler', index)
-        // let addIndex = this.showingListLength + 3;
-        // this.fetchData(addIndex);
-        // this.showingListLength = addIndex;
-      },
-      showCurrentPage(){
-
-      },
-
     },
     components:{
       CommunityListSearch,

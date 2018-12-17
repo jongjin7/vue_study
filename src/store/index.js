@@ -12,7 +12,7 @@ export const store = new Vuex.Store({
     popGalleryContent:null,
     latestGalleryItemIndex:'',
     communityDetailContent:null,
-    latestCommunityItemIndex:'',
+    getCommunityConent:'',
     communityTotalList:'',
   },
 });
