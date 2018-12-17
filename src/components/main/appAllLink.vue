@@ -39,13 +39,13 @@ export default {
         },
         {
           title: "문의사항 접수",
-          content: "앱이 모두 구현되기 전까지 게시판 데이터 연동 테스트 중",
+          content: "문의사항 접수 페이지, 이메일 확인?",
           link: "/contact",
           class:''
         },
         {
           title: "회원가입",
-          content: "회원가입 입력폼",
+          content: "심플한 회원가입 입력폼",
           link: "/signup",
           class:''
         },

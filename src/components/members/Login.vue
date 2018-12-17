@@ -20,9 +20,9 @@
       <a href="#" class="d-block mr-3">* 회원가입 하기</a>
       <a href="#" class="d-block text-danger">* 비밀번호 찾기</a>
     </div>
-    <hr class="mb-4">
+    <hr class="">
     <!-- SNS Login -->
-    <h3 class="h5">SNS 로그인</h3>
+    <h3 class="h6 text-center pb-2">✓ SNS 로그인</h3>
     <div class="login-wrap">
       <a id="kakao-login-btn" v-show="!iskakaoLogined"></a>
       <a href="#" @click.stop.prevent="kakaoLogout();" v-show="iskakaoLogined">카카오 로그아웃</a>

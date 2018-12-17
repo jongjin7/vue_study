@@ -1,5 +1,5 @@
   <template>
-    <div class="mb-5">
+    <div class="community-detail mb-5">
       <ul class="breadcrumb small py-2 bg-light">
         <li class="breadcrumb-item">
           <router-link :to="link.toList">
@@ -145,7 +145,22 @@
     h1{
       word-break: break-all;
     }
-    .included-file{
 
+    .included-file{
+      max-width:100%;
+      overflow: hidden;
+      text-overflow:ellipsis;
+    }
+  </style>
+  <style lang="scss">
+    .community-detail{
+      article{
+        p{
+          img{
+            max-width:100%;
+            height:auto !important;
+          }
+        }
+      }
     }
   </style>

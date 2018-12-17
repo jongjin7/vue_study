@@ -38,20 +38,11 @@
             <td>{{ post.newTimeStamp }}</td>
             <td>{{ post.hit }}</td>
           </tr>
-          <!--<tr>
-            <td>999</td>
-            <td>
-              <router-link :to="link.detail" class="community_detail">
-                게시판 제목입니다.
-              </router-link>
-              <span class="badge badge-warning">첨부파일</span>
-              <span class="badge badge-dark">4</span>
-              <span class="badge badge-primary">New</span>
-            </td>
-            <td>멍구리</td>
-            <td>2018.11.30</td>
-            <td>99</td>
-          </tr>-->
+          </tbody>
+          <tbody v-else>
+          <tr>
+            <td colspan="5" class="text-center">내용이 없습니다.</td>
+          </tr>
           </tbody>
         </table>
       </div>

@@ -1,17 +1,11 @@
 <template>
-  <ul class="pagination justify-content-end" >
-    <li class="page-item" :class="{disabled : pageNum == 0}"><a class="page-link" href="#" @click.stop.prevent="prevPage">Previous</a></li>
-    <li class="page-item" v-for="page in pageItems"><a href="#" class="page-link" @click.stop.prevent="changePageIndex(page)">{{ page }}</a></li>
-    <li class="page-item" :class="{disabled : pageNum >= pageCount - 1}"><a class="page-link" href="#" @click.stop.prevent="nextPage">Next</a></li>
-
-    <!--<li class="page-item" v-for="page in pages"><a href="#" class="page-link" @click.stop.prevent="changePage(page)">{{ page }}</a></li>
-    &lt;!&ndash;<li class="page-item  active"><a class="page-link" href="#">{{ changePaging.endPage }}</a></li>&ndash;&gt;
-    -->
-    <li class="page-item"><span class="page-count">{{ pageNum + 1 }} / {{ pageCount }} 페이지</span></li>
-
-  </ul>
-
-
+  <div class="">
+    <ul class="pagination justify-content-end" >
+      <li class="page-item" :class="{disabled : pageNum == 0}"><a class="page-link" href="#" @click.stop.prevent="changePageIndex(pageNum)">Previous</a></li>
+      <li class="page-item" :class="{active : page == pageNum+1, disabled: page =='...'}" v-for="page in pageItems"><a href="#" class="page-link" @click.stop.prevent="changePageIndex(page)">{{ page }}</a></li>
+      <li class="page-item" :class="{disabled : pageNum >= pageCount - 1}"><a class="page-link" href="#" @click.stop.prevent="changePageIndex(pageNum+2)">Next {{ pageNum + 1 }} </a></li>
+    </ul>
+  </div>
 </template>
 
 <script>
@@ -214,5 +208,9 @@ console.log('pgcount', this.pageCount)
 </script>
 
 <style scoped>
+@media (max-width: 767px){
+  .pagination{
 
+  }
+}
 </style>

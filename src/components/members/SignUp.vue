@@ -62,7 +62,8 @@
         </div>
       </div>
 
-      <div class="row">
+      <!-- 1월에 계발 예정 -->
+      <!--<div class="row">
         <div class="col-lg">
           <h3 class="h6">주소</h3>
           <div class="form-row">
@@ -94,7 +95,7 @@
             </div>
           </div>
         </div>
-      </div>
+      </div>-->
 
       <div class="row">
         <div class="col-md-6 mb-3">
@@ -141,8 +142,11 @@
         </div>
       </div>
 
-      <hr class="mb-4">
 
+
+      <!-- 1월에 계발예정 -->
+      <!--
+      <hr class="mb-4">
       <div class="row">
         <div class="col-lg mb-3">
           <h2 class="h4">개인정보 수집 동의</h2>
@@ -195,9 +199,11 @@
           </div>
         </div>
       </div>
+      <hr>
+      -->
 
-      <hr class="mb-4">
-      <button class="btn btn-primary btn-lg btn-block mb-4" type="submit">가입하기</button>
+
+      <button class="btn btn-primary btn-lg btn-block my-4" type="submit">가입하기</button>
     </form>
   </div>
 </template>

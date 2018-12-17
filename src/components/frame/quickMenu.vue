@@ -5,13 +5,10 @@
     </button>
 
     <div id="" class="dropdown-menu" v-bind:class="{ show: showGnb }">
-      <a class="dropdown-item" href="111111" v-on:click="clickSubMenu">todo 심플앱</a>
-      <a class="dropdown-item" href="2222" @click.stop.prevent="showGnb = false">썸네일게시판</a>
-      <a class="dropdown-item" href="http://www.naver.com" target="_blank" v-on:click.stop.prevent="clickSubMenu">데이타그리드</a>
-      <a class="dropdown-item" href="http://www.naver.com">문의사항접수</a>
+      <router-link class="dropdown-item" :to="item.link" v-for="item in gnbItems">{{ item.title }}</router-link>
       <hr class="dropdown-divider">
-      <a class="dropdown-item" href="#">회원정보 수정</a>
-      <a class="dropdown-item" href="#">로그아웃</a>
+      <router-link class="dropdown-item" :to="'/signup'">회원가입</router-link>
+      <a href="#"class="dropdown-item" @click.stop.prevent="logout">로그아웃</a>
     </div>
   </div>
 </template>
@@ -22,13 +19,32 @@ export default {
     return{
       gotoMainLink: "/",
       showGnb: false,
+      gnbItems:[
+        {
+          title: "todo 심플앱",
+          link: "/todo",
+        },
+        {
+          title: "갤러리 게시판",
+          link: "/photo",
+        },
+        {
+          title: "커뮤니티 게시판",
+          link: "/community",
+        },
+        {
+          title: "데이타 그리드",
+          link: "/grid",
+        },
+      ],
+
     }
   },
   methods:{
-    clickSubMenu : function(e){
-      console.log(e.target)
-      this.showGnb = false
-    },
+    logout(){
+      console.log('logout!!!');
+      this.$router.push('/');
+    }
   }
 }
 </script>
@@ -36,6 +52,9 @@ export default {
   .dropdown-menu{
     left:auto;
     right:-30px;
+  }
+  .router-link-active{
+    background-color: #e9e9e9;
   }
 </style>
 
