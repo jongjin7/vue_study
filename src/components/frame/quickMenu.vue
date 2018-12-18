@@ -1,11 +1,11 @@
 <template>
-  <div class="dropdown" :class="{ show: showGnb }">
-    <button class="navbar-toggler" type="button" data-toggle="collapse" @click="showGnb = !showGnb">
+  <div class="dropdown" :class="{ show: isOpenMenu }">
+    <button class="navbar-toggler" type="button" data-toggle="collapse" @click="isOpenMenu=!isOpenMenu" @focusout="closeGnb" >
       <span class="navbar-toggler-icon"></span>
     </button>
 
-    <div id="" class="dropdown-menu" v-bind:class="{ show: showGnb }">
-      <router-link class="dropdown-item" :to="item.link" v-for="item in gnbItems">{{ item.title }}</router-link>
+    <div id="" class="dropdown-menu" v-bind:class="{ show: isOpenMenu }">
+      <router-link class="dropdown-item" :to="item.link" v-for="(item, index) in gnbItems" :key="index">{{ item.title }}</router-link>
       <hr class="dropdown-divider">
       <router-link class="dropdown-item" :to="'/signup'">회원가입</router-link>
       <a href="#"class="dropdown-item" @click.stop.prevent="logout">로그아웃</a>
@@ -18,7 +18,7 @@ export default {
   data(){
     return{
       gotoMainLink: "/",
-      showGnb: false,
+      isOpenMenu:false,
       gnbItems:[
         {
           title: "todo 심플앱",
@@ -41,6 +41,12 @@ export default {
     }
   },
   methods:{
+    closeGnb(){
+      const vm = this;
+      setTimeout(function(){
+        vm.isOpenMenu = false;
+      },100);
+    },
     logout(){
       console.log('logout!!!');
       this.$router.push('/');

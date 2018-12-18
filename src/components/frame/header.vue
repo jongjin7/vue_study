@@ -6,7 +6,8 @@
 					<img src="../../assets/logo.png">
 					<strong>Jongjin</strong>
 				</router-link>
-        <quick-menu />
+
+        <quick-menu/>
 			</div>
 		</div>
 	</header>
@@ -19,6 +20,7 @@ export default {
   data() {
     return {
       gotoMainLink: "/",
+
     };
   },
 	methods:{
