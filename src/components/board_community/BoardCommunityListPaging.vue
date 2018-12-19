@@ -93,9 +93,9 @@
 
             this.paginatedData();
           })
-            .catch(function(error) {
-              console.log("Error getting document:", error);
-            });
+          .catch(function(error) {
+            console.log("Error getting document:", error);
+          });
         },
 
         paginatedData (page) {
@@ -190,19 +190,6 @@ console.log('pgcount', this.pageCount)
           //console.log('변환',unixTime(date))
           return unixTime(date).split(' ')[0];
         },
-
-        nextPage () {
-          this.pageNum += 1;
-          this.paginatedData();
-          console.log('prev')
-        },
-        prevPage () {
-          this.pageNum -= 1;
-          this.paginatedData();
-          console.log('next')
-        }
-
-
       }
     }
 </script>

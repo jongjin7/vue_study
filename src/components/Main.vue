@@ -3,7 +3,11 @@
     <about-banner />
 
     <div class="container mb-4">
-      <h2 class="h4">새로운 소식</h2>
+      <div class="d-flex justify-content-between align-items-center">
+        <h2 class="h4">새로운 소식</h2>
+        <span class="text-secondary small">2개의 게시판에서 최신 게시물 추출</span>
+      </div>
+
       <latest-list />
     </div>
 
@@ -36,31 +40,7 @@ export default {
 };
 </script>
 
-<style lang="scss">
-.main{
-  .jumbotron {
-    padding: 2rem;
-    h1 {
-      color: green;
-      border: 1px solid red;
-      .name {
-        color: blue;
-        font-weight: bold;
-      }
-    }
-    p{
-      margin-bottom:0;
-    }
-  }
-
-  .list-group-item{
-    p {
-      margin-bottom:0;
-    }
-  }
-}
-</style>
-<style scoped>
+<style lang="scss" scoped>
   h2.h4{
     font-weight:bold;
   }

@@ -6,28 +6,31 @@
         <div class="col-md-6">
           <div class="form-group">
             <label for="ct-name">이름</label>
-            <input type="text" id="ct-name" class="form-control" maxlength="10" placeholder="이름을 입력하세요" required="" autocomplete="off" v-model="name" @keyup ="checkName" @focusout="checkName">
+            <input type="text" id="ct-name" class="form-control" :disabled="!isLogined"  maxlength="10" placeholder="이름을 입력하세요" required="" autocomplete="off" v-model="sendMessage.name" @keyup ="checkName" @focusout="checkName">
             <div class="invalid-feedback">{{ errorMessage.name}}</div>
           </div>
         </div>
         <div class="col-md-6">
           <div class="form-group has-error">
             <label for="ct-email">이메일</label>
-            <input type="text" id="ct-email" placeholder="이메일 주소를 입력하세요" class="form-control" name="name" required="" autocomplete="off" v-model="email"  @focusout="checkEmail">
+            <input type="text" id="ct-email" :disabled="!isLogined" placeholder="이메일 주소를 입력하세요" class="form-control" name="name" required="" autocomplete="off" v-model="sendMessage.email"  @focusout="checkEmail">
             <div class="invalid-feedback">{{ errorMessage.email }}</div>
           </div>
         </div>
         <div class="col-12">
           <div class="form-group">
             <label for="ct-subject">제목</label>
-            <input type="text" id="ct-subject" placeholder="제목을 입력하세요" class="form-control" :class="{'border-danger': !isCheckForm}" required="" autocomplete="off" v-model="subject" @keyup ="checkSubject" @focusout="checkSubject">
+            <input type="text" id="ct-subject" :disabled="!isLogined" placeholder="제목을 입력하세요" class="form-control" required="" autocomplete="off" v-model="sendMessage.subject" @keyup ="checkSubject" @focusout="checkSubject">
             <div class="invalid-feedback">{{ errorMessage.subject }}</div>
           </div>
         </div>
         <div class="col-12">
           <div class="form-group">
             <label for="ct-message">내용</label>
-            <textarea id="ct-message" class="form-control" placeholder="문의하실 내용을 입력하세요. HTML태그를 포함하는 내용은 텍스트만 자동으로 입력됩니다." rows="11" :class="{'border-danger': !isCheckForm}"required="" autocomplete="off" v-model="message" @keyup="checkMessage" @focusout="checkMessage"></textarea>
+            <div class="position-relative">
+              <textarea id="ct-message" class="form-control" :disabled="!isLogined"  placeholder="문의하실 내용을 입력하세요. HTML태그를 포함하는 내용은 텍스트만 자동으로 입력됩니다." rows="11" required="" autocomplete="off" v-model="sendMessage.message" @keyup="checkMessage" @focusout="checkMessage"></textarea>
+              <div class="text-size"><span>0</span> / <span>1000</span>(자)</div>
+            </div>
             <div class="invalid-feedback">{{ errorMessage.message }}</div>
           </div>
 
@@ -50,15 +53,18 @@
 </template>
 
 <script>
+  const STORAGE_KEY_CONTACTUS = 'contact-us-message';
   import completedContact from './CompletedContactUs.vue';
 export default {
   name: "ContactUs",
   data() {
     return {
-      name:'임종진',
-      email:'najoayo@na.com',
-      subject:'',
-      message:'',
+      sendMessage:{
+        name:'임종진',
+        email:'najoayo@na.com',
+        subject:'',
+        message:'',
+      },
       isLogined: true, //로그인 유무
       isCheckForm: true,
 
@@ -80,7 +86,7 @@ export default {
   },
 
   created() {
-    this.validator();
+    this.formValidation();
   },
 
   computed: {
@@ -91,14 +97,10 @@ export default {
 
   },
   methods: {
-    validator(){
-      this.formValidation();
-    },
 
     formValidation(){
       console.log('errorSubmitValidator')
-      let arrValidator = this.errorSubmitValidator;
-      let sCount = arrValidator.filter((arg) =>{
+      let sCount = this.errorSubmitValidator.filter((arg) =>{
         return arg === true
       });
       if(sCount.length == 0) this.isActiveSubmit = true;
@@ -107,7 +109,8 @@ export default {
 
     sendSubmit(){
       console.log('submit!!!!')
-
+      localStorage.setItem(STORAGE_KEY_CONTACTUS, JSON.stringify(this.sendMessage))
+      this.$router.push('/');
     },
 
     removeChar : function(){
@@ -126,7 +129,7 @@ export default {
       console.log('checkName')
       const blank_pattern = /^\s+|\s+$/g;
 
-      if(this.name.replace( blank_pattern, '' ) == "") {
+      if(this.sendMessage.name.replace( blank_pattern, '' ) == "") {
         this.isCheckForm = false;
         this.errorMessage.name = '내용을 입력하지 않았습니다.';
         this.errorSubmitValidator[0] = true;
@@ -141,12 +144,12 @@ export default {
       const regExp = /^[0-9a-zA-Z]([-_\.]?[0-9a-zA-Z])*@[0-9a-zA-Z]([-_\.]?[0-9a-zA-Z])*\.[a-zA-Z]{2,3}$/i;
       const event = event || window.event;
 
-      if( this.email == null) {
+      if( this.sendMessage.email == null) {
         this.isCheckForm = false;
         this.errorMessage.email = '이메일을 입력하지 않았습니다.';
         this.errorSubmitValidator[1] = true;
         //event.target.focus();
-      }else if(this.email != null && !regExp.test(this.email)){
+      }else if(this.sendMessage.email != null && !regExp.test(this.sendMessage.email)){
         this.isCheckForm = false;
         this.errorMessage.email = '입력을 똑바로 하세요';
         this.errorSubmitValidator[1] = true;
@@ -164,14 +167,14 @@ export default {
       const event = event || window.event;
       const blank_pattern = /^\s+|\s+$/g;
 
-      if(this.subject.replace( blank_pattern, '' ) == "") {
+      if(this.sendMessage.subject.replace( blank_pattern, '' ) == "") {
         this.isCheckForm = false;
         this.errorMessage.subject = '제목을 입력하지 않았습니다.';
         this.errorSubmitValidator[2] = true;
         //event.target.focus();
-      }else if(this.subject.replace( blank_pattern, '' ) != "" && this.testRegExp(this.subject)[0]){
+      }else if(this.sendMessage.subject.replace( blank_pattern, '' ) != "" && this.testRegExp(this.sendMessage.subject)[0]){
         this.isCheckForm = false;
-        this.subject = this.testRegExp(this.subject)[1];
+        this.sendMessage.subject = this.testRegExp(this.sendMessage.subject)[1];
         event.target.focus();
         this.errorMessage.subject= '';
         this.errorSubmitValidator[2] = true;
@@ -187,14 +190,14 @@ export default {
       const event = event || window.event;
       const blank_pattern = /^\s+|\s+$/g;
 
-      if(this.message.replace( blank_pattern, '' ) == "") {
+      if(this.sendMessage.message.replace( blank_pattern, '' ) == "") {
         this.isCheckForm = false;
         this.errorMessage.message = '내용을 입력하지 않았습니다.';
         this.errorSubmitValidator[3] = true;
         //event.target.focus();
-      }else if(this.message.replace( blank_pattern, '' ) != "" && this.testRegExp(this.message)[0]){
+      }else if(this.sendMessage.message.replace( blank_pattern, '' ) != "" && this.testRegExp(this.sendMessage.message)[0]){
         this.isCheckForm = false;
-        this.message = this.testRegExp(this.message)[1];
+        this.sendMessage.message = this.testRegExp(this.sendMessage.message)[1];
         event.target.focus();
         this.errorMessage.message= '';
         this.errorSubmitValidator[3] = true;
@@ -229,6 +232,16 @@ export default {
 };
 </script>
 <style lang="scss" scoped>
+  .text-size{
+    position: absolute; right:0; top:0;
+    background: rgba(0,0,0,0.2);
+    padding:0.1rem 0.4rem;
+    font-size: 0.5rem;
+    border-top-right-radius: 0.25rem;
+    border-bottom-left-radius: 0.25rem;
+    color:#fff;
+    text-shadow:0.05rem 0.05rem rgba(0,0,0,0.3);
+  }
   .invalid-feedback{
       display: block;
   }

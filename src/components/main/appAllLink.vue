@@ -60,3 +60,11 @@ export default {
   }
 };
 </script>
+<style lang="scss" scoped>
+  .list-group-item{
+    p {
+      margin-bottom:0;
+    }
+  }
+</style>
+
