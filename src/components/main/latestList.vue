@@ -98,8 +98,8 @@ export default {
             console.log('for', i, tmpFilter[i].strTimeStamp, tmpFilter[i].id, tmpFilter[i].body.match(regExpImgTag))
             if(tmpFilter[i].body.match(regExpImgTag)){
             //if(tmpFilter[i].body.indexOf('src=') > 0)
-              //console.log('이미지 있는 내용', tmpFilter[i].body.match(regExpSrc))
-              tmpFilter[i].imagePath = tmpFilter[i].body.match(regExpSrc)[0].replace('src=','');
+              //console.log('이미지 있는 내용', tmpFilter[i].body.match(regExpSrc)[0].replace('src=','').replace(/\"/g,' '))
+              tmpFilter[i].imagePath = tmpFilter[i].body.match(regExpSrc)[0].replace('src=','').replace(/\"/g,' ');
 
               if(vm.getData.length < 2){
                 vm.getData.push(tmpFilter[i]);
