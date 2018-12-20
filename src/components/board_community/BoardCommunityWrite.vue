@@ -184,7 +184,8 @@
         this.newPost.title = this.newPost.title.trim();
         this.newPost.body = this.newPost.body.trim();
         if(this.modeNewPost) this.newPost.id += 1;
-        if(this.modeNewPost) this.newPost.timeStamp= new Date(); //firestore timestamp 객체로 저장
+        if(this.modeNewPost) this.newPost.timeStamp= new Date();
+        if(this.modeNewPost) this.newPost.strTimeStamp = this.$firebase.firestore.Timestamp.fromDate(new Date()).seconds * 1;
         this.newPost.modifyTimeStamp= new Date();
 
         console.log('writeToDataBase', this.newPost);

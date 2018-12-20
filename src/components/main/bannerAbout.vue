@@ -13,14 +13,14 @@
       <h1><span class="name text-primary">{{ userName }}</span>님! 안녕하세요.<br>접속을 환영합니다.</h1>
       <p class="pb-2">
         이 웹 사이트는 게시판과 입력폼 기능 구현 중심으로 된 페이지롷 구성되어 있다.
-        Front-End는 부트스트랩4.x으로 화면구성, VueJs로 화면 UI 및 비지니스 로직을 개발하였다.<br>
+        Front-End는 부트스트랩4.x으로 화면구성, VueJS로 화면 UI 및 비지니스 로직을 개발하였다.<br>
         Back-End는 Google BaaS(Backend as a Service) Firebase Database의 한 종류(NoSQL)인 Cloud Firestore를,
         Resource는 Firebase Storage를 이용하여 데이터를 연동하였다.
       </p>
       <div class="pt-3 pb-2" v-show="isMore">
         <h2 class="h4">학습 목적</h2>
-        <p>VueJS에 대해 학습하기 위한 목적으로 평소 <i class="text-success">웹에서 맞주치는</i> 기능 위주로 페이지를 구성하였다. 가장 노멀한 기능을 바탕으로 VueJS로
-          사이트를 개발해보면서 자바스크립트 프레임웍을 이용한 개발 방식의 적응과 함께 단기간에 다양한 개발 이슈를 접함으로써 프론트 개발 능력을 쌓고자하는 목적이다.</p>
+        <p>VueJS에 대해 학습하기 위한 목적으로 평소 <i class="text-success">웹에서 맞주치는</i> 기능 위주로 페이지를 구성하였다. 가장 노멀한 기능 페이지를
+          개발해보면서 자바스크립트 프레임웍을 이용한 개발 방식의 적응과 함께 단기간에 다양한 개발 이슈를 접함으로써 프론트 개발 능력을 쌓고자하는 목적이다.</p>
         <hr class="mt-2 mb-2">
         <p>
           BaaS란 Backend as a Service이다. IaaS나 PaaS가 전통적인 서버 인프라를 대체 하는 수준이었다면
