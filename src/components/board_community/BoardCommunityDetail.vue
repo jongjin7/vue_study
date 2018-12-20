@@ -48,7 +48,7 @@
       <div class="row">
         <div class="col d-flex justify-content-between">
           <div class="bnts">
-            <button type="button" class="btn btn-danger">삭제하기</button>
+            <button type="button" class="btn btn-danger" @click="deleteCurrentPost">삭제하기</button>
           </div>
 
           <div class="btns">
@@ -125,10 +125,23 @@
         });
       },
 
+      deleteCurrentPost(){
+        console.log('deleteCurrentPost')
+        const vm = this;
+        this.$firebaseDB.collection('community').doc('content').collection('community-data').doc('community-data-' + this.currentPageId).delete()
+          .then(function() {
+            console.log("DB Document successfully Removed!");
+            alert('현재글이 삭제되었습니다.');
+            vm.$router.push('/community');
+          }).catch(function(error) {
+          console.error("Error removing document: ", error);
+        });
+      },
+
       fetchData() {
         const vm = this;
         this.$firebaseDB.collection('community').doc('content').collection('community-data').doc('community-data-'+ this.currentPageId).get().then((doc)=>{
-          console.log('get DB', doc.data())
+          console.log('fetchData ==> get DB...', doc.data())
           vm.post = doc.data();
           vm.saveCurrentPostData();
           vm.post.newTimeStamp = this.changeDateFormat(vm.post.timeStamp.seconds)

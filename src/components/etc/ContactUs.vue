@@ -60,13 +60,12 @@ export default {
   data() {
     return {
       sendMessage:{
-        name:'임종진',
-        email:'najoayo@na.com',
+        name:'mr.jong',
+        email:'test@sa.com',
         subject:'',
         message:'',
       },
       isLogined: true, //로그인 유무
-      isCheckForm: true,
 
       errorMessage:{
         name:'',
@@ -110,7 +109,7 @@ export default {
     sendSubmit(){
       console.log('submit!!!!')
       localStorage.setItem(STORAGE_KEY_CONTACTUS, JSON.stringify(this.sendMessage))
-      this.$router.push('/');
+      this.completedSendMessage=true;
     },
 
     removeChar : function(){
@@ -128,11 +127,12 @@ export default {
     checkName(){
       console.log('checkName')
       const blank_pattern = /^\s+|\s+$/g;
+      const event = event || window.event;
 
       if(this.sendMessage.name.replace( blank_pattern, '' ) == "") {
-        this.isCheckForm = false;
-        this.errorMessage.name = '내용을 입력하지 않았습니다.';
+        this.errorMessage.name = '이름을 입력하지 않았습니다.';
         this.errorSubmitValidator[0] = true;
+        //event.target.focus();
       }else{
         this.errorMessage.name = '';
         this.errorSubmitValidator[0] = false;
@@ -142,18 +142,17 @@ export default {
 
     checkEmail : function(){
       const regExp = /^[0-9a-zA-Z]([-_\.]?[0-9a-zA-Z])*@[0-9a-zA-Z]([-_\.]?[0-9a-zA-Z])*\.[a-zA-Z]{2,3}$/i;
+      const blank_pattern = /^\s+|\s+$/g;
       const event = event || window.event;
 
-      if( this.sendMessage.email == null) {
-        this.isCheckForm = false;
+      if( this.sendMessage.email.replace( blank_pattern, '' ) == "") {
         this.errorMessage.email = '이메일을 입력하지 않았습니다.';
         this.errorSubmitValidator[1] = true;
         //event.target.focus();
-      }else if(this.sendMessage.email != null && !regExp.test(this.sendMessage.email)){
-        this.isCheckForm = false;
-        this.errorMessage.email = '입력을 똑바로 하세요';
+      }else if(this.sendMessage.email.replace( blank_pattern, '' ) != "" && !regExp.test(this.sendMessage.email)){
+        this.errorMessage.email = '이메일 형식에 맞춰 입력해주세요';
         this.errorSubmitValidator[1] = true;
-        event.target.focus();
+        //event.target.focus();
       }else{
         this.errorMessage.email = "";
         this.errorSubmitValidator[1] = false;
@@ -168,16 +167,14 @@ export default {
       const blank_pattern = /^\s+|\s+$/g;
 
       if(this.sendMessage.subject.replace( blank_pattern, '' ) == "") {
-        this.isCheckForm = false;
         this.errorMessage.subject = '제목을 입력하지 않았습니다.';
         this.errorSubmitValidator[2] = true;
         //event.target.focus();
-      }else if(this.sendMessage.subject.replace( blank_pattern, '' ) != "" && this.testRegExp(this.sendMessage.subject)[0]){
-        this.isCheckForm = false;
-        this.sendMessage.subject = this.testRegExp(this.sendMessage.subject)[1];
-        event.target.focus();
+      }else if(this.sendMessage.subject.replace( blank_pattern, '' ) != "" && this.reExpContent(this.sendMessage.subject)[0]){
+        this.sendMessage.subject = this.reExpContent(this.sendMessage.subject)[1];
         this.errorMessage.subject= '';
         this.errorSubmitValidator[2] = true;
+        event.target.focus();
       }else{
         this.errorMessage.subject = '';
         this.errorSubmitValidator[2] = false;
@@ -191,16 +188,14 @@ export default {
       const blank_pattern = /^\s+|\s+$/g;
 
       if(this.sendMessage.message.replace( blank_pattern, '' ) == "") {
-        this.isCheckForm = false;
         this.errorMessage.message = '내용을 입력하지 않았습니다.';
         this.errorSubmitValidator[3] = true;
         //event.target.focus();
-      }else if(this.sendMessage.message.replace( blank_pattern, '' ) != "" && this.testRegExp(this.sendMessage.message)[0]){
-        this.isCheckForm = false;
-        this.sendMessage.message = this.testRegExp(this.sendMessage.message)[1];
-        event.target.focus();
+      }else if(this.sendMessage.message.replace( blank_pattern, '' ) != "" && this.reExpContent(this.sendMessage.message)[0]){
+        this.sendMessage.message = this.reExpContent(this.sendMessage.message)[1];
         this.errorMessage.message= '';
         this.errorSubmitValidator[3] = true;
+        event.target.focus();
       }else{
         this.errorMessage.message = '';
         this.errorSubmitValidator[3] = false;
@@ -209,7 +204,7 @@ export default {
 
     },
 
-    testRegExp(data){
+    reExpContent(data){
       console.log('this.isCheckForm', this.isCheckForm)
       const regExp = /<(\/)?([a-zA-Z1-6]*)(\s[a-zA-Z]*=[^>]*)?(\s)*(\/)?>/ig; //HTML태그 정규식
 

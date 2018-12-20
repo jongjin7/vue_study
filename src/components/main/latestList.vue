@@ -34,6 +34,31 @@ export default {
   name: "latestList",
   data() {
     return {};
+  },
+  created(){
+    this.getDataToServer();
+  },
+  methods:{
+    getDataToServer() {
+      const dataCollectionCommunity = this.$firebaseDB.collection('community').doc('content').collection('community-data');
+      dataCollectionCommunity
+        .orderBy('timeStamp')
+        .where('id','<',100)
+        .get().then((querySnapshot) => {
+          querySnapshot.forEach((doc) => {
+            console.log(doc.data())
+          });
+      });
+      const dataCollectionGallery = this.$firebaseDB.collection('gallery').doc('content').collection('gallery-data');
+      dataCollectionGallery
+        .orderBy('timeStamp')
+        .where('id','<',100)
+        .get().then((querySnapshot) => {
+          querySnapshot.forEach((doc) => {
+            console.log(doc.data())
+          });
+        });
+    }
   }
 };
 </script>

@@ -12,7 +12,7 @@
     <div v-else>
       <h1><span class="name text-primary">{{ userName }}</span>님! 안녕하세요.<br>접속을 환영합니다.</h1>
       <p class="pb-2">
-        이 웹앱은 게시판과 입력폼 기능 구현 중심으로 페이지를 구성하였다.
+        이 웹 사이트는 게시판과 입력폼 기능 구현 중심으로 된 페이지롷 구성되어 있다.
         Front-End는 부트스트랩4.x으로 화면구성, VueJs로 화면 UI 및 비지니스 로직을 개발하였다.<br>
         Back-End는 Google BaaS(Backend as a Service) Firebase Database의 한 종류(NoSQL)인 Cloud Firestore를,
         Resource는 Firebase Storage를 이용하여 데이터를 연동하였다.
@@ -58,7 +58,6 @@
 
       checkSentUserMessage(){
         let localUserData = localStorage.getItem(STORAGE_KEY_CONTACTUS);
-        console.log(localUserData)
         if(localUserData !== null){
           this.isLocalUserData = true;
           localUserData = JSON.parse(localUserData);
