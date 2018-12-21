@@ -7,7 +7,8 @@
         <p class="bg-light my-3 py-1 px-2" v-html="userMessage"><!-- 받은 메시지 --></p>
         <p>더 궁금하신 내용에 대해 문의를 주시면 성심성의(誠心誠意)껏 답변 드리겠습니다.<br>감사합니다.</p>
       </div>
-      <router-link :to="'/contact'" class="btn btn-sm btn-secondary">다시 문의하기</router-link>
+      <!--<router-link :to="'/contact'" class="btn btn-sm btn-secondary">다시 문의하기</router-link>-->
+      <button class="btn btn-sm btn-secondary" @click="resetBannerMsg">내용 지우기</button>
     </div>
     <div v-else>
       <h1><span class="name text-primary">{{ userName }}</span>님! 안녕하세요.<br>접속을 환영합니다.</h1>
@@ -43,6 +44,7 @@
     data() {
       return {
         isMore:false,
+        oldUserName:'',
         userName: "홍길동",
         userMessage:'',
         isLocalUserData:false,
@@ -59,12 +61,20 @@
       checkSentUserMessage(){
         let localUserData = localStorage.getItem(STORAGE_KEY_CONTACTUS);
         if(localUserData !== null){
-          this.isLocalUserData = true;
           localUserData = JSON.parse(localUserData);
+          this.oldUserName = this.userName;
           this.userName = localUserData.name;
           this.userMessage = localUserData.message.replace(/\n/g,'<br>');
+          this.isLocalUserData = true;
         }
       },
+
+      resetBannerMsg(){
+        console.log('resetBannerMsg')
+        this.userName = this.oldUserName;
+        localStorage.removeItem(STORAGE_KEY_CONTACTUS);
+        this.isLocalUserData=false;
+      }
     }
   };
 </script>

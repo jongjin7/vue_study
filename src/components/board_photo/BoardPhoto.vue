@@ -23,12 +23,12 @@
     <div class="album bg-light">
       <div class="container">
         <div class="top-btns d-flex justify-content-between pt-2 pb-3">
-          <button class="btn btn-lg btn-outline-danger my-2" @click="removeMultipleListItem();" :class="{ invisible : !hasResult }">선택한 게시물({{ arrCheckedPost.length }}) 삭제</button>
+          <button class="btn btn-lg  my-2" @click="removeMultipleItem();" :disabled = "!hasCheckedItem" :class="{'btn-outline-danger':hasCheckedItem, 'disabled': !hasCheckedItem}">선택한 게시물({{ arrCheckedPost.length }}) 삭제</button>
           <button class="btn btn-lg btn-outline-primary my-2" @click="showModalpopup('새글 등록하기', 'photo');">새글 등록</button>
         </div>
         <div class="pb-3" v-if="hasResult">
           <div class="row">
-            <div class="col-lg-4 col-md-6" v-for="post in posts" v-bind:key="post.id">
+            <div class="col-lg-4 col-md-6" v-for="post in posts" :key="post.id">
               <div class="card mb-4 box-shadow">
                 <p class="img-holder"><span :style="'background-image: url(' + post.imagePath + ');'"></span></p>
                 <div class="card-body">
@@ -44,11 +44,11 @@
                     <hr>
                     <div class="d-flex justify-content-end">
                       <div class="remove-chkbox">
-                        <input type="checkbox" :id="'remove-chk-' + post.id" @change="checkedItem(post)">
+                        <input type="checkbox" :id="'remove-chk-' + post.id" @change="checkedItem(post)" v-model="post.isChecked">
                         <label :for="'remove-chk-' + post.id">선택</label>
                       </div>
                       <div class="btn-group">
-                        <button type="button" class="btn btn-sm btn-outline-light text-danger" @click="removeSingleListItem(post);">삭제하기</button>
+                        <button type="button" class="btn btn-sm btn-outline-light text-danger" @click="removeSingleItem(post);">삭제하기</button>
                         <button type="button" class="btn btn-sm btn-outline-light text-success" @click="showModalpopup('갤러리 수정하기', 'photo', post); $EventBus.$emit('showModal');">수정하기</button>
                       </div>
                     </div>
@@ -83,7 +83,7 @@ export default {
       showingListLength:3,
       totalListLength:'',
       arrCheckedPost :[],
-      doRefresh:true,
+      isChecked:false
     };
   },
 
@@ -96,9 +96,12 @@ export default {
       return this.posts.length > 0;
     },
     isMoreListItems(){
-      console.log('isMoreListItems 로컬과 서버 데이터 갯수 비교',this.posts.length+' : '+this.totalListLength)
+      //console.log('isMoreListItems 비교',this.posts.length+' : '+this.totalListLength)
       return this.posts.length !== this.totalListLength;
     },
+    hasCheckedItem(){
+      return this.arrCheckedPost.length > 0;
+    }
   },
 
   mounted(){
@@ -152,27 +155,21 @@ export default {
         this.$store.state.latestGalleryItemIndex = doc.data().lastIndex;
       });
 
-      this.$firebaseDB.collection('photo-gallery').doc('content').collection('gallery-data').get().then((querySnapshot) => {
-        let dataLength = 0;
-        querySnapshot.forEach((doc) => {
-          //console.log('loadingServerData ==>', doc.data())
-          dataLength++;
-          let tmp = doc.data();
-          tmp.newTimeStamp = this.changeDateFormat(tmp.timeStamp.seconds);
-          this.getData.push(tmp)
-        });
-        // id 기준으로 내림 정렬
-        this.getData.sort(function (a, b) {
-          if (a.id < b.id) {
-            return 1;
-          }
-          if (a.id > b.id) {
-            return -1;
-          }
-          // a must be equal to b
-          return 0;
-        });
-        this.totalListLength = dataLength;
+      this.$firebaseDB.collection('photo-gallery').doc('content').collection('gallery-data')
+        .orderBy('timeStamp')
+        .get()
+        .then((querySnapshot) => {
+          this.totalListLength = this.$store.state.communityTotalList = querySnapshot.size;
+          let loadData =[];
+          querySnapshot.forEach((doc) => {
+            let tmp = doc.data();
+            tmp.newTimeStamp = this.changeDateFormat(tmp.timeStamp.seconds);
+            loadData.push(tmp)
+          });
+
+          loadData.reverse();
+          this.posts = loadData;
+
         this.fetchData();
       })
       .catch(function(error) {
@@ -181,9 +178,9 @@ export default {
     },
 
     fetchData(newIndex) {
-      console.log('fetch',this.posts,
+      /*console.log('fetch',this.posts,
       'getData',this.getData,
-      'totalListLength:' + this.totalListLength, 'showingListLength:'+this.showingListLength)
+      'totalListLength:' + this.totalListLength, 'showingListLength:'+this.showingListLength)*/
       const vmThis = this;
       let startIndex = newIndex === undefined? 0 : this.showingListLength;
       let endIndex = newIndex === undefined? this.showingListLength : newIndex;
@@ -201,48 +198,59 @@ export default {
     refreshGalleryList(){
       this.posts= [];
       this.getData = [];
+      this.isChecked = false;
       this.totalListLength='';
-      //this.showingListLength = 3; //새로고침시 리스트 노출 초기값으로
+      this.showingListLength = 3; //새로고침시 리스트 노출 초기값으로
       this.getServerData();
       this.arrCheckedPost =[];
     },
 
-    removeSingleListItem(post, isMulti) { //개별 게시물 삭제
-      console.log('removeSingleListItem', post.id, isMulti)
-      let refreshType = isMulti === undefined? this.doRefresh : isMulti;
-      const vmThis = this;
-      this.$firebaseDB.collection('photo-gallery').doc('content').collection('gallery-data').doc('galley-data-' + post.id).delete()
+    removeListItem(postId, isMulti) { //개별 게시물 삭제
+      console.log('removeListItem',postId)
+
+      const vm = this;
+      this.$firebaseDB.collection('photo-gallery').doc('content').collection('gallery-data').doc(postId).delete()
         .then(function() {
+          alert('삭제되었습니다.')
+          vm.refreshGalleryList();
           console.log("DB Document successfully Removed!");
-          if(refreshType) {
-            console.log('refresh!!!!!!')
-            vmThis.refreshGalleryList();
-          }
         }).catch(function(error) {
         console.error("Error removing document: ", error);
       });
     },
 
-    checkedItem(post){
-      this.arrCheckedPost.push(post)
-      console.log('checked item', this.arrCheckedPost)
+    filterCheckedItem(){
+      return this.posts.filter((post)=>{
+        return post.isChecked;
+      });
     },
 
-    removeMultipleListItem(){
-      console.log('removeMultipleListItem',this.arrCheckedPost.length)
-      if(this.arrCheckedPost.length < 1) return;
+    checkedItem(){
+      this.arrCheckedPost = this.filterCheckedItem();
+      console.log('checked item', this.arrCheckedPost.length, this.hasCheckedItem)
+    },
 
-      const vmThis = this;
-      const checkedItemLength = this.arrCheckedPost.length;
+    removeSingleItem(post){
+      console.log('sss', post)
+      this.removeListItem('gallery-data-'+post.id);
+    },
 
-      let tmpRefreshType = false;
-      this.showingListLength = 3
+    removeMultipleItem(){
+      console.log('removeMultipleItem', this.arrCheckedPost.length)
 
-      this.arrCheckedPost.forEach(function(post, index){
-        if(index == checkedItemLength-1) tmpRefreshType = true;
-        console.log('index', index, vmThis.doRefresh)
-        vmThis.removeSingleListItem(post, tmpRefreshType);
-      });
+      let arrDocNames=[];
+      for(let i=0, leng= this.arrCheckedPost.length; i < leng; i++){
+        arrDocNames.push('gallery-data-'+ this.arrCheckedPost[i].id);
+      }
+      this.removeListItem(arrDocNames.join());
+      //
+      // let tmpRefreshType = false;
+      // this.showingListLength = 3
+      //
+      // this.arrCheckedPost.forEach(function(post, index){
+      //   if(index == checkedItemLength-1) tmpRefreshType = true;
+      //   vmThis.removeSingleListItem(post, tmpRefreshType);
+      // });
     },
   }
 };

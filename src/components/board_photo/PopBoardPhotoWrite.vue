@@ -24,7 +24,7 @@
       </div>
     </div>
     <button type="button" class="btn btn-primary w-100" @click="addContent();">
-      <span v-if="addNewItemMode">등록하기</span>
+      <span v-if="modeNewPost">등록하기</span>
       <span v-else>수정하기</span>
     </button>
   </form>
@@ -42,7 +42,7 @@
           id:0,
         },
         localImage:null,
-        addNewItemMode:true,
+        modeNewPost:true,
       }
     },
 
@@ -51,20 +51,20 @@
       if(this.$store.state.popGalleryContent !== null ){
         this.oldGalleryListItem = this.$store.state.popGalleryContent;
         this.newGalleryListItem = this.$store.state.popGalleryContent;
-        this.addNewItemMode = false;
+        this.modeNewPost = false;
       }
     },
 
     methods:{
       updateServerLastIndex(){
-        const vmThis = this;
+        const vm = this;
         this.$firebaseDB.collection('photo-gallery').doc('content').update({
-          lastIndex: vmThis.$store.state.latestGalleryItemIndex
+          lastIndex: vm.$store.state.latestGalleryItemIndex
         });
       },
 
       addContent: function () {
-        const vmThis = this;
+        const vm = this;
         console.log('newContent', typeof this.newGalleryListItem.title)
         if(this.newGalleryListItem.title !== null && this.newGalleryListItem.body !== null ){
           this.uploadServerStorageImage();
@@ -75,26 +75,21 @@
 
       doWriteToDataBase(){
         console.log('doWriteToDataBase', this.newGalleryListItem);
-        const vmThis = this;
+        const vm = this;
         this.newGalleryListItem.title = this.newGalleryListItem.title && this.newGalleryListItem.title.trim()
         this.newGalleryListItem.body = this.newGalleryListItem.body && this.newGalleryListItem.body.trim();
         this.newGalleryListItem.id = (this.newGalleryListItem.id == 0)? ++this.$store.state.latestGalleryItemIndex : this.newGalleryListItem.id;
-        if(this.addNewItemMode) this.newGalleryListItem.timeStamp= new Date(); //firestore timestamp 객체로 저장
+        if(this.modeNewPost) this.newGalleryListItem.timeStamp= new Date();
+        if(this.modeNewPost) this.newGalleryListItem.strTimeStamp = this.$firebase.firestore.Timestamp.fromDate(new Date()).seconds * 1;
         this.newGalleryListItem.modifyTimeStamp= new Date();
         this.$firebaseDB.collection('photo-gallery').doc('content').collection('gallery-data')
-          .doc('galley-data-'+this.newGalleryListItem.id).set(this.newGalleryListItem).then(function(){
-            vmThis.updateServerLastIndex(); //서버에 인덱스 저장
-
-
-
-            //폼 밸리데이션 조건적기
-            vmThis.$store.state.popGalleryContent = null;
-          if(vmThis.addNewItemMode) vmThis.$EventBus.$emit('refreshList');
-            vmThis.$EventBus.$emit('toggleClose');
+          .doc('gallery-data-'+this.newGalleryListItem.id).set(this.newGalleryListItem).then(function(){
+            vm.updateServerLastIndex(); //서버에 인덱스 저장
+            vm.$store.state.popGalleryContent = null;
+            vm.$EventBus.$emit('toggleClose');
+          if(vm.modeNewPost) vm.$EventBus.$emit('refreshList');
             console.log(':: Add Content to Server... New Content')
           });
-
-
       },
 
       onFileChange(e) {

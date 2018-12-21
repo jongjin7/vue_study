@@ -88,6 +88,7 @@
               tmp.listCount = tmpCount++;
               loadData.push(tmp)
             });
+
             loadData.reverse();
             this.getOriginData = loadData;
 
