@@ -13,15 +13,19 @@
       </div>
       <div class="form-group">
         <label>본문내용</label>
-        <html-editor height="200" :model.sync="newPost.body"></html-editor>
-        {{ replaceHtmlTag }}
+        <html-editor
+          name="editor"
+          :postBody="newPost.body"
+          @change="value => { newPost.body = value }"
+        ></html-editor>
+        <!--{{ replaceHtmlTag }}-->
       </div>
 
       <div class="form-group">
         <label>첨부파일</label>
         <div class="custom-file mb-3">
           <input type="file" class="custom-file-input" id="customFile" @change="onFileChange">
-          <label class="custom-file-label" for="customFile">{{ newPost.fileName }}</label>
+          <label class="custom-file-label" for="customFile"><span>{{ newPost.fileName }}</span></label>
         </div>
       </div>
 
@@ -37,7 +41,9 @@
   </div>
 </template>
 <script>
+  const STORAGE_KEY_COMMUNITY_DETAIL = 'community-detail';
   import htmlEditor from "./BoardWebEditor.vue";
+
   export default {
     name:'boardGeneralWrite',
     data(){
@@ -74,9 +80,7 @@
     destroyed(){
       this.removeServerModifyData();
     },
-    watch:{
 
-    },
     computed:{
       replaceHtmlTag(){
         let str = this.newPost.body;
@@ -90,8 +94,8 @@
     },
 
     methods:{
+      //dummyData를 만들때
       writeDummyData(){
-
         this.$http.get(`/comments`).then(result => {
           this.gridData = result.data;
 
@@ -120,22 +124,20 @@
       },
       removeServerModifyData(){
         console.log('글쓰기 컴포넌트를 떠날때')
-        this.$firebaseDB.collection('community').doc('content').update({
-          currentPost : null
-        });
+        sessionStorage.removeItem(STORAGE_KEY_COMMUNITY_DETAIL);
       },
 
       getServerModifyPostData(){
-        const vm = this;
-        this.$firebaseDB.collection('community').doc('content').get().then((doc)=>{
-          if(doc.data().currentPost !== null){
-            vm.newPost = doc.data().currentPost;
-            vm.modeNewPost = false;
-          }else{
-            vm.getServerLastindex();
-          }
-          vm.setPageTitle();
-        });
+        const localData = sessionStorage.getItem(STORAGE_KEY_COMMUNITY_DETAIL);
+        if(localData !== null){
+          this.newPost = JSON.parse(localData);
+          //console.log('localData', this.newPost)
+          this.modeNewPost = false;
+        }else{
+          this.getServerLastindex();
+        }
+
+        this.setPageTitle();
       },
 
       getServerLastindex(){
@@ -170,11 +172,9 @@
 
       addContent: function () {
         console.log('addContent')
-        const vm = this;
-        if(vm.newPost.title != '' && vm.newPost.body != '' ){
-          vm.uploadServerStorageFile();
-        }else{
-          console.log('내용을 입력하시요 form validation을 작성')
+        const blank_pattern = /^\s+|\s+$/g;
+        if(this.newPost.title != '' && this.newPost.body != '' ){
+          this.uploadServerStorageFile();
         }
       },
 
@@ -188,13 +188,27 @@
         if(this.modeNewPost) this.newPost.strTimeStamp = this.$firebase.firestore.Timestamp.fromDate(new Date()).seconds * 1;
         this.newPost.modifyTimeStamp= new Date();
 
-        console.log('writeToDataBase', this.newPost);
-        this.$firebaseDB.collection('community').doc('content').collection('community-data')
-          .doc('community-data-'+this.newPost.id).set(this.newPost).then(function(){
-          if(vm.modeNewPost) vm.updateServerLastIndex(); //서버에 인덱스 저장
-          if(!vm.modeDev) vm.completedWriteToDataBase();
-          if(!vm.modeNewPost) vm.modeNewPost = true;
-        });
+        //console.log('writeToDataBase', this.newPost);
+        if(this.modeNewPost){
+          //console.log('새글 등록')
+          this.$firebaseDB.collection('community').doc('content').collection('community-data')
+            .doc('community-data-'+this.newPost.id)
+            .set(this.newPost)
+            .then(function(){
+              vm.updateServerLastIndex(); //서버에 인덱스 저장
+              if(!vm.modeDev) vm.completedWriteToDataBase();
+            });
+        }else{
+          //console.log('수정 업데이트')
+          this.$firebaseDB.collection('community').doc('content').collection('community-data')
+            .doc('community-data-'+this.newPost.id)
+            .update(this.newPost)
+            .then(function(){
+              vm.modeNewPost = true;
+              vm.completedWriteToDataBase();
+            });
+        }
+
       },
 
       completedWriteToDataBase(){
@@ -236,3 +250,11 @@
     },
   }
 </script>
+<style lang="scss" scoped>
+  .custom-file-label span{
+    white-space: nowrap;
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+</style>

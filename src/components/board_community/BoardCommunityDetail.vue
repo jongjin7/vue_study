@@ -17,7 +17,7 @@
               <div class="post-meta mb-4">
                 <span class="badge badge-secondary" title="등록자">{{ post.author }}</span>
                 <span class="badge badge-secondary" title="등록일">{{ post.newTimeStamp }}</span>
-                <a class="badge badge-warning included-file" title="첨부파일" :href="post.filePath" v-if="post.fileName !== null">첨부파일: {{ post.fileName }}</a>
+                <a class="badge badge-warning included-file" download title="첨부파일" :href="post.filePath" v-if="post.fileName !== null">첨부파일: {{ post.fileName }}</a>
               </div>
               <article v-html="post.body">
               <!-- 에디터 입력 출력 -->
@@ -55,7 +55,7 @@
             <router-link :to="link.toModify" class="btn btn-warning">
               수정하기
             </router-link>
-            <router-link :to="link.toList" class="btn btn-dark">
+            <router-link :to="link.toList" class="btn btn-secondary">
               목록보기
             </router-link>
           </div>
@@ -68,6 +68,7 @@
     </div>
   </template>
   <script>
+    const STORAGE_KEY_COMMUNITY_DETAIL = 'community-detail';
     import CommunityDetailComment from './BoardCommunityDetailComment.vue'
   export default {
     name: 'CommunityDetail',
@@ -120,9 +121,14 @@
       },
 
       saveCurrentPostData(){
-        this.$firebaseDB.collection('community').doc('content').update({
-          currentPost: this.post
-        });
+        let tmpData = {
+            title: this.post.title,
+            body: this.post.body,
+            fileName: this.post.fileName,
+            filePath: this.post.filePath,
+            id: this.post.id
+          }
+        sessionStorage.setItem(STORAGE_KEY_COMMUNITY_DETAIL, JSON.stringify(tmpData));
       },
 
       deleteCurrentPost(){
@@ -154,21 +160,36 @@
     }
   }
   </script>
-  <style lang="scss" scoped>
-    h1{
-      word-break: break-all;
-    }
-
-    .included-file{
-      max-width:100%;
-      overflow: hidden;
-      text-overflow:ellipsis;
-    }
-  </style>
   <style lang="scss">
+
     .community-detail{
+      h1{
+        word-break: break-all;
+      }
+
+      .included-file{
+        max-width:100%;
+        overflow: hidden;
+        text-overflow:ellipsis;
+      }
+
       article{
+        width:100%;
+
+        table{
+          max-width:100%;
+
+          @media (max-width:767px){
+            th,
+            td{
+              width:auto !important;
+              min-width:0 !important;
+            }
+          }
+        }
+
         p{
+          word-break: break-all;
           img{
             max-width:100%;
             height:auto !important;

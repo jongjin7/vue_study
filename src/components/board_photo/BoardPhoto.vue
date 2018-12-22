@@ -168,7 +168,7 @@ export default {
           });
 
           loadData.reverse();
-          this.posts = loadData;
+          this.getData = loadData;
 
         this.fetchData();
       })
@@ -181,7 +181,6 @@ export default {
       /*console.log('fetch',this.posts,
       'getData',this.getData,
       'totalListLength:' + this.totalListLength, 'showingListLength:'+this.showingListLength)*/
-      const vmThis = this;
       let startIndex = newIndex === undefined? 0 : this.showingListLength;
       let endIndex = newIndex === undefined? this.showingListLength : newIndex;
       //console.log('fetchData', this.showingListLength, endIndex, this.totalListLength)
@@ -200,25 +199,30 @@ export default {
       this.getData = [];
       this.isChecked = false;
       this.totalListLength='';
-      this.showingListLength = 3; //새로고침시 리스트 노출 초기값으로
+      //this.showingListLength = 3; //새로고침시 리스트 노출 초기값으로
       this.getServerData();
       this.arrCheckedPost =[];
     },
 
     removeListItem(postId, isMulti) { //개별 게시물 삭제
       console.log('removeListItem',postId)
-
+      let refreshType = isMulti === undefined? true : isMulti;
       const vm = this;
-      this.$firebaseDB.collection('photo-gallery').doc('content').collection('gallery-data').doc(postId).delete()
+      this.$firebaseDB.collection('photo-gallery').doc('content').collection('gallery-data')
+        .doc(postId)
+        .delete()
         .then(function() {
-          alert('삭제되었습니다.')
-          vm.refreshGalleryList();
-          console.log("DB Document successfully Removed!");
+          if(refreshType) {
+            alert('삭제되었습니다.')
+            vm.refreshGalleryList();
+            console.log("DB Document successfully Removed!");
+          }
         }).catch(function(error) {
-        console.error("Error removing document: ", error);
-      });
+          console.error("Error removing document: ", error);
+        });
     },
 
+    //포스트 선택
     filterCheckedItem(){
       return this.posts.filter((post)=>{
         return post.isChecked;
@@ -227,30 +231,22 @@ export default {
 
     checkedItem(){
       this.arrCheckedPost = this.filterCheckedItem();
-      console.log('checked item', this.arrCheckedPost.length, this.hasCheckedItem)
+      //console.log('checked item', this.arrCheckedPost.length, this.hasCheckedItem)
     },
 
     removeSingleItem(post){
-      console.log('sss', post)
       this.removeListItem('gallery-data-'+post.id);
     },
 
     removeMultipleItem(){
       console.log('removeMultipleItem', this.arrCheckedPost.length)
 
-      let arrDocNames=[];
-      for(let i=0, leng= this.arrCheckedPost.length; i < leng; i++){
-        arrDocNames.push('gallery-data-'+ this.arrCheckedPost[i].id);
+      let tmpRefreshType = false;
+      let lengthCheckedPost = this.arrCheckedPost.length;
+      for(let i=0, leng= lengthCheckedPost; i < leng; i++){
+        if(i == lengthCheckedPost-1) tmpRefreshType = true;
+        this.removeListItem('gallery-data-'+ this.arrCheckedPost[i].id, tmpRefreshType);
       }
-      this.removeListItem(arrDocNames.join());
-      //
-      // let tmpRefreshType = false;
-      // this.showingListLength = 3
-      //
-      // this.arrCheckedPost.forEach(function(post, index){
-      //   if(index == checkedItemLength-1) tmpRefreshType = true;
-      //   vmThis.removeSingleListItem(post, tmpRefreshType);
-      // });
     },
   }
 };

@@ -82,6 +82,7 @@
 
             querySnapshot.forEach((doc) => {
               let tmp = doc.data();
+              //console.log('data', tmp.id)
               tmp.newTimeStamp = this.changeDateFormat(tmp.timeStamp.seconds);
               tmp.latest = (strTodayDate == tmp.newTimeStamp.replace(/\-/g,''))? true : false;
               //console.log('tmp.latest', tmp.latest)
@@ -92,14 +93,14 @@
             loadData.reverse();
             this.getOriginData = loadData;
 
-            this.paginatedData();
+            this.createPaginateItems();
           })
           .catch(function(error) {
             console.log("Error getting document:", error);
           });
         },
 
-        paginatedData (page) {
+        createPaginateItems (page) {
           const start = this.pageNum * this.pageSize,
             end = start + this.pageSize;
 
@@ -169,7 +170,7 @@ console.log('pgcount', this.pageCount)
           this.pageNum = page-1;
           console.log('page index', 1, page)
 
-          this.paginatedData(page);
+          this.createPaginateItems(page);
         },
 
         changePage(pageIndex){

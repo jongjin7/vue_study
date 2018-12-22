@@ -3,9 +3,11 @@
 </template>
 
 <script>
+
   import $ from "jquery";
   //summer editor
   import "summernote/dist/summernote-bs4.js"
+  //import "summernote/dist/lang/summernote-ko-KR.js"
   import "summernote/dist/summernote-bs4.css"
   import "codemirror/lib/codemirror.css";
   //import "codemirror/theme/monokai.css";
@@ -15,36 +17,47 @@
 
   export default{
     props : {
-      model: {
-        required: true
+      postBody: {
+        required: true,
       },
-      height: {
-        type: String,
-        default: '150'
-      }
     },
     created(){
 
     },
+    watch: {
+
+    },
+    beforeMount(){
+
+    },
     mounted() {
-      let config = {
-        height: this.height
-      };
       let vm = this;
+      let config = {
+        height: 200,
+        placeholder: '열심히 글을 작성해보자',
+        lang : 'ko-KR',
+        fontNames: ['myFonts'],
+        fontNamesIgnoreCheck: ['myFonts'],
+      };
       config.callbacks = {
         onInit: function () {
-          $(vm.$el).summernote("code", vm.model);
+          //console.log('editor init', vm.postBody)
+          $(vm.$el).summernote("code", vm.postBody);
         },
         onChange: function () {
-          vm.$emit('update:model', $(vm.$el).summernote('code'));
+          vm.$emit('change', $(vm.$el).summernote('code'));
         },
+        onBlur: function () {
+          vm.$emit('change', $(vm.$el).summernote('code'));
+        }
       };
-
-      console.log('editor', this.$el);
       $(this.$el).summernote(config);
     },
-    methods:{
 
+    methods:{
+      modifyContent(){
+
+      }
     }
   }
 </script>

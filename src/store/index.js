@@ -11,8 +11,6 @@ export const store = new Vuex.Store({
     pop_content : '',
     popGalleryContent:null,
     latestGalleryItemIndex:'',
-    communityDetailContent:null,
-    getCommunityConent:'',
     communityTotalList:'',
   },
 });

@@ -60,6 +60,7 @@
     </div>
   </template>
   <script>
+    const STORAGE_KEY_COMMUNITY_DETAIL = 'community-detail';
     import CommunityListSearch from './BoardCommunityListSearch';
     //import CommunityListTable from 'BoardCommunityListTable';
     import CommunityListPaging from './BoardCommunityListPaging';
@@ -77,20 +78,21 @@
       }
     },
 
-    beforeCreate(){
-      console.log('beforeCreate');
-    },
     created(){
       console.log('created')
-      this.removeServerModifyData();
-      this.$EventBus.$on('changeList', (arg) => {
-        this.changeListHandler(arg);
-        this.totalListLength = this.$store.state.communityTotalList;
-      })
+    },
+
+    beforeMount(){
+      console.log('beforeCreate');
+      this.removeDetailPost();
     },
     mounted(){
       console.log('mounted')
 
+      this.$EventBus.$on('changeList', (arg) => {
+        this.changeListHandler(arg);
+        this.totalListLength = this.$store.state.communityTotalList;
+      })
     },
     computed:{
       hasResult(){
@@ -99,11 +101,11 @@
 
     },
     methods:{
-      removeServerModifyData(){
-        //console.log('저장된 임시 CurrentPost값 제거')
-        this.$firebaseDB.collection('community').doc('content').update({
-          currentPost : null
-        });
+      removeDetailPost(){
+        const localData = sessionStorage.getItem(STORAGE_KEY_COMMUNITY_DETAIL);
+        if(localData !== null){
+          sessionStorage.removeItem(STORAGE_KEY_COMMUNITY_DETAIL);
+        }
       },
 
       changeListHandler(pages){
