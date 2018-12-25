@@ -11,7 +11,7 @@
       <button class="btn btn-sm btn-secondary" @click="resetBannerMsg">내용 지우기</button>
     </div>
     <div v-else>
-      <h1><span class="name text-primary">{{ userName }}</span>님! 안녕하세요.<br>접속을 환영합니다.</h1>
+      <h1><span class="name text-primary">종진</span>의 데모 사이트에 오신것을 환영합니다.</h1>
       <p class="pb-2">
         이 웹 사이트는 게시판과 입력폼 기능 구현 중심으로 된 페이지롷 구성되어 있다.
         Front-End는 부트스트랩4.x으로 화면구성, VueJS로 화면 UI 및 비지니스 로직을 개발하였다.<br>

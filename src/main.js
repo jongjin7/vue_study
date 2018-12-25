@@ -6,7 +6,7 @@ import router from "./router";
 import { store } from "./store";
 
 import axios from "axios";
-Vue.prototype.$this = Vue; //vue인스턴스에서 사용할 this범위 설정
+
 const base = axios.create({
   baseURL: "https://jsonplaceholder.typicode.com"
 });
@@ -15,6 +15,9 @@ Vue.prototype.$EventBus = new Vue();
 Vue.config.productionTip = false;
 
 // import { Kakao } from "./vendors/kakao.min.js";
+import 'jquery';
+import 'expose-loader?$!expose-loader?jQuery!jquery'
+
 import "bootstrap/dist/css/bootstrap.css";
 import "bootstrap/dist/js/bootstrap.js";
 import "chart.js";
@@ -34,12 +37,18 @@ const config = {
 
 import firebase from 'firebase/app';
 firebase.initializeApp(config);
+import 'firebaseui';
 import 'firebase/firestore';
 import 'firebase/storage';
 const dbFireStore = firebase.firestore();
 dbFireStore.settings({ timestampsInSnapshots: true });
 
+
+const firebaseUi = new firebaseui.auth.AuthUI(firebase.auth());
+console.log('ui', firebaseUi)
+
 Vue.prototype.$firebase = firebase;
+Vue.prototype.$firebaseUi = firebaseUi;
 Vue.prototype.$firebaseDB = dbFireStore;
 Vue.prototype.$firebaseStorage = firebase.storage();
 

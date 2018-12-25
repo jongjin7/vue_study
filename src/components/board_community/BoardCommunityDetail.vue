@@ -167,10 +167,16 @@
         word-break: break-all;
       }
 
-      .included-file{
-        max-width:100%;
-        overflow: hidden;
-        text-overflow:ellipsis;
+      .post-meta{
+        .badge{
+          vertical-align: middle;
+
+          &.included-file{
+            max-width:100%;
+            overflow: hidden;
+            text-overflow:ellipsis;
+          }
+        }
       }
 
       article{

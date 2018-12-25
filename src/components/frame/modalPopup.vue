@@ -50,7 +50,7 @@ export default{
   }
 }
 </script>
-<style>
+<style scoped>
  .modal{
    overflow-x: hidden;
    overflow-y: auto;

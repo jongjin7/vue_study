@@ -3,7 +3,7 @@
     <!-- 커뮤니티 게시물 추출 -->
     <div class="col-md-4 mb-4" v-for="item in getData.community" >
       <div class="card box-shadow">
-        <figure class="card-img-top" :style="'background-image:url('+ item.imagePath + ')'"></figure>
+        <router-link :to="'/community-detail/'+item.id"><figure class="card-img-top" :style="'background-image:url('+ item.imagePath + ')'"></figure></router-link>
         <div class="card-body text-left">
           <p>{{ item.title }}</p>
           <router-link class="btn btn-secondary btn-sm" :to="'/community-detail/'+item.id">자세히 보기 »</router-link>
@@ -14,7 +14,7 @@
     <!-- 갤러리 게시물 추출 -->
     <div class="col-md-4 mb-4" v-for="item in getData.gallery">
       <div class="card box-shadow">
-        <figure class="card-img-top" :style="'background-image:url('+ item.imagePath + ')'"></figure>
+        <router-link :to="'/photo'"><figure class="card-img-top" :style="'background-image:url('+ item.imagePath + ')'"></figure></router-link>
         <div class="card-body text-left">
           <p>{{ item.title }}</p>
           <router-link class="btn btn-secondary btn-sm" :to="'/photo'">갤러리 메인 »</router-link>
@@ -42,7 +42,7 @@ export default {
     getDataToServerCommunity(){
       const vm = this;
       const currentTime = this.$firebase.firestore.Timestamp.fromDate(new Date()).seconds;
-      console.log(currentTime)
+      console.log('currentTime Seconds ==>'+ currentTime)
       const dataCollectionCommunity = this.$firebaseDB.collection('community').doc('content').collection('community-data');
 
 
@@ -54,10 +54,10 @@ export default {
         //.endAt(currentTime - 1200)
         .get()
         .then((querySnapshot) => {
-          //서버에서 데어터를 질의에 맞게 받은 후... 클라이언트에서 처리할 수 있도록 데이터를 넘겨줌
+          //DB에서 질의에 맞는 데이타를 받은 후... 클라이언트에서 처리할 수 있도록 데이터를 넘겨줌
           let arrResponseData = [];
           querySnapshot.forEach((doc) => {
-            console.log('imgTag',doc.data().id, doc.data().strTimeStamp, currentTime  - doc.data().strTimeStamp, vm.getData.length)
+            //console.log('imgTag',doc.data().id, doc.data().strTimeStamp, currentTime  - doc.data().strTimeStamp, vm.getData.length)
             arrResponseData.push(doc.data())
           });
           arrResponseData.reverse();
@@ -77,7 +77,7 @@ export default {
 
           //본문 내용에 이미지 태그가 포함된 데이터만 다시 필터링
           for(let i = 0, lang = arrResponseData.length; i < lang; i++ ){
-            console.log('for', i, arrResponseData[i].strTimeStamp, arrResponseData[i].id, arrResponseData[i].body.match(regExpImgTag))
+            //console.log('for', i, arrResponseData[i].strTimeStamp, arrResponseData[i].id, arrResponseData[i].body.match(regExpImgTag))
             if(arrResponseData[i].body.match(regExpImgTag)){
             //if(tmpFilter[i].body.indexOf('src=') > 0)
               //console.log('이미지 있는 내용', tmpFilter[i].body.match(regExpSrc)[0].replace('src=','').replace(/\"/g,' '))
@@ -87,7 +87,7 @@ export default {
                 vm.getData.community.push(arrResponseData[i]);
               }
 
-              console.log('condition'+[i]+'==>', vm.getData.community)
+              //console.log('condition'+[i]+'==>', vm.getData.community)
             }
           }
         });
@@ -101,7 +101,7 @@ export default {
         .then((querySnapshot) => {
           let arrResponseData = [];
           querySnapshot.forEach((doc) => {
-            console.log('imgGallTag',doc.data().id, doc.data())
+            //console.log('imgGallTag',doc.data().id, doc.data())
             arrResponseData.push(doc.data())
           });
           arrResponseData.reverse();
@@ -122,6 +122,7 @@ export default {
 <style lang="scss" scoped>
   .latest-list{
     .card{
+      height:100%;
       figure{
         padding-top: 80%;
         margin: 0;

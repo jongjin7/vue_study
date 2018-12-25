@@ -27,7 +27,7 @@
       <a id="kakao-login-btn" v-show="!iskakaoLogined"></a>
       <a href="#" @click.stop.prevent="kakaoLogout();" v-show="iskakaoLogined">카카오 로그아웃</a>
     </div>
-
+<div id="firebaseui-auth-container">11111</div>
     <a id="kakao-link-btn" href="javascript:;">
       <img src="//developers.kakao.com/assets/img/about/logos/kakaolink/kakaolink_btn_medium.png"/>
     </a>
@@ -35,7 +35,7 @@
 </template>
 
 <script>
-
+  import $ from 'jquery';
   export default {
     name: "Login",
     data(){
@@ -49,8 +49,13 @@
     },
     mounted(){
       this.kakaoLogin();
+      this.login()
     },
     methods:{
+      login(){
+        console.log('login!!! ', this.$firebaseUi)
+        console.log($('#firebaseui-auth-container').text());
+      },
       closePopup(){
         this.$EventBus.$emit('showModal');
       },

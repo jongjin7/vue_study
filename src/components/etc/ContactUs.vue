@@ -6,21 +6,21 @@
         <div class="col-md-6">
           <div class="form-group">
             <label for="ct-name">이름</label>
-            <input type="text" id="ct-name" class="form-control" :disabled="!isLogined"  maxlength="10" placeholder="이름을 입력하세요" required="" autocomplete="off" v-model="sendMessage.name" @keyup ="checkName" @focusout="checkName">
+            <input type="text" id="ct-name" class="form-control" :disabled="!isLogined"  maxlength="10" placeholder="이름을 입력하세요" required="" autocomplete="off" v-model="contactUsMessage.name" @keyup ="checkName" @focusout="checkName">
             <div class="invalid-feedback">{{ errorMessage.name}}</div>
           </div>
         </div>
         <div class="col-md-6">
           <div class="form-group has-error">
             <label for="ct-email">이메일</label>
-            <input type="text" id="ct-email" :disabled="!isLogined" placeholder="이메일 주소를 입력하세요" class="form-control" name="name" required="" autocomplete="off" v-model="sendMessage.email"  @focusout="checkEmail">
+            <input type="text" id="ct-email" :disabled="!isLogined" placeholder="이메일 주소를 입력하세요" class="form-control" name="name" required="" autocomplete="off" v-model="contactUsMessage.email"  @focusout="checkEmail">
             <div class="invalid-feedback">{{ errorMessage.email }}</div>
           </div>
         </div>
         <div class="col-12">
           <div class="form-group">
             <label for="ct-subject">제목</label>
-            <input type="text" id="ct-subject" :disabled="!isLogined" placeholder="제목을 입력하세요" class="form-control" required="" autocomplete="off" v-model="sendMessage.subject" @keyup ="checkSubject" @focusout="checkSubject">
+            <input type="text" id="ct-subject" :disabled="!isLogined" placeholder="제목을 입력하세요" class="form-control" required="" autocomplete="off" v-model="contactUsMessage.subject" @keyup ="checkSubject" @focusout="checkSubject">
             <div class="invalid-feedback">{{ errorMessage.subject }}</div>
           </div>
         </div>
@@ -28,7 +28,7 @@
           <div class="form-group">
             <label for="ct-message">내용</label>
             <div class="position-relative">
-              <textarea id="ct-message" class="form-control" :disabled="!isLogined"  placeholder="문의하실 내용을 입력하세요. HTML태그를 포함하는 내용은 텍스트만 자동으로 입력됩니다." rows="11" required="" autocomplete="off" v-model="sendMessage.message" @keyup="checkMessage" @focusout="checkMessage"></textarea>
+              <textarea id="ct-message" class="form-control" :disabled="!isLogined"  placeholder="문의하실 내용을 입력하세요. HTML태그를 포함하는 내용은 텍스트만 자동으로 입력됩니다." rows="11" required="" autocomplete="off" v-model="contactUsMessage.message" @keyup="checkMessage" @focusout="checkMessage"></textarea>
               <div class="text-size"><span>0</span> / <span>1000</span>(자)</div>
             </div>
             <div class="invalid-feedback">{{ errorMessage.message }}</div>
@@ -59,7 +59,7 @@ export default {
   name: "ContactUs",
   data() {
     return {
-      sendMessage:{
+      contactUsMessage:{
         name:'mr.jong',
         email:'test@sa.com',
         subject:'',
@@ -108,7 +108,7 @@ export default {
 
     sendSubmit(){
       console.log('submit!!!!')
-      localStorage.setItem(STORAGE_KEY_CONTACTUS, JSON.stringify(this.sendMessage))
+      localStorage.setItem(STORAGE_KEY_CONTACTUS, JSON.stringify(this.contactUsMessage))
       this.completedSendMessage=true;
     },
 
@@ -129,7 +129,7 @@ export default {
       const blank_pattern = /^\s+|\s+$/g;
       const event = event || window.event;
 
-      if(this.sendMessage.name.replace( blank_pattern, '' ) == "") {
+      if(this.contactUsMessage.name.replace( blank_pattern, '' ) == "") {
         this.errorMessage.name = '이름을 입력하지 않았습니다.';
         this.errorSubmitValidator[0] = true;
         //event.target.focus();
@@ -145,11 +145,11 @@ export default {
       const blank_pattern = /^\s+|\s+$/g;
       const event = event || window.event;
 
-      if( this.sendMessage.email.replace( blank_pattern, '' ) == "") {
+      if( this.contactUsMessage.email.replace( blank_pattern, '' ) == "") {
         this.errorMessage.email = '이메일을 입력하지 않았습니다.';
         this.errorSubmitValidator[1] = true;
         //event.target.focus();
-      }else if(this.sendMessage.email.replace( blank_pattern, '' ) != "" && !regExp.test(this.sendMessage.email)){
+      }else if(this.contactUsMessage.email.replace( blank_pattern, '' ) != "" && !regExp.test(this.contactUsMessage.email)){
         this.errorMessage.email = '이메일 형식에 맞춰 입력해주세요';
         this.errorSubmitValidator[1] = true;
         //event.target.focus();
@@ -166,12 +166,12 @@ export default {
       const event = event || window.event;
       const blank_pattern = /^\s+|\s+$/g;
 
-      if(this.sendMessage.subject.replace( blank_pattern, '' ) == "") {
+      if(this.contactUsMessage.subject.replace( blank_pattern, '' ) == "") {
         this.errorMessage.subject = '제목을 입력하지 않았습니다.';
         this.errorSubmitValidator[2] = true;
         //event.target.focus();
-      }else if(this.sendMessage.subject.replace( blank_pattern, '' ) != "" && this.reExpContent(this.sendMessage.subject)[0]){
-        this.sendMessage.subject = this.reExpContent(this.sendMessage.subject)[1];
+      }else if(this.contactUsMessage.subject.replace( blank_pattern, '' ) != "" && this.reExpContent(this.contactUsMessage.subject)[0]){
+        this.contactUsMessage.subject = this.reExpContent(this.contactUsMessage.subject)[1];
         this.errorMessage.subject= '';
         this.errorSubmitValidator[2] = true;
         event.target.focus();
@@ -187,12 +187,12 @@ export default {
       const event = event || window.event;
       const blank_pattern = /^\s+|\s+$/g;
 
-      if(this.sendMessage.message.replace( blank_pattern, '' ) == "") {
+      if(this.contactUsMessage.message.replace( blank_pattern, '' ) == "") {
         this.errorMessage.message = '내용을 입력하지 않았습니다.';
         this.errorSubmitValidator[3] = true;
         //event.target.focus();
-      }else if(this.sendMessage.message.replace( blank_pattern, '' ) != "" && this.reExpContent(this.sendMessage.message)[0]){
-        this.sendMessage.message = this.reExpContent(this.sendMessage.message)[1];
+      }else if(this.contactUsMessage.message.replace( blank_pattern, '' ) != "" && this.reExpContent(this.contactUsMessage.message)[0]){
+        this.contactUsMessage.message = this.reExpContent(this.contactUsMessage.message)[1];
         this.errorMessage.message= '';
         this.errorSubmitValidator[3] = true;
         event.target.focus();

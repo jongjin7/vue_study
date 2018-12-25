@@ -123,6 +123,10 @@
   <style lang="scss" scoped>
     .tbl-wrap{
       width:100%;
+      margin-bottom: 1rem;
+      .table{
+        margin-bottom: 0;
+      }
       thead {
         th {
           &:nth-child(1) {
@@ -169,6 +173,10 @@
           &:nth-child(5){
             text-align: center;
           }
+        }
+
+        .badge{
+          vertical-align: middle;
         }
       }
 

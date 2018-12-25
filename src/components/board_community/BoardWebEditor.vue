@@ -7,7 +7,7 @@
   import $ from "jquery";
   //summer editor
   import "summernote/dist/summernote-bs4.js"
-  //import "summernote/dist/lang/summernote-ko-KR.js"
+
   import "summernote/dist/summernote-bs4.css"
   import "codemirror/lib/codemirror.css";
   //import "codemirror/theme/monokai.css";
@@ -48,7 +48,7 @@
           vm.$emit('change', $(vm.$el).summernote('code'));
         },
         onBlur: function () {
-          vm.$emit('change', $(vm.$el).summernote('code'));
+          //vm.$emit('blur');
         }
       };
       $(this.$el).summernote(config);

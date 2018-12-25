@@ -1,9 +1,9 @@
 <template>
   <div class="">
     <ul class="pagination justify-content-end" >
-      <li class="page-item" :class="{disabled : pageNum == 0}"><a class="page-link" href="#" @click.stop.prevent="changePageIndex(pageNum)">Previous</a></li>
+      <li class="page-item" :class="{disabled : pageNum == 0}"><a class="page-link" href="#" @click.stop.prevent="changePageIndex(pageNum)">이전</a></li>
       <li class="page-item" :class="{active : page == pageNum+1, disabled: page =='...'}" v-for="page in pageItems"><a href="#" class="page-link" @click.stop.prevent="changePageIndex(page)">{{ page }}</a></li>
-      <li class="page-item" :class="{disabled : pageNum >= pageCount - 1}"><a class="page-link" href="#" @click.stop.prevent="changePageIndex(pageNum+2)">Next {{ pageNum + 1 }} </a></li>
+      <li class="page-item" :class="{disabled : pageNum >= pageCount - 1}"><a class="page-link" href="#" @click.stop.prevent="changePageIndex(pageNum+2)">다음 {{ pageNum + 1 }} </a></li>
     </ul>
   </div>
 </template>
@@ -81,13 +81,24 @@
               //console.log('today', strTodayDate)
 
             querySnapshot.forEach((doc) => {
-              let tmp = doc.data();
-              //console.log('data', tmp.id)
-              tmp.newTimeStamp = this.changeDateFormat(tmp.timeStamp.seconds);
-              tmp.latest = (strTodayDate == tmp.newTimeStamp.replace(/\-/g,''))? true : false;
-              //console.log('tmp.latest', tmp.latest)
-              tmp.listCount = tmpCount++;
-              loadData.push(tmp)
+              let dataTmp = doc.data();
+              let data = {
+                author:dataTmp.author,
+                title:dataTmp.title,
+                fileName:dataTmp.fileName,
+                filePath:dataTmp.filePath,
+                commentCount:dataTmp.commentCount,
+                hit:dataTmp.hit,
+                timeStamp: dataTmp.timeStamp,
+                id:dataTmp.id,
+              };
+              //console.log('data', data.id)
+
+              //console.log('data.latest', data.latest)
+              data.newTimeStamp = this.changeDateFormat(dataTmp.timeStamp.seconds);
+              data.latest = (strTodayDate == data.newTimeStamp.replace(/\-/g,''))? true : false;
+              data.listCount = tmpCount++;
+              loadData.push(data)
             });
 
             loadData.reverse();
@@ -196,10 +207,25 @@ console.log('pgcount', this.pageCount)
     }
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
+  .pagination{
+    .page-item{
+      text-align: center;
+    }
+  }
 @media (max-width: 767px){
   .pagination{
+    justify-content: space-between !important;
+    //justify-content: stretch !important;
+    .page-item{
+      flex:auto;
+      font-size: 1rem;
+      a{
+        padding: 0.4rem 0.7rem;
+        letter-spacing:-0.1em;
+      }
 
+    }
   }
 }
 </style>

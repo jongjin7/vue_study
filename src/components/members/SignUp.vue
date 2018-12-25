@@ -210,6 +210,20 @@
 
 <script>
 export default {
-  name: "SignUp"
+  name: "SignUp",
+  data(){
+    return{
+
+    }
+  },
+  created(){
+
+  },
+  methods:{
+
+  },
+  components:{
+
+  }
 };
 </script>
