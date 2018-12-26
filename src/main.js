@@ -45,7 +45,6 @@ dbFireStore.settings({ timestampsInSnapshots: true });
 
 
 const firebaseUi = new firebaseui.auth.AuthUI(firebase.auth());
-console.log('ui', firebaseUi)
 
 Vue.prototype.$firebase = firebase;
 Vue.prototype.$firebaseUi = firebaseUi;

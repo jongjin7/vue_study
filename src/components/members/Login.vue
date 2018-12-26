@@ -27,7 +27,7 @@
       <a id="kakao-login-btn" v-show="!iskakaoLogined"></a>
       <a href="#" @click.stop.prevent="kakaoLogout();" v-show="iskakaoLogined">카카오 로그아웃</a>
     </div>
-<div id="firebaseui-auth-container">11111</div>
+<div id="firebaseui-auth-container"></div>
     <a id="kakao-link-btn" href="javascript:;">
       <img src="//developers.kakao.com/assets/img/about/logos/kakaolink/kakaolink_btn_medium.png"/>
     </a>
@@ -35,7 +35,7 @@
 </template>
 
 <script>
-  import $ from 'jquery';
+  import 'firebaseui/dist/firebaseui.css';
   export default {
     name: "Login",
     data(){
@@ -54,7 +54,42 @@
     methods:{
       login(){
         console.log('login!!! ', this.$firebaseUi)
-        console.log($('#firebaseui-auth-container').text());
+
+        //익명 사용자 업그레이드
+        // Temp variable to hold the anonymous user data if needed.
+        let data = null;
+        // Hold a reference to the anonymous current user.
+        let anonymousUser = this.$firebase.auth().currentUser;
+
+        let uiConfig = {
+          callbacks: {
+            signInSuccessWithAuthResult: function (authResult, redirectUrl) {
+              // User successfully signed in.
+              // Return type determines whether we continue the redirect automatically
+              // or whether we leave that to developer to handle.
+              return true;
+            },
+            uiShown: function () {
+              // The widget is rendered.
+              // Hide the loader.
+              //document.getElementById('loader').style.display = 'none';
+            }
+          },
+          signInFlow: 'popup',
+          autoUpgradeAnonymousUsers: false, //익명사용자 로그인 업그레이드
+          signInSuccessUrl: '/',
+          signInOptions: [
+            // Leave the lines as is for the providers you want to offer your users.
+            this.$firebase.auth.GoogleAuthProvider.PROVIDER_ID,
+            //this.$firebase.auth.FacebookAuthProvider.PROVIDER_ID,
+            //firebase.auth.TwitterAuthProvider.PROVIDER_ID,
+            //firebase.auth.GithubAuthProvider.PROVIDER_ID,
+            this.$firebase.auth.EmailAuthProvider.PROVIDER_ID,
+            //firebase.auth.PhoneAuthProvider.PROVIDER_ID
+          ],
+        }
+
+        this.$firebaseUi.start('#firebaseui-auth-container', uiConfig);
       },
       closePopup(){
         this.$EventBus.$emit('showModal');
@@ -133,5 +168,17 @@
 
   };
 </script>
+<style scoped lang="scss">
+  #firebaseui-auth-container{
+    border:1px solid red;
+  }
+  .firebaseui-card-content{
+    border:1px solid blue;
+    padding:0;
+  }
+  .firebaseui-idp-buttonn{
+    max-width:none;
+  }
+</style>
 
 

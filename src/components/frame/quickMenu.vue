@@ -48,8 +48,16 @@ export default {
       },100);
     },
     logout(){
-      console.log('logout!!!');
-      this.$router.push('/');
+      const vm = this;
+      this.$firebase.auth().signOut().then(function() {
+        console.log('logout!!!');
+        vm.$router.push('/');
+        // Sign-out successful.
+      }).catch(function(error) {
+        // An error happened.
+      });
+
+
     }
   }
 }
