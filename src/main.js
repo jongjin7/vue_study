@@ -42,7 +42,7 @@ import 'firebase/firestore';
 import 'firebase/storage';
 const dbFireStore = firebase.firestore();
 dbFireStore.settings({ timestampsInSnapshots: true });
-
+firebase.auth().languageCode = 'kr';
 
 const firebaseUi = new firebaseui.auth.AuthUI(firebase.auth());
 

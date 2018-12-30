@@ -1,10 +1,14 @@
 <!-- 반복문 -->
 <template>
   <div class="list-group">
-      <router-link :to="list.link" :key="list.id" v-for="list in linklist" class="list-group-item" :class="list.class">
+      <router-link :to="list.link" :key="list.id" v-if="index < linklist.length-1" v-for="(list, index) in linklist" class="list-group-item" :class="list.class">
         <h4 class="list-group-item-heading">{{list.title}}</h4>
         <p class="list-group-item-text">{{list.content}}</p>
       </router-link>
+      <a href="#" class="list-group-item" @click.stop.prevent="$EventBus.$emit('loginPop')" v-else>
+        <h4 class="list-group-item-heading">{{list.title}}</h4>
+        <p class="list-group-item-text">{{list.content}}</p>
+      </a>
     </div>
 </template>
 <script>
@@ -39,21 +43,15 @@ export default {
         },
         {
           title: "문의사항 접수",
-          content: "문의사항 접수 페이지, 이메일 확인?",
+          content: "문의사항 접수 페이지",
           link: "/contact",
           class:''
         },
         {
-          title: "회원가입",
-          content: "심플한 회원가입 입력폼",
-          link: "/signup",
-          class:''
-        },
-        {
-          title: "SNS를 이용한 회원가입 및 로그인 구현",
+          title: "구글 Firebase Auth API를 이용한 회원가입 및 로그인 구현",
           content: "모달 팝업으로 구현",
           link: "/",
-          class:'disabled bg-secondary text-muted'
+          class:''
         }
       ]
     };

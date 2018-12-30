@@ -3,8 +3,6 @@
 </template>
 
 <script>
-
-  import $ from "jquery";
   //summer editor
   import "summernote/dist/summernote-bs4.js"
 

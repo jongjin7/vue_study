@@ -2,8 +2,7 @@
   <footer class="container">
     <p class="float-right"><a href="#">Back to top</a></p>
     <p>
-      <span>© 2018 Jongjin Lim </span>
-      <a href="#" @click.stop.prevent="showModalpopup('로그인','login');">로그인 팝업</a>
+      <span>© 2018 Lim,Jongjin</span>
     </p>
     <!-- modal popup -->
     <modal-popup v-if="showModal" @toggleClose="showModal=false; changeBodyStyle();" :modalOpened="showModal" />
@@ -35,13 +34,6 @@ export default {
 
   },
   methods: {
-    showModalpopup(title, componentName){
-      this.showModal = true;
-      this.$store.state.pop_title = title;
-      this.$store.state.pop_content = componentName;
-      this.changeBodyStyle();
-    },
-
     changeBodyStyle(){
       //console.log('toShowModal', this.showModal)
       let $body = document.querySelector('body');

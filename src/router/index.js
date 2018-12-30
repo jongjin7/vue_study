@@ -10,6 +10,7 @@ import DataGrid from "@/components/data_grid/DataGridMain";
 import Todo from "@/components/etc/Todos";
 import Contact from "@/components/etc/ContactUs";
 import SignUp from "@/components/members/SignUp";
+import Etc from "@/components/etc/Etc";
 
 Vue.use(Router);
 
@@ -59,6 +60,11 @@ export default new Router({
       path: "/signup",
       name: "SignUp",
       component: SignUp
+    },
+    {
+      path: "/etc",
+      name: "Etc",
+      component: Etc
     }
   ]
 });

@@ -37,7 +37,7 @@
 
                   <div class="author text-right">
                     <small class="text-muted mr-2">작성자: hong.kim</small>
-                    <small class="text-muted">등록일: {{ post.newTimeStamp }} / {{ post.id }}</small>
+                    <small class="text-muted">등록일: {{ post.newTimeStamp }}</small>
                   </div>
 
                   <div class="card-foot">

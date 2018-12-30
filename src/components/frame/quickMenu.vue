@@ -6,9 +6,6 @@
 
     <div id="" class="dropdown-menu" v-bind:class="{ show: isOpenMenu }">
       <router-link class="dropdown-item" :to="item.link" v-for="(item, index) in gnbItems" :key="index">{{ item.title }}</router-link>
-      <hr class="dropdown-divider">
-      <router-link class="dropdown-item" :to="'/signup'">회원가입</router-link>
-      <a href="#"class="dropdown-item" @click.stop.prevent="logout">로그아웃</a>
     </div>
   </div>
 </template>
@@ -47,18 +44,7 @@ export default {
         vm.isOpenMenu = false;
       },100);
     },
-    logout(){
-      const vm = this;
-      this.$firebase.auth().signOut().then(function() {
-        console.log('logout!!!');
-        vm.$router.push('/');
-        // Sign-out successful.
-      }).catch(function(error) {
-        // An error happened.
-      });
 
-
-    }
   }
 }
 </script>

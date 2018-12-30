@@ -328,7 +328,7 @@ export default {
     padding:4px;
   }
   .scrolling-wrap .inner-wrap{
-    max-height: 400px; overflow-y: auto;
+    /*max-height: 400px; overflow-y: auto;*/
   }
   .view label{margin-bottom: 0;}
   .completed{background: #eaeaea;}

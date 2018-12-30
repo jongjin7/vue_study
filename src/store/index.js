@@ -13,4 +13,5 @@ export const store = new Vuex.Store({
     latestGalleryItemIndex:'',
     communityTotalList:'',
   },
+
 });

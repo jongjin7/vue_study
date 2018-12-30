@@ -11,8 +11,10 @@
           </div>
 
           <div class="modal-body">
-            <photo-editor v-if="currentPopContent == 'photo'" />
-            <login-content v-if="currentPopContent == 'login'" />
+            <photoEditor v-if="currentPopContent == 'photo'" />
+            <loginContent v-else-if="currentPopContent == 'login'" />
+            <signUpContent v-else-if="currentPopContent == 'singup'" />
+            <signUpContent v-else-if="currentPopContent == 'modifyUserInfo'" />
           </div>
 
           <div class="modal-footer d-none"></div>
@@ -25,6 +27,7 @@
 
 <script>
 import loginContent from "../members/Login.vue";
+import signUpContent from "../members/SignUp.vue";
 import photoEditor from "../board_photo/PopBoardPhotoWrite.vue";
 
 export default{
@@ -45,8 +48,9 @@ export default{
 
   },
   components:{
-    'login-content': loginContent,
-    'photo-editor': photoEditor
+    loginContent,
+    photoEditor,
+    signUpContent,
   }
 }
 </script>

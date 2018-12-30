@@ -67,7 +67,7 @@
             console.log('thisData callback')
 
             $('#example').DataTable({
-              dom: 'Bfrtip',
+              dom: 'Bfr<".mwrap"t>p',
               buttons: [
                 'copy', 'excel', 'pdf'
               ],
@@ -76,6 +76,11 @@
               //"paging":         false
 
             });
+
+            // $('.btn-dn-excell').on('click', function(e){
+            //   e.preventDefault();
+            //   $('.tbl-wrap .buttons-excel').trigger('click');
+            // });
           }
         });
 
@@ -86,3 +91,13 @@
     }
   };
 </script>
+<style lang="scss">
+  @media (max-width:767px){
+   .mwrap{
+     overflow-x:scroll;
+      .table{
+        width:200% !important;
+      }
+    }
+  }
+</style>

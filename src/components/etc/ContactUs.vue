@@ -1,6 +1,6 @@
 <template>
   <div class="mb-5">
-    <h1 class="mb-4">Contact Us</h1>
+    <h1 class="mb-4">문의사항 접수</h1>
     <form id="contactForm" novalidate="true" v-if="!completedSendMessage" @submit.stop.prevent="sendSubmit">
       <div class="row">
         <div class="col-md-6">

@@ -2,19 +2,24 @@
   <header>
 		<div class="navbar navbar-dark bg-dark box-shadow">
 			<div class="container d-flex justify-content-between">
-				<router-link :to="gotoMainLink" class="navbar-brand d-flex align-items-center logo">
-					<img src="../../assets/logo.png">
-					<strong>Jongjin</strong>
-				</router-link>
+        <div class="lft">
+          <router-link :to="gotoMainLink" class="navbar-brand align-items-center logo mr-2">
+            <img src="../../assets/logo.png">
+            <strong>Jongjin</strong>
+          </router-link>
 
-        <quick-menu/>
+          <commonAccount />
+        </div>
+
+        <commonQuickMenu />
 			</div>
 		</div>
 	</header>
 </template>
 
 <script>
-import quickMenu from "./quickMenu.vue";
+import commonQuickMenu from "./quickMenu.vue";
+import commonAccount from "./Account.vue";
 export default {
   name: "Header",
   data() {
@@ -27,23 +32,27 @@ export default {
 
 	},
   components:{
-    "quick-menu":quickMenu
+    commonQuickMenu,
+    commonAccount
   }
 };
 </script>
 
 <style lang='scss'>
-.logo {
-  width: 30px;
-  text-align: center;
-  text-decoration: none;
+header{
+  line-height:1;
+  .logo {
+    text-align: center;
+    text-decoration: none;
+    margin-right: 0;
 
-  img {
-    display: block;
-    width: 100%;
-    vertical-align: middle;
+    img {
+      width: 30px;
+      vertical-align: middle;
+    }
   }
 }
+
 main{
 	padding-top:10px;
 }
