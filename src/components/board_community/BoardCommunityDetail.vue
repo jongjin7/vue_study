@@ -43,8 +43,8 @@
 
           <div class="sns-shares">
             <a id="kakao-link-btn" href="#" class="btn-share">
-              <img src="//developers.kakao.com/assets/img/about/logos/kakaolink/kakaolink_btn_medium.png"/>
-              <span>카카오링크</span>
+              <img src="https://developers.kakao.com/assets/img/about/logos/kakaolink/kakaolink_btn_medium.png"/>
+              <span>카카오 공유하기</span>
             </a>
             <div class="stitle">공유하기</div>
           </div>
@@ -108,7 +108,7 @@
       sharePage(){
 
         const vm = this;
-console.log('kakao')
+console.log('kakao Share')
         // 스토리 공유 버튼을 생성합니다.
         Kakao.Link.createDefaultButton({
           container: '#kakao-link-btn',

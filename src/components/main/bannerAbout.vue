@@ -13,7 +13,7 @@
     <div v-else>
       <h1><span class="name text-primary">종진</span>의 데모 사이트에 오신것을 환영합니다.</h1>
       <p class="pb-2">
-        이 웹 사이트는 게시판과 입력폼 기능 구현 중심으로 된 페이지롷 구성되어 있다.
+        이 웹 사이트는 게시판과 입력폼 기능 구현 중심으로 된 페이지로 구성되어 있다.<br>
         Front-End는 부트스트랩4.x으로 화면구성, VueJS로 화면 UI 및 비지니스 로직을 개발하였다.<br>
         Back-End는 Google BaaS(Backend as a Service) Firebase Database의 한 종류(NoSQL)인 Cloud Firestore를,
         Resource는 Firebase Storage를 이용하여 데이터를 연동하였다.

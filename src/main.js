@@ -4,6 +4,7 @@ import Vue from "vue";
 import App from "./App";
 import router from "./router";
 import { store } from "./store";
+import './plugins/socketPlugin';
 
 import axios from "axios";
 
@@ -57,7 +58,6 @@ new Vue({
   store,
   components: { App },
   template: "<App/>",
-
 });
 
 
