@@ -185,10 +185,23 @@
 
     @media (max-width:767px){
       .inbox_people{
-        display: none;
+        width:100%;
+      }
+      .inbox_chat{
+        height:30vh;
+        border-bottom: 10px solid #f1f1f1;
+      }
+      .inbox_people:after{
+        display: block;
+        border-bottom: 1px solid #dadada;
+        content: '';
+        width:100%;
       }
       .mesgs{
         width:100%;
+      }
+      .inbox_people.close:after{
+        display: none;
       }
     }
   }
