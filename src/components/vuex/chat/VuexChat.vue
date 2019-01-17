@@ -63,6 +63,10 @@
       color: #05728f;
       font-size: 21px;
       margin: auto;
+
+      span{
+        display: none;
+      }
     }
     .srch_bar input{
       border:1px solid #cdcdcd;
@@ -186,6 +190,26 @@
     @media (max-width:767px){
       .inbox_people{
         width:100%;
+
+        .headind_srch{
+          .recent_heading{
+            cursor: pointer;
+            &:hover{
+              opacity: 0.5;
+            }
+          }
+
+        }
+
+        h4{
+          span{
+            display: inline-block;
+
+            .fa-toggle-off{
+              display: none;
+            }
+          }
+        }
       }
       .inbox_chat{
         height:30vh;
@@ -200,8 +224,21 @@
       .mesgs{
         width:100%;
       }
-      .inbox_people.close:after{
-        display: none;
+      .inbox_people.close{
+        h4{
+          .fa-toggle-on{
+            display: none;
+          }
+          .fa-toggle-off{
+            display: block;
+          }
+        }
+        &:after{
+          display: none;
+        }
+        .inbox_chat{
+          display: none;
+        }
       }
     }
   }
