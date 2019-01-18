@@ -49,7 +49,7 @@
     data(){
       return{
         email:'test1@mail.com',
-        password:'123456',
+        password:'!test11',
         oldEmail: userEmailData,
         userSaveEmail:false,
         errorMessage:{
