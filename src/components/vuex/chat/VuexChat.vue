@@ -35,7 +35,6 @@
     img{
       min-width:30px;
       max-width:100%;
-
     }
     .inbox_people {
       background: #f8f8f8 none repeat scroll 0 0;
@@ -49,9 +48,6 @@
       overflow: hidden;
     }
     .top_spac{ margin: 20px 0 0;}
-
-
-    .recent_heading {float: left; width:40%;}
     .srch_bar {
       display: inline-block;
       text-align: right;
@@ -59,13 +55,17 @@
     }
     .headind_srch{ padding:10px 29px 10px 20px; overflow:hidden; border-bottom:1px solid #c4c4c4;}
 
-    .recent_heading h4 {
-      color: #05728f;
-      font-size: 21px;
-      margin: auto;
+    .recent_heading {
+      float: left; width:40%;
 
-      span{
-        display: none;
+      h4 {
+        color: #05728f;
+        font-size: 21px;
+        margin: auto;
+
+        span{
+          display: none;
+        }
       }
     }
     .srch_bar input{
