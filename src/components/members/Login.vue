@@ -27,7 +27,7 @@
     <h3 class="h6 text-center pb-2">✓ SNS 로그인</h3>
     <div id="firebaseui-auth-container"></div>
 
-    <div class="login-wrap">
+    <div class="login-wrap d-none">
       <a id="custom-login-btn" href="#" @click.stop.prevent="kakaoLogin" v-show="!iskakaoLogined">
         <img src="//mud-kage.kakao.com/14/dn/btqbjxsO6vP/KPiGpdnsubSq3a0PHEGUK1/o.jpg" width="100%"/>
       </a>
@@ -197,7 +197,7 @@
             //this.$firebase.auth.FacebookAuthProvider.PROVIDER_ID,
             //firebase.auth.TwitterAuthProvider.PROVIDER_ID,
             //firebase.auth.GithubAuthProvider.PROVIDER_ID,
-            this.$firebase.auth.EmailAuthProvider.PROVIDER_ID,
+            //this.$firebase.auth.EmailAuthProvider.PROVIDER_ID,
             //firebase.auth.PhoneAuthProvider.PROVIDER_ID
           ],
         }
