@@ -1,15 +1,28 @@
 <template>
   <div class="type_msg">
     <div class="input_msg_write">
-      <input type="text" class="write_msg" placeholder="메시지를 입력하세요" />
-      <button class="msg_send_btn" type="button"><i class="fa fa-paper-plane-o" aria-hidden="true"></i></button>
+      <input type="text" class="write_msg" placeholder="메시지를 입력하세요" @keyup.13="submitMessageFunc"/>
+      <button class="msg_send_btn" type="button" @click="submitMessageFunc"><i class="fa fa-paper-plane-o" aria-hidden="true"></i></button>
     </div>
   </div>
 </template>
 
 <script>
     export default {
-        name: "ChatInputForm"
+      name: "ChatInputForm",
+      data() {
+        return {
+          msg: '',
+        };
+      },
+      methods: {
+        submitMessageFunc() {
+          if (this.msg.length === 0) return false;
+          this.$emit('submitMessage', this.msg);
+          this.msg = '';
+          return true;
+        },
+      },
     }
 </script>
 

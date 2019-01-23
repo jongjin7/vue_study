@@ -1,5 +1,5 @@
 <template>
-  <div class="inbox_chat">
+  <div class="inbox_chat" v-auto-bottom="msgs">
     <div class="chat_list active_chat">
       <a href="#">
         <div class="chat_people">
@@ -79,7 +79,8 @@
 
 <script>
     export default {
-        name: "ChatList"
+      name: "ChatList",
+      props: ['msgs'],
     }
 </script>
 

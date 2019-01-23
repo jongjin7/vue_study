@@ -5,23 +5,74 @@
       <div class="inbox_msg">
         <div class="inbox_people">
           <SearchMessageForm />
-          <ChatList />
+          <ChatList :msgs="msgDatas" />
         </div>
         <div class="mesgs">
           <chatRoom />
-          <chatInputForm />
+          <chatInputForm v-on:submitMessage="sendMessage" />
         </div>
       </div>
     </div>
   </div>
 </template>
 <script>
+  import Constant from '../../../common/Constant';
+  import { mapMutations, mapState } from 'vuex';
+
   import SearchMessageForm from './SearchMessageForm';
   import ChatList from './ChatList';
   import ChatRoom from './ChatRoom';
   import ChatInputForm from './ChatInputForm';
   export default{
     name: 'Chat',
+    data(){
+      return{
+        datas: [],
+      }
+    },
+    created(){
+      this.fetchData();
+
+      const vm = this;
+
+      // this.$socket.on('chat', (data) => {
+      //   this.pushMsgData(data);
+      //   vm.datas.push(data);
+      // });
+    },
+    computed: {
+      ...mapState({
+        'msgDatas': state => state.socket.msgDatas,
+      }),
+    },
+    methods:{
+      ...mapMutations({
+        'pushMsgData': Constant.PUSH_MSG_DATA,
+      }),
+
+      sendMessage(msg) {
+        this.pushMsgData({
+          from: {
+            name: '나',
+          },
+          msg,
+        });
+        this.$sendMessage({
+          name: this.$route.params.username,
+          msg,
+        });
+      },
+
+      fetchData() {
+        const vm = this;
+        this.$firebaseDB.doc('/myChat/chatList/chatRooms/roomA/messages/message2').get().then((doc)=>{
+          console.log('fetchData ==> get DB...', doc.data().from)
+          vm.$firebaseDB.doc(doc.data().from.path).get().then((doc) => {
+            console.log('ref', doc.data().name)
+          })
+        });
+      },
+    },
     components:{
       SearchMessageForm,
       ChatList,

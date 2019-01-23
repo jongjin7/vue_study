@@ -4,7 +4,10 @@ import Vue from "vue";
 import App from "./App";
 import router from "./router";
 import { store } from "./store";
-import './plugins/socketPlugin';
+import './plugins/socketPlugin';  //socket use
+
+import Directives from './plugins/directives';
+Vue.use(Directives);
 
 import axios from "axios";
 
