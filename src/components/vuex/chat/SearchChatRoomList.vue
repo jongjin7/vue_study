@@ -16,7 +16,7 @@
 
 <script>
     export default {
-      name: "SearchMessageForm",
+      name: "SearchChatRoomList",
       mounted(){
         let vm = this;
         $(this.$el).find('.recent_heading').click(function(){

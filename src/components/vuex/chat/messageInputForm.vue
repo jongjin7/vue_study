@@ -1,7 +1,7 @@
 <template>
   <div class="type_msg">
     <div class="input_msg_write">
-      <input type="text" class="write_msg" placeholder="메시지를 입력하세요" @keyup.13="submitMessageFunc"/>
+      <input type="text" class="write_msg" placeholder="메시지를 입력하세요"  v-model="msg" @keyup.13="submitMessageFunc"/>
       <button class="msg_send_btn" type="button" @click="submitMessageFunc"><i class="fa fa-paper-plane-o" aria-hidden="true"></i></button>
     </div>
   </div>
@@ -9,7 +9,7 @@
 
 <script>
     export default {
-      name: "ChatInputForm",
+      name: "messageInputForm",
       data() {
         return {
           msg: '',

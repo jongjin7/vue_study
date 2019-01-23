@@ -4,12 +4,12 @@
     <div class="messaging">
       <div class="inbox_msg">
         <div class="inbox_people">
-          <SearchMessageForm />
-          <ChatList :msgs="msgDatas" />
+          <SearchChatRoomList />
+          <ChatRoomList :msgs="msgDatas" />
         </div>
         <div class="mesgs">
-          <chatRoom />
-          <chatInputForm v-on:submitMessage="sendMessage" />
+          <chatView />
+          <messageInputForm v-on:submitMessage="sendMessage" />
         </div>
       </div>
     </div>
@@ -19,12 +19,12 @@
   import Constant from '../../../common/Constant';
   import { mapMutations, mapState } from 'vuex';
 
-  import SearchMessageForm from './SearchMessageForm';
-  import ChatList from './ChatList';
-  import ChatRoom from './ChatRoom';
-  import ChatInputForm from './ChatInputForm';
+  import SearchChatRoomList from './SearchChatRoomList';
+  import ChatRoomList from './ChatRoomList';
+  import ChatView from './ChatView';
+  import messageInputForm from './messageInputForm';
   export default{
-    name: 'Chat',
+    name: 'ChatRoomByVuex',
     data(){
       return{
         datas: [],
@@ -51,12 +51,14 @@
       }),
 
       sendMessage(msg) {
+        console.log('vueChat sendMessage')
         this.pushMsgData({
           from: {
             name: '나',
           },
           msg,
         });
+
         this.$sendMessage({
           name: this.$route.params.username,
           msg,
@@ -74,10 +76,10 @@
       },
     },
     components:{
-      SearchMessageForm,
-      ChatList,
-      ChatRoom,
-      ChatInputForm,
+      SearchChatRoomList,
+      ChatRoomList,
+      ChatView,
+      messageInputForm,
     }
   }
 </script>

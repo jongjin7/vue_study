@@ -79,7 +79,7 @@
 
 <script>
     export default {
-      name: "ChatList",
+      name: "ChatRoomList",
       props: ['msgs'],
     }
 </script>

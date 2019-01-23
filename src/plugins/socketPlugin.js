@@ -1,7 +1,7 @@
 import Vue from 'vue';
 import io from 'socket.io-client';
 
-const socket = io('http://192.168.1.72:8188');
+const socket = io('http://192.168.0.3:8088');
 
 const SocketPlugin ={
   install(vue){
@@ -21,15 +21,5 @@ const SocketPlugin ={
   }
 }
 
+Vue.use(SocketPlugin);
 
-//@@@ use vue-socket
-// import VueSocketIO from 'vue-socket.io'
-// Vue.use(new VueSocketIO({
-//   debug: true,
-//   connection: 'http://192.168.0.3:8188',
-//   vuex: {
-//     store,
-//     actionPrefix: 'SOCKET_',
-//     mutationPrefix: 'SOCKET_'
-//   }
-// }))
