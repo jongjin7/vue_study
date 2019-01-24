@@ -8,7 +8,7 @@
           <ChatRoomList :msgs="msgDatas" />
         </div>
         <div class="mesgs">
-          <chatView />
+          <chatRoomView />
           <messageInputForm v-on:submitMessage="sendMessage" />
         </div>
       </div>
@@ -21,7 +21,7 @@
 
   import SearchChatRoomList from './SearchChatRoomList';
   import ChatRoomList from './ChatRoomList';
-  import ChatView from './ChatView';
+  import ChatRoomView from './ChatRoomView';
   import messageInputForm from './messageInputForm';
   export default{
     name: 'ChatRoomByVuex',
@@ -66,6 +66,7 @@
       },
 
       fetchData() {
+
         const vm = this;
         this.$firebaseDB.doc('/myChat/chatList/chatRooms/roomA/messages/message2').get().then((doc)=>{
           console.log('fetchData ==> get DB...', doc.data().from)
@@ -78,7 +79,7 @@
     components:{
       SearchChatRoomList,
       ChatRoomList,
-      ChatView,
+      ChatRoomView,
       messageInputForm,
     }
   }

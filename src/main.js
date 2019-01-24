@@ -4,6 +4,8 @@ import Vue from "vue";
 import App from "./App";
 import router from "./router";
 import { store } from "./store";
+
+import './common/globalVariables';
 import './plugins/socketPlugin';  //socket use
 
 import Directives from './plugins/directives';

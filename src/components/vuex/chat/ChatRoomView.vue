@@ -43,7 +43,19 @@
 
 <script>
     export default {
-        name: "ChatView"
+      name: "ChatRoomView",
+      data(){
+        return{
+
+        }
+      },
+      created(){
+
+      },
+      methods:{
+
+      }
+
     }
 </script>
 

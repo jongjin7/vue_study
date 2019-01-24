@@ -139,9 +139,9 @@ export default {
       this.$store.state.pop_title = title;
       this.$store.state.pop_content = componentName;
       if(post !== undefined){
-        this.$store.state.popGalleryContent = post; //수정용 post
+        window.globalVars.popGalleryContent = post; //수정용 post
       }else{
-        this.$store.state.popGalleryContent = null //등록용
+        window.globalVars.popGalleryContent = null //등록용
       }
       this.$EventBus.$emit('toggleClose');
     },
@@ -152,14 +152,14 @@ export default {
       //서버에 저장된 최종 인덱스 값 얻기
       this.$firebaseDB.collection('photo-gallery').doc('content').get().then((doc)=>{
         //console.log('Last Index to DB', doc.data().lastIndex)
-        this.$store.state.latestGalleryItemIndex = doc.data().lastIndex;
+        window.globalVars.latestGalleryItemIndex = doc.data().lastIndex;
       });
 
       this.$firebaseDB.collection('photo-gallery').doc('content').collection('gallery-data')
         .orderBy('timeStamp')
         .get()
         .then((querySnapshot) => {
-          this.totalListLength = this.$store.state.communityTotalList = querySnapshot.size;
+          this.totalListLength = window.globalVars.communityTotalList = querySnapshot.size;
           let loadData =[];
           querySnapshot.forEach((doc) => {
             let tmp = doc.data();
