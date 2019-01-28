@@ -44,11 +44,33 @@
       ...mapState({
         'msgDatas': state => state.socket.msgDatas,
       }),
+      changeTimeType: ()=>{
+        console.log('changeTime')
+      }
     },
     methods:{
       ...mapMutations({
         'pushMsgData': Constant.PUSH_MSG_DATA,
       }),
+
+      changeDateFormat(date) {
+        function unixTime(unixtime) {
+          let u = new Date(unixtime*1000);
+
+          return u.getFullYear() +
+            '-' + ('0' + (u.getMonth()+1)).slice(-2) +
+            '-' + ('0' + u.getDate()).slice(-2) +
+            ' ' + ('0' + u.getHours()).slice(-2) +
+            ':' + ('0' + u.getMinutes()).slice(-2) +
+            ':' + ('0' + u.getSeconds()).slice(-2) +
+            '.' + (u.getMilliseconds() / 1000).toFixed(3).slice(2, 5)
+        };
+        let changeDate = unixTime(date).split(' ')[0];
+        //console.log('변환',unixTime(date))
+        return changeDate;
+      },
+
+
 
       sendMessage(msg) {
         console.log('vueChat sendMessage')
@@ -56,7 +78,7 @@
           from: {
             name:'나',
             date:'1999.12.31',
-            time:'12:23:31',
+            time:new Date(),
           },
           msg,
         });
@@ -65,7 +87,7 @@
         this.$sendMessage({
           name: this.$route.params.username,
           date:'1999.12.31',
-          time: '12:23:33',
+          time: new Date(),
           msg,
 
         });
@@ -195,7 +217,7 @@
     .received_withd_msg { width: 57%;}
     .mesgs {
       float: left;
-      padding: 12px 0 0 0;
+      //padding: 12px 0 0 0;
       width: 60%;
     }
 

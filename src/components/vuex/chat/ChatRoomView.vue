@@ -1,17 +1,17 @@
 <template>
   <div class="msg_history">
+    <div class="hr-date small"><span>2019.01.29 (화)</span></div>
     <div :class="{'incoming_msg':(msg.from.name !== '나'), 'outgoing_msg':(msg.from.name === '나')}" v-for="(msg, index) in msgs">
-
       <div class="incoming_msg_img" v-if="msg.from.name !== '나'"> <img src="https://ptetutorials.com/images/user-profile.png" alt="sunil">{{msg.from.name}}</div>
       <div class="received_msg" v-if="msg.from.name !== '나'">
         <div class="received_withd_msg">
           <p>{{ msg.msg }}</p>
-          <span class="time_date"> {{ msg.from.time }} | {{ msg.from.date }}</span>
+          <span class="time_date">{{ msg.from.time }}</span>
         </div>
       </div>
       <div class="sent_msg" v-else>
         <p>{{ msg.msg }}</p>
-        <span class="time_date"> {{ msg.from.time }} | {{ msg.from.date }}</span>
+        <span class="time_date">{{ msg.from.time }}</span>
       </div>
     </div>
     <!--<div class="outgoing_msg">
@@ -65,6 +65,22 @@
     }
 </script>
 
-<style scoped>
-
+<style lang="scss" scoped>
+.hr-date{
+  position: relative;
+  padding:1rem 0;
+  text-align: center;
+  &:before{
+    display: block;
+    position: absolute; left:0; top:50%;
+    border-top: 1px solid #eee;
+    width:100%;
+    content: '';
+  }
+  span{
+    position: relative;
+    background: #fff;
+    padding:0 1rem;
+  }
+}
 </style>
