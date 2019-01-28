@@ -1,7 +1,7 @@
 import Vue from 'vue';
 import io from 'socket.io-client';
 
-const socket = io('http://192.168.0.3:8088');
+const socket = io('http://192.168.1.72:8088');
 
 const SocketPlugin ={
   install(vue){
@@ -13,6 +13,8 @@ const SocketPlugin ={
       socket.emit('chat',{
         msg: $payload.msg,
         name: $payload.name,
+        date: $payload.date,
+        time: $payload.time
       });
     }
 

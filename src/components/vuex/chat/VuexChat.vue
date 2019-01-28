@@ -5,10 +5,10 @@
       <div class="inbox_msg">
         <div class="inbox_people">
           <SearchChatRoomList />
-          <ChatRoomList :msgs="msgDatas" />
+          <ChatRoomList />
         </div>
         <div class="mesgs">
-          <chatRoomView />
+          <chatRoomView :msgs="msgDatas" />
           <messageInputForm v-on:submitMessage="sendMessage" />
         </div>
       </div>
@@ -35,10 +35,10 @@
 
       const vm = this;
 
-      // this.$socket.on('chat', (data) => {
-      //   this.pushMsgData(data);
-      //   vm.datas.push(data);
-      // });
+      this.$socket.on('chat', (data) => {
+        this.pushMsgData(data);
+        vm.datas.push(data);
+      });
     },
     computed: {
       ...mapState({
@@ -54,14 +54,20 @@
         console.log('vueChat sendMessage')
         this.pushMsgData({
           from: {
-            name: '나',
+            name:'나',
+            date:'1999.12.31',
+            time:'12:23:31',
           },
           msg,
         });
 
+        // send from message through socket
         this.$sendMessage({
           name: this.$route.params.username,
+          date:'1999.12.31',
+          time: '12:23:33',
           msg,
+
         });
       },
 

@@ -1,15 +1,20 @@
 <template>
   <div class="msg_history">
-    <div class="incoming_msg">
-      <div class="incoming_msg_img"> <img src="https://ptetutorials.com/images/user-profile.png" alt="sunil"> </div>
-      <div class="received_msg">
+    <div :class="{'incoming_msg':(msg.from.name !== '나'), 'outgoing_msg':(msg.from.name === '나')}" v-for="(msg, index) in msgs">
+
+      <div class="incoming_msg_img" v-if="msg.from.name !== '나'"> <img src="https://ptetutorials.com/images/user-profile.png" alt="sunil">{{msg.from.name}}</div>
+      <div class="received_msg" v-if="msg.from.name !== '나'">
         <div class="received_withd_msg">
-          <p>Test which is a new approach to have all
-            solutions</p>
-          <span class="time_date"> 11:01 AM    |    June 9</span></div>
+          <p>{{ msg.msg }}</p>
+          <span class="time_date"> {{ msg.from.time }} | {{ msg.from.date }}</span>
+        </div>
+      </div>
+      <div class="sent_msg" v-else>
+        <p>{{ msg.msg }}</p>
+        <span class="time_date"> {{ msg.from.time }} | {{ msg.from.date }}</span>
       </div>
     </div>
-    <div class="outgoing_msg">
+    <!--<div class="outgoing_msg">
       <div class="sent_msg">
         <p>Test which is a new approach to have all
           solutions</p>
@@ -37,13 +42,14 @@
             products, at a price anyone can afford.</p>
           <span class="time_date"> 11:01 AM    |    Today</span></div>
       </div>
-    </div>
+    </div>-->
   </div>
 </template>
 
 <script>
     export default {
       name: "ChatRoomView",
+      props: ['msgs'],
       data(){
         return{
 
