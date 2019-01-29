@@ -1,21 +1,31 @@
 <template>
   <div class="mb-5">
-    <h1 class="mb-4">Vuex 라이브러리를 이용한 Chat</h1>
-    <div class="messaging">
-      <div class="inbox_msg">
-        <div class="inbox_people">
-          <SearchChatRoomList />
-          <ChatRoomList />
-        </div>
-        <div class="mesgs">
-          <chatRoomView :msgs="msgDatas" />
-          <messageInputForm v-on:submitMessage="sendMessage" />
+    <div v-if="!isLogined">
+      <div class="text-center py-4">
+        <h1>챗팅!</h1>
+        <h2 class="h6">Vuex를 이용한 챗팅방입니다.</h2>
+      </div>
+    </div>
+    <div v-else>
+      <h1 class="mb-4">Vuex 라이브러리를 이용한 Chat</h1>
+      <div class="messaging">
+        <div class="inbox_msg">
+          <div class="inbox_people">
+            <SearchChatRoomList />
+            <ChatRoomList />
+          </div>
+          <div class="mesgs">
+            <chatRoomView :msgs="msgDatas" />
+            <messageInputForm v-on:submitMessage="sendMessage" />
+          </div>
         </div>
       </div>
     </div>
   </div>
 </template>
 <script>
+  const STORAGE_KEY_MEMBER_INFO = 'memberInfo';
+
   import Constant from '../../../common/Constant';
   import { mapMutations, mapState } from 'vuex';
 
@@ -28,6 +38,8 @@
     data(){
       return{
         datas: [],
+        isLogined:false,
+        memberInfo : JSON.parse(sessionStorage.getItem(STORAGE_KEY_MEMBER_INFO))
       }
     },
     created(){
@@ -39,6 +51,14 @@
         this.pushMsgData(data);
         vm.datas.push(data);
       });
+
+      if(this.memberInfo){
+        //let userData = window.globalVars.loginedUser;
+        console.log(this.memberInfo.name)
+        this.isLogined = true;
+      }else{
+        alert('로그인이 필요합니다.')
+      }
     },
     computed: {
       ...mapState({

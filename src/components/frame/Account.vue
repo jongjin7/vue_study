@@ -22,7 +22,6 @@ export default {
     const vm = this;
     this.$firebase.auth().onAuthStateChanged(function(user) {
       console.log('account', user)
-      sessionStorage.getItem('memberInfo');
 
 
       if (user) {
@@ -57,12 +56,11 @@ export default {
     },
     logout(){
       const vm = this;
+
       this.$firebase.auth().signOut().then(function() {
         alert('로그아웃 되었습니다.');
-        if(localData !== null){
-          sessionStorage.removeItem('memberInfo');
-        }
-        //vm.$router.push('/');
+        sessionStorage.removeItem('memberInfo');
+        if(location.hash) vm.$router.push('/');
       }).catch(function(error) {
         // An error happened.
       });

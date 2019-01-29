@@ -147,6 +147,7 @@
             .then(()=>{
               console.log('구글 로그인 접속')
               vm.$EventBus.$emit('toggleClose');
+              window.location.reload(true);
             })
             .catch(function(error) {
               console.log('접속에러', error.code, error.message)

@@ -65,7 +65,7 @@ export default new Router({
     {
       path: '/chat',
       name: 'ChatRoom',
-      component: ChatGate,
-    }
+      component: ChatRoom,
+    },
   ]
 });
