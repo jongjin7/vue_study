@@ -32,13 +32,18 @@ export default {
       this.$firebase.auth().onAuthStateChanged(function(user) {
         if (user) {
           // User is signed in.
-          var displayName = user.displayName;
-          var email = user.email;
-          var emailVerified = user.emailVerified;
-          var photoURL = user.photoURL;
-          var isAnonymous = user.isAnonymous;
-          var uid = user.uid;
-          var providerData = user.providerData;
+          let userData ={
+            name: user.displayName,
+            email: user.email,
+            emailVerified: user.emailVerified,
+            photoURL: user.photoURL,
+            isAnonymous: user.isAnonymous,
+            uid: user.uid,
+            providerData: user.providerData
+          }
+
+          sessionStorage.setItem('memberInfo',JSON.stringify(userData));
+
 
           console.log("  isAnonymous: " + user.isAnonymous);
 

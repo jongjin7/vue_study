@@ -44,50 +44,56 @@
       ...mapState({
         'msgDatas': state => state.socket.msgDatas,
       }),
-      changeTimeType: ()=>{
-        console.log('changeTime')
-      }
+
     },
     methods:{
       ...mapMutations({
         'pushMsgData': Constant.PUSH_MSG_DATA,
       }),
 
-      changeDateFormat(date) {
-        function unixTime(unixtime) {
-          let u = new Date(unixtime*1000);
+      timeStamp(){
+        let today = new Date();
+        let getDate = {
+          currentDate:today,
+          //DAY:today.getFullYear() +'.'+ (today.getMonth()+1) +'.'+ today.getDate(),
+          fullDate:today.toISOString().slice(0, 10),
+          currentTime:((today.getHours()>12)? today.getHours()-12 : today.getHours()) + ":" +
+               ("0" + today.getMinutes()).slice(-2) + ":" +
+               ("0" + today.getSeconds()).slice(-2),
+          timeForm:(today.getHours() < 12 )? '오전':'오후',
+          strWeekDay:['일','월','화','수','목','금','토'][today.getDay()],
+        }
 
-          return u.getFullYear() +
-            '-' + ('0' + (u.getMonth()+1)).slice(-2) +
-            '-' + ('0' + u.getDate()).slice(-2) +
-            ' ' + ('0' + u.getHours()).slice(-2) +
-            ':' + ('0' + u.getMinutes()).slice(-2) +
-            ':' + ('0' + u.getSeconds()).slice(-2) +
-            '.' + (u.getMilliseconds() / 1000).toFixed(3).slice(2, 5)
-        };
-        let changeDate = unixTime(date).split(' ')[0];
-        //console.log('변환',unixTime(date))
-        return changeDate;
+        //console.log(getDate);
+
+        return getDate;
       },
 
-
+      dateForm(date){
+        let strlocalDate = date.split('');
+        strlocalDate[0]+'년 ' + strlocalDate[1]+'월 ' + strlocalDate[2]+'일 ';
+        return strlocalDate;
+      },
 
       sendMessage(msg) {
         console.log('vueChat sendMessage')
+
+
+
         this.pushMsgData({
           from: {
             name:'나',
-            date:'1999.12.31',
-            time:new Date(),
+            date:this.timeStamp().fullDate,
+            time:this.timeStamp().timeForm +' '+ this.timeStamp().currentTime,
           },
           msg,
         });
 
-        // send from message through socket
+        // send from message through socket & DB
         this.$sendMessage({
           name: this.$route.params.username,
-          date:'1999.12.31',
-          time: new Date(),
+          date: this.timeStamp().fullDate,
+          time: this.timeStamp().timeForm +' '+ this.timeStamp().currentTime,
           msg,
 
         });
@@ -113,49 +119,58 @@
   }
 </script>
 <style lang="scss">
-  .messaging{
-    img{
-      min-width:30px;
-      max-width:100%;
+  .messaging {
+    img {
+      min-width: 30px;
+      max-width: 100%;
     }
     .inbox_people {
       background: #f8f8f8 none repeat scroll 0 0;
       float: left;
       overflow: hidden;
-      width: 40%; border-right:1px solid #c4c4c4;
+      width: 40%;
+      border-right: 1px solid #c4c4c4;
     }
     .inbox_msg {
       border: 1px solid #c4c4c4;
       clear: both;
       overflow: hidden;
     }
-    .top_spac{ margin: 20px 0 0;}
+    .top_spac {
+      margin: 20px 0 0;
+    }
     .srch_bar {
       display: inline-block;
       text-align: right;
-      width: 60%; padding:0;
+      width: 60%;
+      padding: 0;
     }
-    .headind_srch{ padding:10px 29px 10px 20px; overflow:hidden; border-bottom:1px solid #c4c4c4;}
+    .headind_srch {
+      padding: 10px 29px 10px 20px;
+      overflow: hidden;
+      border-bottom: 1px solid #c4c4c4;
+    }
 
     .recent_heading {
-      float: left; width:40%;
+      float: left;
+      width: 40%;
 
       h4 {
         color: #05728f;
         font-size: 21px;
         margin: auto;
 
-        span{
+        span {
           display: none;
         }
       }
     }
-    .srch_bar input{
-      border:1px solid #cdcdcd;
-      border-width:0 0 1px 0;
-      width:80%;
-      padding:2px 0 4px 6px;
-      background:none;
+    .srch_bar input {
+      border: 1px solid #cdcdcd;
+      border-width: 0 0 1px 0;
+      width: 80%;
+      padding: 2px 0 4px 6px;
+      background: none;
     }
     .srch_bar .input-group-addon button {
       background: rgba(0, 0, 0, 0) none repeat scroll 0 0;
@@ -164,11 +179,24 @@
       color: #707070;
       font-size: 18px;
     }
-    .srch_bar .input-group-addon { margin: 0 0 0 -27px;}
+    .srch_bar .input-group-addon {
+      margin: 0 0 0 -27px;
+    }
 
-    .chat_ib h5{ font-size:15px; color:#464646; margin:0 0 8px 0;}
-    .chat_ib h5 span{ font-size:13px; float:right;}
-    .chat_ib p{ font-size:14px; color:#989898; margin:auto}
+    .chat_ib h5 {
+      font-size: 15px;
+      color: #464646;
+      margin: 0 0 8px 0;
+    }
+    .chat_ib h5 span {
+      font-size: 13px;
+      float: right;
+    }
+    .chat_ib p {
+      font-size: 14px;
+      color: #989898;
+      margin: auto
+    }
     .chat_img {
       float: left;
       width: 11%;
@@ -179,15 +207,23 @@
       width: 88%;
     }
 
-    .chat_people{ overflow:hidden; clear:both;}
+    .chat_people {
+      overflow: hidden;
+      clear: both;
+    }
     .chat_list {
       border-bottom: 1px solid #c4c4c4;
       margin: 0;
       padding: 18px 16px 10px;
     }
-    .inbox_chat { height: 570px; overflow-y: scroll;}
+    .inbox_chat {
+      height: 570px;
+      overflow-y: scroll;
+    }
 
-    .active_chat{ background:#ebebeb;}
+    .active_chat {
+      background: #ebebeb;
+    }
 
     .incoming_msg_img {
       display: inline-block;
@@ -214,7 +250,9 @@
       font-size: 12px;
       margin: 8px 0 0;
     }
-    .received_withd_msg { width: 57%;}
+    .received_withd_msg {
+      width: 57%;
+    }
     .mesgs {
       float: left;
       //padding: 12px 0 0 0;
@@ -225,11 +263,15 @@
       background: #05728f none repeat scroll 0 0;
       border-radius: 3px;
       font-size: 14px;
-      margin: 0; color:#fff;
+      margin: 0;
+      color: #fff;
       padding: 5px 10px 5px 12px;
-      width:100%;
+      width: 100%;
     }
-    .outgoing_msg{ overflow:hidden; margin:26px 0 26px;}
+    .outgoing_msg {
+      overflow: hidden;
+      margin: 26px 0 26px;
+    }
     .sent_msg {
       float: right;
       width: 46%;
@@ -244,7 +286,8 @@
     }
 
     .type_msg {
-      border-top: 1px solid #c4c4c4;position: relative;
+      border-top: 1px solid #c4c4c4;
+      position: relative;
       padding-right: 50px;
       padding-left: 15px;
     }
@@ -261,15 +304,19 @@
       top: 8px;
       width: 33px;
     }
-    .messaging { padding: 0 0 50px 0;}
+    .messaging {
+      padding: 0 0 50px 0;
+    }
     .msg_history {
       height: 560px;
       padding-right: 10px;
       padding-left: 15px;
       overflow-y: scroll;
     }
+  }
 
-    @media (max-width:767px){
+  @media (max-width:767px){
+    .messaging{
       .inbox_people{
         width:100%;
 
@@ -306,20 +353,32 @@
       .mesgs{
         width:100%;
       }
-      .inbox_people.close{
-        h4{
-          .fa-toggle-on{
+
+      .msg_history{
+        height:50vw;
+      }
+
+      // 룸 리스트
+      &.closed{
+        .inbox_people{
+          h4{
+            .fa-toggle-on{
+              display: none;
+            }
+            .fa-toggle-off{
+              display: block;
+            }
+          }
+          &:after{
             display: none;
           }
-          .fa-toggle-off{
-            display: block;
+          .inbox_chat{
+            display: none;
           }
         }
-        &:after{
-          display: none;
-        }
-        .inbox_chat{
-          display: none;
+
+        .msg_history{
+          height:80vw;
         }
       }
     }

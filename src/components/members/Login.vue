@@ -27,12 +27,12 @@
     <h3 class="h6 text-center pb-2">✓ SNS 로그인</h3>
     <div id="firebaseui-auth-container"></div>
 
-    <div class="login-wrap d-none">
+    <!--<div class="login-wrap d-none">
       <a id="custom-login-btn" href="#" @click.stop.prevent="kakaoLogin" v-show="!iskakaoLogined">
         <img src="//mud-kage.kakao.com/14/dn/btqbjxsO6vP/KPiGpdnsubSq3a0PHEGUK1/o.jpg" width="100%"/>
       </a>
       <a href="#" @click.stop.prevent="kakaoLogout" v-show="iskakaoLogined">카카오 로그아웃</a>
-    </div>
+    </div>-->
 
 
   </div>
@@ -48,8 +48,8 @@
     name: "Login",
     data(){
       return{
-        email:'test1@mail.com',
-        password:'!test11',
+        email:'test@test.com',
+        password:'test!234',
         oldEmail: userEmailData,
         userSaveEmail:false,
         errorMessage:{
@@ -58,8 +58,8 @@
         },
         activeCheckBox:false,
         errorSubmitValidator:false,
-        loginKakaoTokken: this.$store.state.loginTokken,
-        iskakaoLogined:false,
+        //loginKakaoTokken: this.$store.state.loginTokken,
+        //iskakaoLogined:false,
 
       }
     },

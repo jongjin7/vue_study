@@ -10,6 +10,7 @@ import DataGrid from "@/components/data_grid/DataGridMain";
 import Todo from "@/components/etc/Todos";
 import Contact from "@/components/etc/ContactUs";
 import SignUp from "@/components/members/SignUp";
+import ChatGate from "@/components/vuex/chat/Gate";
 import ChatRoom from "@/components/vuex/chat/VuexChat";
 
 Vue.use(Router);
@@ -62,9 +63,9 @@ export default new Router({
       component: SignUp
     },
     {
-      path: '/chat/:username',
+      path: '/chat',
       name: 'ChatRoom',
-      component: ChatRoom,
+      component: ChatGate,
     }
   ]
 });

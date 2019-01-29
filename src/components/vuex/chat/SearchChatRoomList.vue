@@ -20,7 +20,7 @@
       mounted(){
         let vm = this;
         $(this.$el).find('.recent_heading').click(function(){
-          $(this).parents('.inbox_people').toggleClass('close');
+          $(this).parents('.messaging').toggleClass('closed');
         })
       },
       methods:{

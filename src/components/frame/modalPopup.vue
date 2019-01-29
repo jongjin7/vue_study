@@ -37,8 +37,8 @@ export default{
   },
   data(){
     return {
-      currentPopContent: this.$store.state.pop_content,
-      currentPopContentTitle: this.$store.state.pop_title,
+      currentPopContent: window.globalVars.pop_content,
+      currentPopContentTitle: window.globalVars.pop_title,
     }
   },
   created(){

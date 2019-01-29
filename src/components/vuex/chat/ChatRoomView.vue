@@ -1,5 +1,5 @@
 <template>
-  <div class="msg_history">
+  <div class="msg_history" v-auto-bottom="msgs">
     <div class="hr-date small"><span>2019.01.29 (화)</span></div>
     <div :class="{'incoming_msg':(msg.from.name !== '나'), 'outgoing_msg':(msg.from.name === '나')}" v-for="(msg, index) in msgs">
       <div class="incoming_msg_img" v-if="msg.from.name !== '나'"> <img src="https://ptetutorials.com/images/user-profile.png" alt="sunil">{{msg.from.name}}</div>

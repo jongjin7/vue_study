@@ -5,6 +5,7 @@ window.globalVars = {
   popGalleryContent:null,
   latestGalleryItemIndex:'',
   communityTotalList:'',
+  loginedUser:'',
 }
 
 
