@@ -2,8 +2,13 @@
   <div>
     <form class="" @submit.stop.prevent="sendSignUpMember">
       <div class="form-group">
+        <label for="s-name">닉네임</label>
+        <input type="text" class="form-control" id="s-name" autocomplete="off" autofocus placeholder="닉네임(별명)을 적어주세요" @focusout="checkName" v-model="name" required>
+        <div class="invalid-feedback">{{ errorMessage.name}}</div>
+      </div>
+      <div class="form-group">
         <label for="s-email">이메일</label>
-        <input type="email" class="form-control" id="s-email" autocomplete="off" autofocus placeholder="email@example.com" @focusout="checkEmail" v-model="email" required>
+        <input type="email" class="form-control" id="s-email" autocomplete="off" placeholder="email@example.com" @focusout="checkEmail" v-model="email" required>
         <div class="invalid-feedback">{{ errorMessage.email}}</div>
       </div>
       <div class="form-group">
@@ -28,10 +33,12 @@
     name: "SignUp",
     data(){
       return{
+        name:'',
         email:'',
         password:'',
         passwordRe:'',
         errorMessage:{
+          name:'',
           email:'',
           password:'',
           passwordRe:'',
@@ -61,6 +68,19 @@
           }
         });
 
+      },
+
+      checkName(){
+        const blank_pattern = /^\s+|\s+$/g;
+        const event = event || window.event;
+        const strValue = this.name.trim();
+
+        if( strValue.replace( blank_pattern, '' ) === "") {
+          this.errorMessage.name = '닉네임(별명)을 입력하지 않았습니다.';
+          event.target.focus();
+        }else{
+          this.errorMessage.name = "";
+        }
       },
 
       checkEmail(){
@@ -123,13 +143,23 @@
       },
 
       sendSignUpMember(){
+        let vm = this;
         console.log('this.errorSubmitValidator')
         if(!this.comparePassword()){
           alert('입력하신 비밀번호가 일치하지 않습니다.')
           document.querySelector('#s-password-re').focus();
         }else{
           this.$firebase.auth().createUserWithEmailAndPassword(this.email, this.password).then(() => {
-            alert('회원가입이 완료 되었습니다.')
+            vm.$firebaseDB.collection('members')
+              .add({
+                name: vm.name,
+                email: vm.email
+              })
+              .then(function(){
+                alert('회원가입이 완료 되었습니다.');
+                vm.$EventBus.$emit('toggleClose');
+              });
+
           }).catch(function(error) {
             alert('등록된 사용자입니다. 확인 바랍니다.')
           });

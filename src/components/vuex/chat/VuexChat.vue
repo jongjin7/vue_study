@@ -39,23 +39,36 @@
       return{
         datas: [],
         isLogined:false,
-        memberInfo : JSON.parse(sessionStorage.getItem(STORAGE_KEY_MEMBER_INFO))
+        loginedMember : JSON.parse(sessionStorage.getItem(STORAGE_KEY_MEMBER_INFO))
       }
     },
     created(){
-      this.fetchData();
+      console.log('ssss', this.$firebaseDB)
+
 
       const vm = this;
+      if(this.loginedMember){ //로그인시
+        //채팅방이 개설 되지 않았다면 개설, 대화자도 없는데 어떻게 대화하지...참여형 대화방...
+        // 채팅방 리스트 용도
+        //사용자가 참여한 대화 문서를 선택하여 읽어오기 ==> 선택한 리스트 채팅룸에 내용 출력
+        //채팅에서 요일 블록을 기준으로 그룹핑하여 출력...
 
-      this.$socket.on('chat', (data) => {
-        this.pushMsgData(data);
-        vm.datas.push(data);
-      });
 
-      if(this.memberInfo){
+        //프로필은 회원 가입시 저장
+        //채팅룸명은 방 개설자 닉네임으로 정의
+
         //let userData = window.globalVars.loginedUser;
-        console.log(this.memberInfo.name)
+        console.log(this.loginedMember.name)
         this.isLogined = true;
+
+        this.fetchData();
+
+        //socket I/O trigger
+        this.$socket.on('chat', (data) => {
+          this.pushMsgData(data);
+          vm.datas.push(data);
+        });
+
       }else{
         alert('로그인이 필요합니다.')
       }
@@ -120,6 +133,9 @@
       },
 
       fetchData() {
+
+        //채팅방 개설
+
 
         const vm = this;
         this.$firebaseDB.doc('/myChat/chatList/chatRooms/roomA/messages/message2').get().then((doc)=>{
