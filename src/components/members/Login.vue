@@ -39,6 +39,8 @@
 </template>
 
 <script>
+
+
   let hasEmailName ='hasLoginEmail';
   let userData = localStorage.getItem(hasEmailName);
   let userEmailData = JSON.parse(userData);
@@ -48,7 +50,7 @@
     name: "Login",
     data(){
       return{
-        email:'test@test.com',
+        email:'soodal@naver.com',
         password:'test!234',
         oldEmail: userEmailData,
         userSaveEmail:false,
@@ -82,7 +84,6 @@
       },
 
       fetchData(){
-
         if(userData !== null){
           this.email = this.oldEmail;
         }
@@ -145,9 +146,9 @@
         if(!this.errorSubmitValidator){ //전체 폼에 에러가 없다면
           this.$firebase.auth().signInWithEmailAndPassword(this.email, this.password)
             .then(()=>{
-              console.log('구글 로그인 접속')
+              console.log('구글 이메일/비밀번호 로그인 접속')
               vm.$EventBus.$emit('toggleClose');
-              window.location.reload(true);
+              if(location.hash.split('/')[1] == 'chat') window.location.reload(true);
             })
             .catch(function(error) {
               console.log('접속에러', error.code, error.message)
@@ -157,11 +158,6 @@
               console.log(error)
               vm.errorMessage.password = '유효하지 않거나 잘못된 비밀번호입니다.';
             });
-
-
-
-
-
         }
 
       },

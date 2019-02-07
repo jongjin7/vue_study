@@ -2,7 +2,10 @@
   <div class="msg_history" v-auto-bottom="msgs">
     <div class="hr-date small"><span>2019.01.29 (화)</span></div>
     <div :class="{'incoming_msg':(msg.from.name !== '나'), 'outgoing_msg':(msg.from.name === '나')}" v-for="(msg, index) in msgs">
-      <div class="incoming_msg_img" v-if="msg.from.name !== '나'"> <img src="https://ptetutorials.com/images/user-profile.png" alt="sunil">{{msg.from.name}}</div>
+      <div class="incoming_msg_img" v-if="msg.from.name !== '나'">
+        <span :style="'background-image: url(' + msg.from.photo + ');'" class="pic rounded-circle"></span>
+        {{msg.from.name}}
+      </div>
       <div class="received_msg" v-if="msg.from.name !== '나'">
         <div class="received_withd_msg">
           <p>{{ msg.msg }}</p>
@@ -66,21 +69,22 @@
 </script>
 
 <style lang="scss" scoped>
-.hr-date{
-  position: relative;
-  padding:1rem 0;
-  text-align: center;
-  &:before{
-    display: block;
-    position: absolute; left:0; top:50%;
-    border-top: 1px solid #eee;
-    width:100%;
-    content: '';
-  }
-  span{
+  .hr-date{
     position: relative;
-    background: #fff;
-    padding:0 1rem;
+    padding:1rem 0;
+    text-align: center;
+    &:before{
+      display: block;
+      position: absolute; left:0; top:50%;
+      border-top: 1px solid #eee;
+      width:100%;
+      content: '';
+    }
+    span{
+      position: relative;
+      background: #fff;
+      padding:0 1rem;
+    }
   }
-}
+
 </style>

@@ -22,45 +22,10 @@ export default {
     return {};
   },
   created(){
-    //this.$EventBus.$on('signin', this.watchLogined)
-    this.watchLogined();
+
   },
   methods:{
-    watchLogined(arg){
-      console.log('logined onAuthStateChanged')
-     // this.$router.push('/')
-      this.$firebase.auth().onAuthStateChanged(function(user) {
-        if (user) {
-          // User is signed in.
-          let userData ={
-            name: user.displayName,
-            email: user.email,
-            emailVerified: user.emailVerified,
-            photoURL: user.photoURL,
-            isAnonymous: user.isAnonymous,
-            uid: user.uid,
-            providerData: user.providerData
-          }
 
-          sessionStorage.setItem('memberInfo',JSON.stringify(userData));
-
-
-          console.log("  isAnonymous: " + user.isAnonymous);
-
-          user.providerData.forEach(function (profile) {
-            console.log("Sign-in provider: " + profile.providerId);
-            console.log("  Provider-specific UID: " + profile.uid);
-            console.log("  Name: " + profile.displayName);
-            console.log("  Email: " + profile.email);
-            console.log("  Photo URL: " + profile.photoURL);
-          });
-          // ...
-        } else {
-          // User is signed out.
-          // ...
-        }
-      });
-    }
   },
   components: {
     "common-header": header,

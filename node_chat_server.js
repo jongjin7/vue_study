@@ -17,12 +17,16 @@ app.get('/', function(req, res){
 
 io.on('connection', function(socket){ 
   console.log('a user connected');
+  var tmp;
   // 클라이언트로부터의 메시지가 수신되면
   socket.on('chat', function(data){
-    console.log('Message from %s: %s', data.name, data.msg);
+    console.log('Message from:::', data.name, data.msg, data.photo);
+    tmp = data.name;
     var msg = {
       from: {
         name: data.name,
+        time: data.time,
+        photo: data.photo
       },
       msg: data.msg
     };
@@ -32,7 +36,7 @@ io.on('connection', function(socket){ 
   });
 
   socket.on('disconnect', function(){
-    console.log('user disconnected: ' + socket.name);
+    console.log('user disconnected: ', tmp);
   });
 });
 

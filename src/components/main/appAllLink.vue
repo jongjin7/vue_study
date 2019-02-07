@@ -48,6 +48,12 @@ export default {
           class:''
         },
         {
+          title: "Vuex 상태 관리 라이브러리를 이용한 채팅방 구현",
+          content: "Vuex, Socket.io, 로그인 기반 채팅방",
+          link: "/chat",
+          class:''
+        },
+        {
           title: "구글 Firebase Auth API를 이용한 회원가입 및 로그인 구현",
           content: "모달 팝업으로 구현",
           link: "/",
