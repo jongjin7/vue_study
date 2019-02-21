@@ -11,6 +11,7 @@ import Todo from "@/components/etc/Todos";
 import Contact from "@/components/etc/ContactUs";
 import SignUp from "@/components/members/SignUp";
 import ChatRoom from "@/components/vuex/chat/VuexChat";
+import TodoVuex from "@/components/vuex/todos/TodoApp";
 
 Vue.use(Router);
 
@@ -65,6 +66,11 @@ export default new Router({
       path: '/chat',
       name: 'ChatRoom',
       component: ChatRoom,
+    },
+    {
+      path: '/todo2',
+      name: 'vuex',
+      component: TodoVuex,
     },
   ]
 });

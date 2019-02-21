@@ -1,7 +1,7 @@
 import Constant from '../../common/Constant';
 
 const state = {
-  msgDatas:[ ],
+
 };
 
 //getter
