@@ -17,26 +17,26 @@ app.get('/', function(req, res){
 
 io.on('connection', function(socket){ 
   console.log('a user connected');
-  // 클라이언트로부터의 메시지가 수신되면
   var tmp;
+  // 클라이언트로부터의 메시지가 수신되면
   socket.on('chat', function(data){
-   //console.log('Message from %s: %s', data.name, data.msg);
-    console.log('connecting~', data)
+    console.log('Message from:::', data.name, data.msg, data.photo);
+    tmp = data.name;
     var msg = {
       from: {
         name: data.name,
         time: data.time,
-        date: data.date,
+        photo: data.photo
       },
       msg: data.msg
     };
-    tmp = data.name;
+
     // 메시지를 전송한 클라이언트를 제외한 모든 클라이언트에게 메시지를 전송한다
     socket.broadcast.emit('chat', msg);
   });
 
   socket.on('disconnect', function(){
-    console.log('user disconnected: ' + tmp);
+    console.log('user disconnected: ', tmp);
   });
 });
 

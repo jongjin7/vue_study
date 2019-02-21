@@ -20,8 +20,6 @@
           let vm = this;
           if (this.writeMsg.length === 0) return false;
 
-          vm.$emit('submitMessage', this.writeMsg);
-          vm.writeMsg = '';
           // 채팅방 내용 추가
           // this.$firebaseDB.collection('/myChat/chatList/chatRooms/room'+ id +'/messages').collection('message'+id)
           //   .set({msg:this.writeMsg, from:'user', timeStamp:'2019.01.30 12:12:12'})
@@ -30,6 +28,8 @@
           //     vm.$emit('submitMessage', this.writeMsg);
           //     vm.writeMsg = '';
           // });
+          vm.$emit('submitMessage', this.writeMsg);
+          vm.writeMsg = '';
 
           return true;
         },

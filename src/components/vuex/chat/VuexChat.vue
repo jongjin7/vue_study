@@ -4,6 +4,9 @@
       <div class="text-center py-4">
         <h1>챗팅!</h1>
         <h2 class="h6">Vuex를 이용한 챗팅방입니다.</h2>
+        <p class="pt-3 text-center">
+          <button type="button" class="btn btn-primary" @click="$EventBus.$emit('loginPop')">로그인하기</button>
+        </p>
       </div>
     </div>
     <div v-else>
@@ -43,7 +46,7 @@
       }
     },
     created(){
-      console.log('ssss', this.$firebaseDB)
+      console.log('storage', this.loginedMember.photo)
 
 
       const vm = this;
@@ -121,10 +124,11 @@
           },
           msg,
         });
-
+console.log('send', this.loginedMember.photo)
         // send from message through socket & DB
         this.$sendMessage({
-          name: this.$route.params.username,
+          name: this.loginedMember.name,
+          photo: this.loginedMember.photo,
           date: this.timeStamp().fullDate,
           time: this.timeStamp().timeForm +' '+ this.timeStamp().currentTime,
           msg,
@@ -261,10 +265,27 @@
       background: #ebebeb;
     }
 
-    .incoming_msg_img {
-      display: inline-block;
-      width: 6%;
+    .incoming_msg{
+      margin: 26px 0 26px;
+
+      .incoming_msg_img {
+        display: inline-block;
+        width: 6%;
+        font-size: 0.5rem;
+        text-align: center;
+
+        .pic{
+          display: inline-block;
+          width:100%; padding-top:100%;
+          margin-bottom: 0.25rem;
+          background-size: cover;
+          background-position: center center;
+          background-repeat:no-repeat;
+          vertical-align: middle;
+        }
+      }
     }
+
     .received_msg {
       display: inline-block;
       padding: 0 0 0 10px;

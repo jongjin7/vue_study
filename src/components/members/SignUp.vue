@@ -153,7 +153,8 @@
             vm.$firebaseDB.collection('members')
               .add({
                 name: vm.name,
-                email: vm.email
+                email: vm.email,
+                photo: 'https://ptetutorials.com/images/user-profile.png'
               })
               .then(function(){
                 alert('회원가입이 완료 되었습니다.');
