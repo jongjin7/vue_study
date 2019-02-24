@@ -6,7 +6,7 @@ import router from "./router";
 import { store } from "./store";
 
 import './common/globalVariables';
-import './plugins/socketPlugin';  //socket use
+// import './plugins/socketPlugin';  //socket use
 
 import Directives from './plugins/directives';
 Vue.use(Directives);
@@ -44,6 +44,7 @@ const config = {
 import firebase from 'firebase/app';
 firebase.initializeApp(config);
 import 'firebaseui';
+import 'firebase/database';
 import 'firebase/firestore';
 import 'firebase/storage';
 const dbFireStore = firebase.firestore();
@@ -55,6 +56,7 @@ const firebaseUi = new firebaseui.auth.AuthUI(firebase.auth());
 Vue.prototype.$firebase = firebase;
 Vue.prototype.$firebaseUi = firebaseUi;
 Vue.prototype.$firebaseDB = dbFireStore;
+Vue.prototype.$firebaseRealDB = firebase.database();
 Vue.prototype.$firebaseStorage = firebase.storage();
 
 new Vue({

@@ -99,7 +99,7 @@ export default {
         isDone: false
       };
       //==>this.addItem({ newItem });
-      //this[actions.ADD_ITEM]({ newItem });
+      this[actions.ADD_ITEM]({ newItem });
 
       // dispatch 이용
       // this.$store.dispatch("todos/addItem", {

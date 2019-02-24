@@ -50,7 +50,7 @@
     name: "Login",
     data(){
       return{
-        email:'soodal@naver.com',
+        email:'test@naver.com',
         password:'test!234',
         oldEmail: userEmailData,
         userSaveEmail:false,
@@ -71,7 +71,7 @@
       this.fetchData();
     },
     mounted(){
-      this.login()
+      this.googleAuthLogin()
     },
     computed:{
       compareEmail(){
@@ -162,8 +162,8 @@
 
       },
 
-      login(){
-        console.log('login!!! ', this.$firebaseUi)
+      googleAuthLogin(){
+        console.log('firebase.auth.Auth ', this.$firebaseUi)
 
         // 익명 사용자 업그레이드
         // Temp variable to hold the anonymous user data if needed.

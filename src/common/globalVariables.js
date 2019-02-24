@@ -7,6 +7,7 @@ window.globalVars = {
   communityTotalList:'',
 
   memberInfo:'',
+  currentUserUID :'',
 }
 
 

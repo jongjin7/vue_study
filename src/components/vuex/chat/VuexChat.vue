@@ -9,8 +9,11 @@
         </p>
       </div>
     </div>
+    <!-- 로그인 후 챗팅방 활성 -->
     <div v-else>
       <h1 class="mb-4">Vuex 라이브러리를 이용한 Chat</h1>
+      <UserList />
+
       <div class="messaging">
         <div class="inbox_msg">
           <div class="inbox_people">
@@ -36,6 +39,8 @@
   import ChatRoomList from './ChatRoomList';
   import ChatRoomView from './ChatRoomView';
   import messageInputForm from './messageInputForm';
+  import UserList from './UserList';
+
   export default{
     name: 'ChatRoomByVuex',
     data(){
@@ -46,9 +51,6 @@
       }
     },
     created(){
-      console.log('storage', this.loginedMember.photo)
-
-
       const vm = this;
       if(this.loginedMember){ //로그인시
         //채팅방이 개설 되지 않았다면 개설, 대화자도 없는데 어떻게 대화하지...참여형 대화방...
@@ -67,10 +69,10 @@
         this.fetchData();
 
         //socket I/O trigger
-        this.$socket.on('chat', (data) => {
-          this.pushMsgData(data);
-          vm.datas.push(data);
-        });
+        // this.$socket.on('chat', (data) => {
+        //   this.pushMsgData(data);
+        //   vm.datas.push(data);
+        // });
 
       }else{
         alert('로그인이 필요합니다.')
@@ -152,6 +154,7 @@ console.log('send', this.loginedMember.photo)
     },
     components:{
       SearchChatRoomList,
+      UserList,
       ChatRoomList,
       ChatRoomView,
       messageInputForm,
