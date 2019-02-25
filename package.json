@@ -4,6 +4,7 @@
   "description": "vue cli로 시작하는 Vue~",
   "main": "src/main.js",
   "private": true,
+  "host": "192.168.0.3",
   "scripts": {
     "dev": "webpack-dev-server --inline --progress --config build/webpack.dev.conf.js",
     "start": "npm run dev",
@@ -25,6 +26,7 @@
     "express": "^4.16.4",
     "firebase": "^5.5.7",
     "firebaseui": "^3.5.1",
+    "forever-monitor": "^1.7.1",
     "jquery": "3.3.1",
     "popper.js": "1.14.4",
     "socket.io": "^2.2.0",

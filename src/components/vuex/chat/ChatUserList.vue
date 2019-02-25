@@ -1,22 +1,30 @@
 <template>
-    <div>
-      <h5>채팅 유저 리스트</h5>
-      <ul>
-        <li v-for="user in userList" class="collection-item avatar list">
-          <!--<img :src="user.profileImg" alt="" class="circle">-->
-          <span class="title">{{ user.userName }}</span>
-          <!--<span class="small material-icons right hiddendiv done">{{ user.isDone }}</span>-->
-          <!--<span class="small material-icons right hiddendiv mood yellow-text">mood</span>-->
-        </li>
-      </ul>
+  <div  class="inbox_chat">
+    <div v-for="user in userList" class="chat_list _active_chat">
+
+        <div class="chat_people">
+          <a class="" href="#" title="유저 프로파일창 열기" @click.stop.prevent="showModalpopup('유저팝업', 'chatUser'); $EventBus.$emit('showModal');">
+            <div class="chat_img">
+              <img src="https://ptetutorials.com/images/user-profile.png" alt="sunil">
+            </div>
+          </a>
+          <a href="#" @click.stop.prevent="openChatRoom">
+            <div class="chat_ib">
+              <h5>{{ user.userName }}<span class="chat_date">Dec 25</span></h5>
+              <p>Test, which is a new approach to have all solutions
+                astrology under one roof.</p>
+            </div>
+          </a>
+        </div>
     </div>
+  </div>
 </template>
 
 <script>
     import {USER_DATA} from "../../../common/Constant";
 
     export default {
-        name: "UserList",
+        name: "ChatUserList",
       props:{
 
       },
@@ -30,6 +38,17 @@
           this.getUserData();
         },
         methods:{
+          openChatRoom(){
+            console.log('채팅 시작!')
+          },
+
+          showModalpopup(title, componentName, post){
+            window.globalVars.pop_title = title;
+            window.globalVars.pop_content = componentName;
+
+            this.$EventBus.$emit('toggleClose');
+          },
+
           getUserData(){
             let vm = this;
             let currentUid ='';

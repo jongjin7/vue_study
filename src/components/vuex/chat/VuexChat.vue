@@ -12,13 +12,12 @@
     <!-- 로그인 후 챗팅방 활성 -->
     <div v-else>
       <h1 class="mb-4">Vuex 라이브러리를 이용한 Chat</h1>
-      <UserList />
 
       <div class="messaging">
         <div class="inbox_msg">
           <div class="inbox_people">
             <SearchChatRoomList />
-            <ChatRoomList />
+            <ChatUserList />
           </div>
           <div class="mesgs">
             <chatRoomView :msgs="msgDatas" />
@@ -39,7 +38,7 @@
   import ChatRoomList from './ChatRoomList';
   import ChatRoomView from './ChatRoomView';
   import messageInputForm from './messageInputForm';
-  import UserList from './UserList';
+  import ChatUserList from './ChatUserList';
 
   export default{
     name: 'ChatRoomByVuex',
@@ -154,7 +153,7 @@ console.log('send', this.loginedMember.photo)
     },
     components:{
       SearchChatRoomList,
-      UserList,
+      ChatUserList,
       ChatRoomList,
       ChatRoomView,
       messageInputForm,
@@ -175,6 +174,7 @@ console.log('send', this.loginedMember.photo)
       border-right: 1px solid #c4c4c4;
     }
     .inbox_msg {
+      display: flex;
       border: 1px solid #c4c4c4;
       clear: both;
       overflow: hidden;
@@ -260,7 +260,7 @@ console.log('send', this.loginedMember.photo)
       padding: 18px 16px 10px;
     }
     .inbox_chat {
-      height: 570px;
+      height: 100%;
       overflow-y: scroll;
     }
 
@@ -377,6 +377,9 @@ console.log('send', this.loginedMember.photo)
 
   @media (max-width:767px){
     .messaging{
+      .inbox_msg{
+        display: block;
+      }
       .inbox_people{
         width:100%;
 
