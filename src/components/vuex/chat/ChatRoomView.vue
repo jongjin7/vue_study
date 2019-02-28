@@ -1,6 +1,6 @@
 <template>
-  <div>
-    <div class="bg-secondary py-2 text-center text-light">OOO와 채팅중입니다.</div>
+  <div class="view-container" :class="{ inactive : getChatTargetUser === null }">
+    <div class="bg-secondary py-2 text-center text-light"><strong>{{ getChatTargetUser }}</strong>님과 채팅중입니다.</div>
     <div class="msg_history" v-auto-bottom="msgs">
       <div class="hr-date small"><span>2019.01.29 (화)</span></div>
       <div :class="{'incoming_msg':(msg.from.name !== '나'), 'outgoing_msg':(msg.from.name === '나')}" v-for="(msg, index) in msgs">
@@ -53,19 +53,25 @@
 </template>
 
 <script>
+  import { mapGetters } from 'vuex'
     export default {
       name: "ChatRoomView",
       props: ['msgs'],
       data(){
         return{
-
+          isOpenRoom:false,
         }
       },
       created(){
-
+        this.test()
+      },
+      computed:{
+        ...mapGetters(['getChatTargetUser']),
       },
       methods:{
-
+        test(){
+          console.log('mapGet', typeof this.getChatTargetUser)
+        }
       }
 
     }

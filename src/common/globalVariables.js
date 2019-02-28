@@ -8,6 +8,9 @@ window.globalVars = {
 
   memberInfo:'',
   currentUserUID :'',
+  currentUserName:'',
+  chatRoomId:'',
+  chatRoomTitle:'',
 }
 
 

@@ -65,6 +65,7 @@
             store.get(user.uid).onsuccess = function(event){
               let data = event.target.result;
               console.log('IndexedDb query 결과', data)
+              window.globalVars.currentUserName = userName;
               //console.log('saveUserAtIndexedDB isSave 파라메터', isSave )
 
               // 데이터가 없으면 저장

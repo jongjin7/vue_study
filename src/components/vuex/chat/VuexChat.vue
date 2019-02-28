@@ -317,6 +317,23 @@ console.log('send', this.loginedMember.photo)
       float: left;
       //padding: 12px 0 0 0;
       width: 60%;
+
+      .view-container{
+        position: relative;
+        &.inactive{
+          &:before{
+            position: absolute; left:0; top:0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width:100%; height:100%;
+            background: #fff;
+            content:'대화자를 선택하세요.';
+            z-index: 10;
+            font-size: 24px;
+          }
+        }
+      }
     }
 
     .sent_msg p {
@@ -336,6 +353,17 @@ console.log('send', this.loginedMember.photo)
       float: right;
       width: 46%;
     }
+
+    .type_msg {
+      border-top: 1px solid #c4c4c4;
+      position: relative;
+      padding-right: 50px;
+      padding-left: 15px;
+
+      &.inactive{
+        background: rgba(gray,0.2);
+      }
+    }
     .input_msg_write input {
       background: rgba(0, 0, 0, 0) none repeat scroll 0 0;
       border: medium none;
@@ -343,14 +371,12 @@ console.log('send', this.loginedMember.photo)
       font-size: 15px;
       min-height: 48px;
       width: 100%;
+
+      &[readonly]{
+        opacity: 0.5;
+      }
     }
 
-    .type_msg {
-      border-top: 1px solid #c4c4c4;
-      position: relative;
-      padding-right: 50px;
-      padding-left: 15px;
-    }
     .msg_send_btn {
       background: #05728f none repeat scroll 0 0;
       border: medium none;
@@ -363,6 +389,11 @@ console.log('send', this.loginedMember.photo)
       right: 15px;
       top: 8px;
       width: 33px;
+
+      &[disabled]{
+        cursor:default;
+        opacity: 0.5;
+      }
     }
     .messaging {
       padding: 0 0 50px 0;
