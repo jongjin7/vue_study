@@ -1,22 +1,22 @@
 <template>
-  <div class="view-container" :class="{ inactive : getChatTargetUser === null }">
-    <div class="bg-secondary py-2 text-center text-light"><strong>{{ getChatTargetUser }}</strong>님과 채팅중입니다.</div>
-    <div class="msg_history" v-auto-bottom="msgs">
+  <div class="view-container">
+    <div class="bg-view-title py-2 text-center"><strong>{{ targetUser.userName }}</strong>님과 채팅중입니다.</div>
+    <div class="msg_history" v-auto-bottom="msgDatas">
       <div class="hr-date small"><span>2019.01.29 (화)</span></div>
-      <div :class="{'incoming_msg':(msg.from.name !== '나'), 'outgoing_msg':(msg.from.name === '나')}" v-for="(msg, index) in msgs">
-        <div class="incoming_msg_img" v-if="msg.from.name !== '나'">
-          <span :style="'background-image: url(' + msg.from.photo + ');'" class="pic rounded-circle"></span>
-          {{msg.from.name}}
+      <div :class="{'incoming_msg':(msg.uid === targetUser.uid ), 'outgoing_msg':(msg.uid === currentUser.uid )}" v-for="(msg, index) in msgDatas">
+        <div class="incoming_msg_img" v-if="msg.uid === targetUser.uid">
+          <span :style="'background-image: url(' + msg.profileImg + ');'" class="pic rounded-circle"></span>
+          {{ msg.userName }}
         </div>
-        <div class="received_msg" v-if="msg.from.name !== '나'">
+        <div class="received_msg" v-if="msg.uid === targetUser.uid">
           <div class="received_withd_msg">
-            <p>{{ msg.msg }}</p>
-            <span class="time_date">{{ msg.from.time }}</span>
+            <p>{{ msg.message }}</p>
+            <span class="time_date">{{ msg.timeStamp }}</span>
           </div>
         </div>
         <div class="sent_msg" v-else>
-          <p>{{ msg.msg }}</p>
-          <span class="time_date">{{ msg.from.time }}</span>
+          <p>{{ msg.message }}</p>
+          <span class="time_date">{{ msg.timeStamp }}</span>
         </div>
       </div>
       <!--<div class="outgoing_msg">
@@ -53,24 +53,28 @@
 </template>
 
 <script>
-  import { mapGetters } from 'vuex'
+  import { mapState, mapGetters } from 'vuex'
     export default {
       name: "ChatRoomView",
-      props: ['msgs'],
+      props:[
+        'msgDatas'
+      ],
       data(){
         return{
-          isOpenRoom:false,
+          tmp:''
         }
       },
       created(){
-        this.test()
       },
       computed:{
-        ...mapGetters(['getChatTargetUser']),
+        ...mapState({
+          currentUser: ({ socket }) => socket.chatUsers.currentUserInfo,
+          targetUser: ({ socket }) => socket.chatUsers.targetUserInfo
+        }),
       },
       methods:{
-        test(){
-          console.log('mapGet', typeof this.getChatTargetUser)
+        fetchMessageList(){
+
         }
       }
 

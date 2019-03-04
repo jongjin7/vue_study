@@ -1,46 +1,113 @@
 <template>
-  <div class="type_msg" :class="{inactive: getChatRoomId === null}">
+  <div class="type_msg">
     <div class="input_msg_write">
-      <input type="text" class="write_msg" placeholder="메시지를 입력하세요"  v-model="writeMsg" @keyup.13="submitChatMessage" :readonly="getChatRoomId === null" />
+      <input type="text" id="message-field" class="write_msg" placeholder="메시지를 입력하세요"  v-model="writeMsg" @keyup.13="submitChatMessage" :readonly="getChatRoomId === null" />
       <button class="msg_send_btn" type="button" @click="submitChatMessage" :disabled="getChatRoomId === null"><i class="fa fa-paper-plane-o" aria-hidden="true"></i></button>
     </div>
   </div>
 </template>
 
 <script>
-  import {mapGetters} from "vuex";
+import { USER_DATA, CHAT_ROOM } from '../../../common/Constant';
+import { mapState, mapGetters, mapActions } from "vuex";
 
-  export default {
-      name: "messageInputForm",
-      data() {
-        return {
-          writeMsg: '',
-        };
-      },
-      computed:{
-        ...mapGetters(['getChatTargetUser', 'getChatRoomId']),
-      },
-      methods: {
-        submitChatMessage() {
-          let vm = this;
-          console.log('ddd', this.getChatTargetUser, this.getChatRoomId)
-          if (this.writeMsg.length === 0 ) return false;
+export default {
+    name: "messageInputForm",
+    data() {
+      return {
+        writeMsg: '',
+      };
+    },
+    computed:{
+      ...mapState({
+        roomId: ({ socket }) => socket.chatRoom.roomId,
+        roomMsgData: ({ socket }) => socket.chatRoom.msgDatas,
 
-          // 채팅방 내용 추가
-          // this.$firebaseDB.collection('/myChat/chatList/chatRooms/room'+ id +'/messages').collection('message'+id)
-          //   .set({msg:this.writeMsg, from:'user', timeStamp:'2019.01.30 12:12:12'})
-          //   .then(function(){
-          //     //socket
-          //     vm.$emit('submitMessage', this.writeMsg);
-          //     vm.writeMsg = '';
-          // });
-          //vm.$emit('submitMessage', this.writeMsg);
-          vm.writeMsg = '';
+        roomUsersList: ({ socket }) => socket.chatRoom.roomUsersList,
+        roomUsersName: ({ socket }) => socket.chatRoom.roomUsersName,
 
-          return true;
-        },
+        currentUser: ({ socket }) => socket.chatUsers.currentUserInfo,
+        targetUser: ({ socket }) => socket.chatUsers.targetUserInfo
+      }),
+      ...mapGetters(['getChatTargetUser', 'getChatRoomId']),
+    },
+    created(){
+console.log('timeStamp', this.$firebase.database.ServerValue.TIMESTAMP)
+
+    },
+    mounted(){
+      // html태그를 포함하는 내용 붙여넣기 할때 일반 텍스트로 치환
+      document.querySelector('#message-field').addEventListener('paste', this.onPasteAfterClearTag.bind(this));
+    },
+    methods: {
+      ...mapActions([
+        'sendChatMessage',
+      ]),
+      submitChatMessage() {
+        if (this.writeMsg.length === 0 ) return false;
+
+        let vm = this;
+        let multiUpdates ={};
+       //let messageRef = this.$firebaseRealDB.ref(USER_DATA.REAR_FIREDB_NAME + '/Messages');
+        let messageRef = this.$firebaseRealDB.ref(USER_DATA.REAR_FIREDB_NAME).child('Messages');
+
+        let messageRefKey = messageRef.push().key; //message key
+        //console.log('messageRefKey', messageRefKey);
+
+        let roomUserList = this.roomUsersList;
+        let roomUserListLength = this.roomUsersList.length;  //채팅멤버
+
+        if(this.roomMsgData.length === 0){ //메시지 처음 입력하는 경우
+          for(var i=0; i < roomUserListLength; i++){
+            multiUpdates['RoomUsers/' +this.getChatRoomId + '/' + roomUserList[i]] = true;
+          }
+          //권한때문에 먼저 저장
+          this.$firebaseRealDB.ref(USER_DATA.REAR_FIREDB_NAME).update(multiUpdates);
+        }
+
+
+
+        multiUpdates ={}; // 변수 초기화
+        // 테스트 메세지 저장
+        multiUpdates['Messages/' + this.getChatRoomId + '/' + messageRefKey] = {
+          message: this.writeMsg,
+          userName:this.currentUser.userName,
+          profileImg:this.currentUser.profileImg,
+          timeStamp: this.$firebase.database.ServerValue.TIMESTAMP
+        }
+
+
+        //유저별 룸리스트 저장
+        if(roomUserList && roomUserListLength > 0){
+          for(var i = 0; i < roomUserListLength ; i++){
+            multiUpdates['UserRooms/' + this.roomUsersList[i] + '/' + this.roomId ] = {
+              roomId : this.roomId,
+              roomUserName : this.roomUsersName.join(CHAT_ROOM.SPLIT_CHAR),
+              roomUserlist : this.roomUsersList.join(CHAT_ROOM.SPLIT_CHAR),
+              roomType : roomUserListLength > 2 ? CHAT_ROOM.TYPE_MULTI : CHAT_ROOM.TYPE_ONE_VS_ONE,
+              roomOneVSOneTarget : roomUserListLength == 2 && i == 0 ? roomUserList[1] :  // 1대 1 대화이고 i 값이 0 이면
+                roomUserListLength == 2 && i == 1 ? roomUserList[0]   // 1대 1 대화 이고 i값이 1이면
+                  : '', // 나머지
+              lastMessage : this.writeMsg,
+              profileImg : this.currentUser.profileImg,
+              timestamp: this.$firebase.database.ServerValue.TIMESTAMP
+
+            };
+          }
+        }
+
+       this.$firebaseRealDB.ref(USER_DATA.REAR_FIREDB_NAME).update(multiUpdates);
+
+       this.writeMsg = '';
       },
-    }
+
+      onPasteAfterClearTag : function(e){
+        e.preventDefault();
+        var text = e.clipboardData.getData("text/plain");
+        document.execCommand("insertText", false, text);
+      }
+    },
+  }
 </script>
 
 <style scoped>

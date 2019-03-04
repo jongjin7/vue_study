@@ -21,6 +21,12 @@ export const USER_DATA ={
   INDEXDB_STORE:'Users',
 }
 
+export const CHAT_ROOM ={
+  TYPE_MULTI : 'ROOM_MULTI',
+  TYPE_ONE_VS_ONE: 'ROOM_ONE_VS_ONE',
+  SPLIT_CHAR:'@spl@'
+}
+
 export const filterType = {
   ALL: "All",
   DONE: "Done",

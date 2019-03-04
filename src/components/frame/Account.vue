@@ -3,7 +3,7 @@
     <!--<button class="badge badge-light" @click="modifyUserInfo">회원정보 수정</button>-->
     <button class="badge badge-success" @click="logout">로그아웃</button>
     <span :style="'background-image: url(' + userPhoto + ');'" class="pic rounded-circle"></span>
-    <small class="text-white" v-if="connectUserName !== null">[ {{ connectUserName }} ] 접속중...</small>
+    <small class="text-white" v-if="userName !== null">[ {{ userName }} ] 접속중...</small>
   </div>
   <div class="d-inline-block align-middle" v-else>
     <button class="badge badge-light badge" @click="signUp">회원가입</button>
@@ -11,13 +11,15 @@
   </div>
 </template>
 <script>
-  import { USER_DATA } from '../../common/Constant.js';
+  import { USER_DATA } from '@/common/Constant.js';
+  import { mapMutations, mapState } from "vuex";
+
   export default {
     name:'Account',
     data(){
       return{
         isLogined:false,
-        connectUserName:null,
+        userName:null,
         userPhoto:null,
         userEmail:null,
       }
@@ -27,6 +29,8 @@
 
     },
     methods:{
+      ...mapMutations(['currentUserInfo']),
+
       showModalpopup(title, componentName){
         this.showModal = true;
         window.globalVars.pop_title = title;
@@ -43,8 +47,7 @@
       },
 
       /** * User데이터를 IndexedDB에 저장 및 데이터 변경 */
-      saveUserAtIndexedDB(user, userName, userPic, isOauth){
-        let isSave = false;
+      saveUserAtIndexedDB(user, userName, userPhoto, isSave){
         let vm = this;
 
         if(indexedDB){
@@ -64,49 +67,51 @@
             let store = tranSaction.objectStore(objectName);
             store.get(user.uid).onsuccess = function(event){
               let data = event.target.result;
-              console.log('IndexedDb query 결과', data)
-              window.globalVars.currentUserName = userName;
-              //console.log('saveUserAtIndexedDB isSave 파라메터', isSave )
+              let tmpUserData = {
+                uid: user.uid,
+                email: user.email,
+                profileImg: userPhoto,
+                userName: userName,
+              }
+              vm.currentUserInfo(tmpUserData); //vuex store에 접속자 정보 저장
+              console.log('IndexedDb query 결과', data);
 
               // 데이터가 없으면 저장
               if(!data){
-                //console.log(store)
+                console.log('data없을시')
                 store.put({
                   uid: user.uid,
                   email: user.email,
-                  photoURL: userPic,
-                  displayName: userName,
+                  profileImg: userPhoto,
+                  userName: userName,
                   isSave: false
                 })
               }
 
               // 데이터가 존재하고 isSave 파라미터 true이면 데이터를 업데이트
               if(data && isSave){
+                console.log('data 존재하고 isSave이면 데이타 업데이트', data)
                 store.put({
                   uid: user.uid,
                   email: user.email,
-                  photoURL: userPic,
-                  displayName: userName,
+                  profileImg: userPhoto,
+                  userName: userName,
                   isSave: true
                 })
               }
 
               tranSaction.oncomplete = function(){
-                return new Promise((resolve,reject)=>{
-                  console.log('IndexedDb 트랜잭션 완료')
-                  db.close();
+                console.log('IndexedDb 트랜잭션 완료')
+                db.close();
 
-                  resolve()
-                }).then(()=>{
-                  console.log('....')
-                  vm.checkAndSaveUser(user);
-                })
+                vm.checkAndSaveUser(user) //호출할 적절한 위치 찾기 2019.03.04
               }
             }
           }
         }
       },
 
+      //신규 유저를 indexDB에서 체크 후 저장
       checkAndSaveUser(user){
         try{
           let vm = this;
@@ -122,6 +127,7 @@
             store.get(user.uid).onsuccess = function(event) {
               let data = event.target.result;
 
+              console.log('신규유저 체크', data.isSave)
               if(!data.isSave){
                 vm.saveUserAtRealDB(data);
               }
@@ -141,19 +147,20 @@
 
       //Realtime Database에서 Users 데이터를 체크 후 저장
       saveUserAtRealDB(user){
-
+        let vm = this;
         let userDBRef = this.$firebaseRealDB.ref(USER_DATA.REAR_FIREDB_NAME +'/'+ USER_DATA.INDEXDB_STORE + '/'+ user.uid);
         userDBRef.once('value').then((dataSnapShot) =>{
           // User Ref에 데이터가 없을 경우 데이터 저장
-          console.log('유저 정보 존재:', dataSnapShot.hasChildren())
+          console.log('유저 정보 존재 유무:', dataSnapShot.hasChildren())
           if (!dataSnapShot.hasChildren()) {
-            userDBRef.set({
-              //데이터 저장
+            let userData = {
               email: user.email,
               profileImg: user.photoURL,
               userName : user.displayName
-            }).then(()=>{
+            }
+            userDBRef.set(userData).then(()=>{
               console.log('cbUserAfterSave completed!!!')
+              vm.saveUserAtIndexedDB(user, userData.userName, userData.profileImg, true);
             });
           }
         });
@@ -183,26 +190,26 @@
 
                     querySnapshot.forEach(function(doc) {
 
-                      vm.connectUserName = doc.data().name;
+                      vm.userName = doc.data().name;
                       vm.userEmail = doc.data().email;
                       vm.userPhoto = doc.data().photo;
                       // indexedDB test
-                      vm.saveUserAtIndexedDB(user, vm.connectUserName, vm.userPhoto)
+                      vm.saveUserAtIndexedDB(user, vm.userName, vm.userPhoto, false)
                       // session storage
-                      vm.saveToStorageMemInfo(vm.connectUserName, vm.userEmail, vm.userPhoto);
+                      vm.saveToStorageMemInfo(vm.userName, vm.userEmail, vm.userPhoto);
                     });
                   });
 
               }else if(profile.providerId =='google.com'){
-                vm.connectUserName = profile.displayName;
+                vm.userName = profile.displayName;
                 vm.userEmail = profile.email;
                 vm.userPhoto = profile.photoURL;
 
-                //Realtime Database
-                vm.saveUserAtIndexedDB(user, vm.connectUserName, vm.userPhoto)
+                //indexed Database
+                vm.saveUserAtIndexedDB(user, vm.userName, vm.userPhoto, false)
 
                 //session storage
-                vm.saveToStorageMemInfo(vm.connectUserName, vm.userEmail, vm.userPhoto);
+                vm.saveToStorageMemInfo(vm.userName, vm.userEmail, vm.userPhoto);
               }
             });
 
@@ -212,7 +219,7 @@
             vm.isLogined = false;
             vm.email = null;
             vm.photo = null;
-            vm.connectUserName = null;
+            vm.userName = null;
           }
         });
 
