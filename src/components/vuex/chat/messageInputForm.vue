@@ -90,7 +90,7 @@ console.log('timeStamp', this.$firebase.database.ServerValue.TIMESTAMP)
                 roomUserListLength == 2 && i == 1 ? roomUserList[0]   // 1대 1 대화 이고 i값이 1이면
                   : '', // 나머지
               lastMessage : this.writeMsg,
-              profileImg : this.currentUser.profileImg,
+              profileImg : this.targetUser.profileImg,
               timestamp: this.$firebase.database.ServerValue.TIMESTAMP
 
             };

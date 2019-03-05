@@ -23,6 +23,7 @@ const state = {
     currentUserInfo:[], //name, uid
     targetUserInfo:[],
   },
+  chatUsersVsList:'',
 };
 
 //getter
@@ -83,6 +84,13 @@ const mutations = {
 
   removeMessageList:($state, $payload)=>{
     $state.chatRoom.msgDatas = [];
+  },
+
+  chatUserList:($state, $payload)=>{
+    $state.chatUsersVsList=$payload;
+  },
+  removeChatUserList:($state, $payload)=>{
+    $state.chatUsersVsList='';
   }
 }
 
@@ -120,6 +128,13 @@ const actions = {
   removeMessageList:({ commit }, $payload) =>{
     commit('removeMessageList')
   },
+
+  chatUserList:({commit}, $payload) =>{
+    commit('chatUserList', $payload)
+  },
+  removeChatUserList:({commit}, $payload) =>{
+    commit('chatUserList')
+  }
 
 };
 

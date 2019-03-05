@@ -5,7 +5,7 @@
       <div class="inbox_msg">
         <div class="inbox_people">
           <SearchChatRoomList />
-          <ChatUserList />
+          <ChatUserList :userList="chatUsersList" />
         </div>
         <div class="mesgs">
           <chatRoomView :msgDatas="getMessageData" />
@@ -41,6 +41,7 @@
         currentUser: ({ socket }) => socket.chatUsers.currentUserInfo,
         targetUser: ({ socket }) => socket.chatUsers.targetUserInfo,
         getMessageData: ({ socket }) => socket.chatRoom.msgDatas,
+        chatUsersList: ({ socket }) => socket.chatUsersVsList,
       }),
 
       ...mapGetters([
@@ -51,12 +52,13 @@
     },
     created(){
       this.checkCorrectAccess(); //정상적인 절차로 채팅방 입장하는지 체크
-      //this.fetchMessageList();
+      this.getChatUserList();
     },
     destroyed(){
       if(this.getIsOpenChatRoom){
         this.changeIsOpenChatRoom();
-        this.removeMessageList()
+        this.removeMessageList();
+        this.removeChatUserList();
       }
     },
     watch:{
@@ -67,8 +69,24 @@
         'changeIsOpenChatRoom',
         'getMessageList',
         'saveChatRoomId',
-        'removeMessageList'
+        'removeMessageList',
+        'chatUserList',
+        'removeChatUserList'
       ]),
+
+      getChatUserList(){
+        let vm = this;
+
+        let chatUserListRef = this.$firebaseRealDB.ref(USER_DATA.REAR_FIREDB_NAME + '/UserRooms/'+ this.currentUser.uid);
+        chatUserListRef.once('value', (snapshot)=> {
+          let tmpData=[]
+          snapshot.forEach((data)=>{
+            console.log('userList', data.val())
+            tmpData.push(data.val())
+          })
+          vm.chatUserList(tmpData)
+        })
+      },
 
       checkCorrectAccess(){
         if(this.getIsOpenChatRoom){
