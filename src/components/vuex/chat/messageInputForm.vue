@@ -70,6 +70,7 @@ console.log('timeStamp', this.$firebase.database.ServerValue.TIMESTAMP)
         multiUpdates ={}; // 변수 초기화
         // 테스트 메세지 저장
         multiUpdates['Messages/' + this.getChatRoomId + '/' + messageRefKey] = {
+          uid: this.currentUser.uid,
           message: this.writeMsg,
           userName:this.currentUser.userName,
           profileImg:this.currentUser.profileImg,

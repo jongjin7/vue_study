@@ -79,6 +79,10 @@ const mutations = {
 
   getMessageList:($state, $payload)=>{
     $state.chatRoom.msgDatas.push($payload);
+  },
+
+  removeMessageList:($state, $payload)=>{
+    $state.chatRoom.msgDatas = [];
   }
 }
 
@@ -113,8 +117,8 @@ const actions = {
   getMessageList:({ commit }, $payload) =>{
     commit('getMessageList', $payload)
   },
-  initMessageList:({ commit }, $payload) =>{
-    commit('initMessageList', $payload)
+  removeMessageList:({ commit }, $payload) =>{
+    commit('removeMessageList')
   },
 
 };

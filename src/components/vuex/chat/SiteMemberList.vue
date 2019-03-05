@@ -64,7 +64,7 @@ export default {
       console.log('this.currentUser', this.currentUser)
       var roomUsersUid = [targetUser.uid, this.currentUser.uid ]; // 챗방 유저리스트
       var roomUsersName = [targetUser.userName, this.currentUser.userName ] // 챗방 유저 이름
-      var chatRoomId = '@@myChatRoom@@' + roomUsersUid[0] + '@@' + yyyyMMddHHmmsss(new Date);
+      var chatRoomId = '@@myChatRoomUser__@@@__' + roomUsersUid[0] + '__@@@__' + roomUsersUid[1];
 
       this.roomUsersList(roomUsersUid);
       this.roomUsersName(roomUsersName);

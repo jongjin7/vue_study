@@ -38,9 +38,9 @@
     computed: {
       ...mapState({
         roomId: ({ socket }) => socket.chatRoom.roomId,
+        currentUser: ({ socket }) => socket.chatUsers.currentUserInfo,
+        targetUser: ({ socket }) => socket.chatUsers.targetUserInfo,
         getMessageData: ({ socket }) => socket.chatRoom.msgDatas,
-
-        targetUserInfo: ({ socket }) => socket.chatUsers.targetUserInfo
       }),
 
       ...mapGetters([
@@ -51,12 +51,12 @@
     },
     created(){
       this.checkCorrectAccess(); //정상적인 절차로 채팅방 입장하는지 체크
-      this.fetchMessageList();
+      //this.fetchMessageList();
     },
     destroyed(){
       if(this.getIsOpenChatRoom){
         this.changeIsOpenChatRoom();
-        this.getMessageList(null)
+        this.removeMessageList()
       }
     },
     watch:{
@@ -66,12 +66,15 @@
       ...mapActions([
         'changeIsOpenChatRoom',
         'getMessageList',
+        'saveChatRoomId',
+        'removeMessageList'
       ]),
 
       checkCorrectAccess(){
         if(this.getIsOpenChatRoom){
           //새로고침하면 잘못된 접근이라고 판단하고 있음.
           console.log('올바른 챗방접근')
+          this.hasCurrentRoomeMessages();
         }else{
           alert('올바른 접근이 아닙니다.')
           this.$router.go(-1);
@@ -79,6 +82,36 @@
 
       },
 
+      hasCurrentRoomeMessages(){
+        // 방 존재 체크 ==> 1:1 채팅룸(RoomUsers List)이 생성이 안되어 있다면, 새로운 룸을 생성하고 글쓰기폼을 활성화한다.
+        // 글쓰기 안하고 채팅룸 리스트를 선택하면 방의 존재를 체크 후 새로운 방 활성
+        let vm = this;
+        let regCurrentUser = new RegExp(this.currentUser.uid, 'g');
+        let regTargetUser = new RegExp(this.targetUser.uid, 'g');
+console.log('uid', regCurrentUser, regTargetUser)
+
+        let roomRef = this.$firebaseRealDB.ref(USER_DATA.REAR_FIREDB_NAME + '/RoomUsers/');
+        roomRef.once('value', (snapshot)=>{
+          let dataValue = snapshot.val();
+          snapshot.forEach((data)=>{
+            let testReg1 = regCurrentUser.test(data.key);
+            let testReg2 = regTargetUser.test(data.key);
+            console.log('dataKey와 활성화된 채팅방 ID',testReg1, testReg2, data.key)
+
+            if(testReg1 && testReg2){
+              console.log('저장되어 있는 채팅방')
+              vm.saveChatRoomId(data.key); // 채팅방ID 저장
+              let messageRef = this.$firebaseRealDB.ref(USER_DATA.REAR_FIREDB_NAME + '/Messages/'+ vm.roomId);
+              messageRef.once('value', (snapshot)=>{
+                console.log('message', snapshot.val())
+              })
+
+              vm.fetchMessageList();
+            }
+
+          })
+        })
+      },
 
 
       fetchMessageList(){
@@ -92,7 +125,7 @@
           messageRef.limitToLast(50).on('child_added', (dataSnapShot) => {
             let dataValue = dataSnapShot.val();
             let tmpData = {
-              key: dataSnapShot.key,
+              uid: dataValue.uid,
               userName: dataValue.userName,
               profileImg: dataValue.profileImg,
               timeStamp: timestampToTime(dataValue.timeStamp),
