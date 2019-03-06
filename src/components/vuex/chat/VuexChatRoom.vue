@@ -78,7 +78,7 @@
         let vm = this;
 
         let chatUserListRef = this.$firebaseRealDB.ref(USER_DATA.REAR_FIREDB_NAME + '/UserRooms/'+ this.currentUser.uid);
-        chatUserListRef.once('value', (snapshot)=> {
+        chatUserListRef.on('value', (snapshot)=> {
           let tmpData=[]
           snapshot.forEach((data)=>{
             console.log('userList', data.val())
@@ -95,7 +95,7 @@
           this.hasCurrentRoomeMessages();
         }else{
           alert('올바른 접근이 아닙니다.')
-          this.$router.go(-1);
+          this.$router.push('/chat');
         }
 
       },

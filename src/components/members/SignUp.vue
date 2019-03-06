@@ -162,7 +162,20 @@
               });
 
           }).catch(function(error) {
-            alert('등록된 사용자입니다. 확인 바랍니다.')
+            switch(error.code){
+              case "auth/email-already-in-use":
+                alert('이미 사용중인 이메일 입니다.');
+                break;
+              case "auth/invalid-email":
+                alert('유효하지 않은 메일입니다')
+                break;
+              case "auth/operation-not-allowed":
+                alert('이메일 가입이 중지되었습니다.')
+                break;
+              case "auth/weak-password":
+                alert("비밀번호를 6자리 이상 필요합니다");
+                break;
+            }
           });
         }
       }

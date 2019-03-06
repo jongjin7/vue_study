@@ -1,6 +1,6 @@
 <template>
   <div class="pop-login-content">
-    <form class="" @submit.stop.prevent="generalLogin">
+    <form class="" @submit.stop.prevent="loginGoogleEmail">
       <div class="form-group">
         <label for="login-email">이메일</label>
         <input type="email" name="inp-login" class="form-control" id="login-email" autocomplete="off" autofocus placeholder="email@example.com" @focusout="checkEmail" v-model="email">
@@ -66,8 +66,6 @@
       }
     },
     created(){
-      console.log('create')
-
       this.fetchData();
     },
     mounted(){
@@ -139,10 +137,10 @@
         this.checkPassword();
       },
 
-      generalLogin(){
+      loginGoogleEmail(){
         const vm = this;
         this.checkSubmitValidate();
-        console.log('generalLogin', this.errorSubmitValidator)
+        console.log('loginGoogleEmail', this.errorSubmitValidator)
         if(!this.errorSubmitValidator){ //전체 폼에 에러가 없다면
           this.$firebase.auth().signInWithEmailAndPassword(this.email, this.password)
             .then(()=>{
@@ -163,13 +161,12 @@
       },
 
       googleAuthLogin(){
-        console.log('firebase.auth.Auth ', this.$firebaseUi)
-
         // 익명 사용자 업그레이드
         // Temp variable to hold the anonymous user data if needed.
         let data = null;
         // Hold a reference to the anonymous current user.
         let anonymousUser = this.$firebase.auth().currentUser;
+        //console.log('anonymousUser', anonymousUser)
 
         let uiConfig = {
           callbacks: {
@@ -191,7 +188,7 @@
           signInOptions: [
             // Leave the lines as is for the providers you want to offer your users.
             this.$firebase.auth.GoogleAuthProvider.PROVIDER_ID,
-            //this.$firebase.auth.FacebookAuthProvider.PROVIDER_ID,
+            this.$firebase.auth.FacebookAuthProvider.PROVIDER_ID,
             //firebase.auth.TwitterAuthProvider.PROVIDER_ID,
             //firebase.auth.GithubAuthProvider.PROVIDER_ID,
             //this.$firebase.auth.EmailAuthProvider.PROVIDER_ID,
