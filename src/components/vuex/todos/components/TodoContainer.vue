@@ -110,10 +110,10 @@ export default {
       // });
 
       // 네임스페이스 모듈에서 전역 액션 등록하여 사용시
-      this.$store.dispatch("localSomeAction");
+      //this.$store.dispatch("localSomeAction");
 
       // 네임스페이스 모듈 내부에서 전역 자산 접근
-      this.$store.dispatch("demo/hasNamespaceModuleDepth1/someAction",{gap:22222});
+      //this.$store.dispatch("demo/hasNamespaceModuleDepth1/someAction",{gap:22222});
 
       event.target.value = "";
     }

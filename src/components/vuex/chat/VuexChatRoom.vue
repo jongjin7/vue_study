@@ -118,13 +118,26 @@ console.log('uid', regCurrentUser, regTargetUser)
 
             if(testReg1 && testReg2){
               console.log('저장되어 있는 채팅방')
-              vm.saveChatRoomId(data.key); // 채팅방ID 저장
-              let messageRef = this.$firebaseRealDB.ref(USER_DATA.REAR_FIREDB_NAME + '/Messages/'+ vm.roomId);
-              messageRef.once('value', (snapshot)=>{
-                console.log('message', snapshot.val())
-              })
 
-              vm.fetchMessageList();
+              console.log('changeRoomId', vm.roomId)
+              let tp = new Promise((resolve,reject)=>{
+                setTimeout(()=>{
+                  vm.saveChatRoomId(data.key)
+                  resolve(data.key); // 채팅방ID 저장
+                },30);
+
+              });
+              tp.then((newRoomId)=>{
+                console.log('promise', vm.roomId, newRoomId)
+
+                let messageRef = this.$firebaseRealDB.ref(USER_DATA.REAR_FIREDB_NAME + '/Messages/'+ newRoomId);
+                messageRef.once('value', (snapshot)=>{
+                  console.log('message', snapshot.val())
+                })
+
+                vm.fetchMessageList();
+              });
+
             }
 
           })

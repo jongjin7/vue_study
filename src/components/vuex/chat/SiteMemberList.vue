@@ -40,8 +40,6 @@ export default {
   },
   created(){
     this.getUserData();
-
-    console.log('ssss', timestampToTime(1551457478), this.currentUser)
   },
   computed:{
     ...mapState({
@@ -61,7 +59,6 @@ export default {
     ]),
 
     openChatRoom(targetUser){
-      console.log('this.currentUser', this.currentUser)
       var roomUsersUid = [targetUser.uid, this.currentUser.uid ]; // 챗방 유저리스트
       var roomUsersName = [targetUser.userName, this.currentUser.userName ] // 챗방 유저 이름
       var chatRoomId = '@@myChatRoomUser__@@@__' + roomUsersUid[0] + '__@@@__' + roomUsersUid[1];
@@ -73,7 +70,7 @@ export default {
 
       this.changeIsOpenChatRoom();
       this.$router.push({name: 'OpenedChatRoom', params:{ userId: roomUsersName[1] }});
-      console.log('채팅 시작!',  targetUser, roomUsersUid, roomUsersName[1])
+     // console.log('채팅 시작!',  targetUser, roomUsersUid, roomUsersName[1])
 
     },
 
