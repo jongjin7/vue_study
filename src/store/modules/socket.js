@@ -1,6 +1,7 @@
 import Constant from '../../common/Constant';
 
 const state = {
+  connectedUserData:'',
   msgDatas:[],
   chatTargetUserName: null,
   chatRoomId: null,
@@ -47,6 +48,10 @@ const getters = {
 
 //mutations
 const mutations = {
+  setCurrentUserData:($state, $payload)=>{
+    $state.connectedUserData = $payload;
+  },
+
   roomUsersList:($state, $payload)=>{
     $state.chatRoom.roomUsersList = $payload;
   },
@@ -96,6 +101,11 @@ const mutations = {
 
 //actions
 const actions = {
+  // 접속한 유저 정보 저장
+  setCurrentUserData:({ commit }, $payload) =>{
+    commit('setCurrentUserData', $payload);
+  },
+
   roomUsersList:({ commit } ,$payload)=>{
     commit('roomUsersList', $payload)
   },

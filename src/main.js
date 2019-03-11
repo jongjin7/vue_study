@@ -44,17 +44,20 @@ const config = {
 import firebase from 'firebase/app';
 firebase.initializeApp(config);
 import 'firebaseui';
+import 'firebase/auth';
 import 'firebase/database';
 import 'firebase/firestore';
 import 'firebase/storage';
 const dbFireStore = firebase.firestore();
 dbFireStore.settings({ timestampsInSnapshots: true });
 firebase.auth().languageCode = 'kr';
-
-const firebaseUi = new firebaseui.auth.AuthUI(firebase.auth());
+// 구글 Auth계정 지속성 설정
+const googleAuthPersistence = firebase.auth.Auth.Persistence.SESSION;
 
 Vue.prototype.$firebase = firebase;
-Vue.prototype.$firebaseUi = firebaseUi;
+Vue.prototype.$firebaseUi = new firebaseui.auth.AuthUI(firebase.auth());
+Vue.prototype.$googleAuthProvider = new firebase.auth.GoogleAuthProvider();
+Vue.prototype.$setPersistence = firebase.auth().setPersistence(googleAuthPersistence);
 Vue.prototype.$firebaseDB = dbFireStore;
 Vue.prototype.$firebaseRealDB = firebase.database();
 Vue.prototype.$firebaseStorage = firebase.storage();

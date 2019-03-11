@@ -12,7 +12,7 @@
 </template>
 <script>
   import { USER_DATA } from '@/common/Constant.js';
-  import { mapMutations, mapState } from "vuex";
+  import { mapMutations, mapActions } from "vuex";
 
   export default {
     name:'Account',
@@ -29,6 +29,9 @@
 
     },
     methods:{
+      ...mapActions([
+        'setCurrentUserData'
+      ]),
       ...mapMutations(['currentUserInfo']),
 
       showModalpopup(title, componentName){
@@ -170,10 +173,9 @@
         const vm = this;
         this.$firebase.auth().onAuthStateChanged(function(user) {
           if (user) {
-            console.log('signed in')
             // uid 전역 변수에 할당
             window.globalVars.currentUserUID = user.uid;
-
+console.log('user',user)
             user.providerData.forEach(function (profile) {
               console.log("Sign-in provider: " + profile.providerId);
               console.log("  Provider-specific UID: " + profile.uid);
@@ -187,9 +189,9 @@
                 // Cloud Firestore Database
                 vm.$firebaseDB.collection('members').where('email','==',profile.email)
                   .onSnapshot(function(querySnapshot) {
-
+                    let tmpUserData = profile;
                     querySnapshot.forEach(function(doc) {
-
+                      //tmpUserData.displayName = doc.data().name;
                       vm.userName = doc.data().name;
                       vm.userEmail = doc.data().email;
                       vm.userPhoto = doc.data().photo;
@@ -198,6 +200,8 @@
                       // session storage
                       vm.saveToStorageMemInfo(vm.userName, vm.userEmail, vm.userPhoto);
                     });
+
+                    console.log('저장되는 userData', tmpUserData)
                   });
 
               }else if(profile.providerId =='google.com'){

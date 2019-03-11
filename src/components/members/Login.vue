@@ -142,20 +142,22 @@
         this.checkSubmitValidate();
         console.log('loginGoogleEmail', this.errorSubmitValidator)
         if(!this.errorSubmitValidator){ //전체 폼에 에러가 없다면
-          this.$firebase.auth().signInWithEmailAndPassword(this.email, this.password)
-            .then(()=>{
-              console.log('구글 이메일/비밀번호 로그인 접속')
-              vm.$EventBus.$emit('toggleClose');
-              if(location.hash.split('/')[1] == 'chat') window.location.reload(true);
-            })
-            .catch(function(error) {
-              console.log('접속에러', error.code, error.message)
-              // Handle Errors here.
-              var errorCode = error.code;
-              var errorMessage = error.message;
-              console.log(error)
-              vm.errorMessage.password = '유효하지 않거나 잘못된 비밀번호입니다.';
-            });
+          this.$setPersistence.then(()=>{
+            return vm.$firebase.auth().signInWithEmailAndPassword(this.email, this.password);
+          })
+          .then(()=>{
+            console.log('구글 이메일/비밀번호 로그인 접속')
+            vm.$EventBus.$emit('toggleClose');
+            if(location.hash.split('/')[1] == 'chat') window.location.reload(true);
+          })
+          .catch(function(error) {
+            console.log('접속에러', error.code, error.message)
+            // Handle Errors here.
+            var errorCode = error.code;
+            var errorMessage = error.message;
+            console.log(error)
+            vm.errorMessage.password = '유효하지 않거나 잘못된 비밀번호입니다.';
+          });
         }
 
       },
