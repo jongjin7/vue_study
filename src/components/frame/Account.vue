@@ -2,8 +2,8 @@
   <div class="d-inline-block align-middle logined" v-if="isLogined">
     <!--<button class="badge badge-light" @click="modifyUserInfo">회원정보 수정</button>-->
     <button class="badge badge-success" @click="logout">로그아웃</button>
-    <span :style="'background-image: url(' + userPhoto + ');'" class="pic rounded-circle"></span>
-    <small class="text-white" v-if="userName !== null">[ {{ userName }} ] 접속중...</small>
+    <span :style="'background-image: url(' + connectUserData.userPhoto + ');'" class="pic rounded-circle"></span>
+    <small class="text-white">[ {{ connectUserData.userName }} ] 접속중...</small>
   </div>
   <div class="d-inline-block align-middle" v-else>
     <button class="badge badge-light badge" @click="signUp">회원가입</button>
@@ -12,17 +12,23 @@
 </template>
 <script>
   import { USER_DATA } from '@/common/Constant.js';
-  import { mapMutations, mapActions } from "vuex";
+  import { mapState, mapMutations, mapActions } from "vuex";
 
   export default {
     name:'Account',
     data(){
       return{
         isLogined:false,
+        userAccountData:{},
         userName:null,
         userPhoto:null,
         userEmail:null,
       }
+    },
+    computed:{
+      ...mapState({
+        connectUserData: ({ socket }) => socket.connectedUserData,
+      })
     },
     created(){
       this.connectMemberCheck();
@@ -175,7 +181,10 @@
           if (user) {
             // uid 전역 변수에 할당
             window.globalVars.currentUserUID = user.uid;
-console.log('user',user)
+            console.log('Account', user)
+
+
+
             user.providerData.forEach(function (profile) {
               console.log("Sign-in provider: " + profile.providerId);
               console.log("  Provider-specific UID: " + profile.uid);
@@ -184,38 +193,46 @@ console.log('user',user)
               console.log("  Photo URL: " + profile.photoURL);
 
               vm.isLogined = true;
-
+              let tmpUserData = {};
+              //tmpUserData.uid = user.uid;
+              console.log('tmpUserData:::', tmpUserData)
               if(profile.providerId == 'password'){
                 // Cloud Firestore Database
                 vm.$firebaseDB.collection('members').where('email','==',profile.email)
                   .onSnapshot(function(querySnapshot) {
-                    let tmpUserData = profile;
+
                     querySnapshot.forEach(function(doc) {
-                      //tmpUserData.displayName = doc.data().name;
-                      vm.userName = doc.data().name;
-                      vm.userEmail = doc.data().email;
-                      vm.userPhoto = doc.data().photo;
+
+
+                      tmpUserData.userName = doc.data().name;
+                      // tmpUserData.userEmail = doc.data().email;
+                      // tmpUserData.userPhoto = doc.data().photo;
                       // indexedDB test
                       vm.saveUserAtIndexedDB(user, vm.userName, vm.userPhoto, false)
                       // session storage
-                      vm.saveToStorageMemInfo(vm.userName, vm.userEmail, vm.userPhoto);
+                      //vm.saveToStorageMemInfo(vm.userName, vm.userEmail, vm.userPhoto);
                     });
 
                     console.log('저장되는 userData', tmpUserData)
+                    vm.setCurrentUserData(tmpUserData);
                   });
 
               }else if(profile.providerId =='google.com'){
-                vm.userName = profile.displayName;
-                vm.userEmail = profile.email;
-                vm.userPhoto = profile.photoURL;
+                tmpUserData.userName = profile.displayName;
+                tmpUserData.userEmail = profile.email;
+                tmpUserData.userPhoto = profile.photoURL;
+
+                vm.setCurrentUserData(tmpUserData);
 
                 //indexed Database
                 vm.saveUserAtIndexedDB(user, vm.userName, vm.userPhoto, false)
 
                 //session storage
-                vm.saveToStorageMemInfo(vm.userName, vm.userEmail, vm.userPhoto);
+                //vm.saveToStorageMemInfo(vm.userName, vm.userEmail, vm.userPhoto);
               }
             });
+
+            //console.log('user...', user)
 
           } else {
             console.log('signed out!')
@@ -224,6 +241,8 @@ console.log('user',user)
             vm.email = null;
             vm.photo = null;
             vm.userName = null;
+
+            vm.setCurrentUserData({});
           }
         });
 

@@ -3,13 +3,16 @@
     <h3 class="h6 pt-3">* 내 사이트 회원 목록 *</h3>
     <ul class="contacts">
       <li v-for="user in targetUserList">
-        <a href="#" class="img_cont" title="유저 프로파일창 열기" @click.stop.prevent="showModalpopup('유저팝업', 'chatUser'); $EventBus.$emit('showModal');">
-          <img src="https://devilsworkshop.org/files/2013/01/enlarged-facebook-profile-picture.jpg" class="rounded-circle user_img">
-          <span class="online_icon"></span>
-        </a>
-        <a href="#" class="user_info" @click.stop.prevent="openChatRoom(user)" title="1:1 채팅하기">
-          <span>{{ user.userName }}</span>
-          <p>Maryam is online</p>
+        <!-- @click.stop.prevent="showModalpopup('유저팝업', 'chatUser'); $EventBus.$emit('showModal');" -->
+        <a href="#" @click.stop.prevent=""  @dblclick="openChatRoom(user)">
+          <div class="img_cont">
+            <img src="https://devilsworkshop.org/files/2013/01/enlarged-facebook-profile-picture.jpg" class="rounded-circle user_img">
+            <span class="online_icon"></span>
+          </div>
+          <div class="user_info">
+            <span>{{ user.userName }}</span>
+            <p>Maryam is online</p>
+          </div>
         </a>
       </li>
       <!--<li>-->

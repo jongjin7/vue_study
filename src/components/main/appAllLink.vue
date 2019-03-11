@@ -48,8 +48,8 @@ export default {
           class:''
         },
         {
-          title: "Vuex 상태 관리 라이브러리를 이용한 채팅방 구현",
-          content: "Vuex, Socket.io, 로그인 기반 채팅방",
+          title: "Vuex 상태 관리 라이브러리를 이용한 웹 메신저 구현",
+          content: "Vuex, firebase realDataBase, 회원 기반 메신저",
           link: "/chat",
           class:''
         },

@@ -33,10 +33,10 @@
     name: "SignUp",
     data(){
       return{
-        name:'',
-        email:'',
-        password:'',
-        passwordRe:'',
+        name:'xp1111',
+        email:'test1@naver.com',
+        password:'test!234',
+        passwordRe:'test!234',
         errorMessage:{
           name:'',
           email:'',
@@ -47,7 +47,7 @@
       }
     },
     created(){
-      this.fetchData();
+      //this.fetchData();
     },
     mounted(){
 
@@ -149,17 +149,65 @@
           alert('입력하신 비밀번호가 일치하지 않습니다.')
           document.querySelector('#s-password-re').focus();
         }else{
-          this.$firebase.auth().createUserWithEmailAndPassword(this.email, this.password).then(() => {
-            vm.$firebaseDB.collection('members')
-              .add({
-                name: vm.name,
-                email: vm.email,
-                photo: 'https://ptetutorials.com/images/user-profile.png'
-              })
-              .then(function(){
-                alert('회원가입이 완료 되었습니다.');
-                vm.$EventBus.$emit('toggleClose');
+          this.$setPersistence.then(()=>{
+            return vm.$firebase.auth().createUserWithEmailAndPassword(vm.email, vm.password);
+          }).then((user) => {
+            // let vm = this;
+            // let userDBRef = this.$firebaseRealDB.ref(USER_DATA.REAR_FIREDB_NAME +'/'+ USER_DATA.INDEXDB_STORE + '/'+ user.uid);
+            // userDBRef.once('value').then((dataSnapShot) =>{
+            //   // User Ref에 데이터가 없을 경우 데이터 저장
+            //   console.log('유저 정보 존재 유무:', dataSnapShot.hasChildren())
+            //   if (!dataSnapShot.hasChildren()) {
+            //     let userData = {
+            //       email: vm.name,
+            //       profileImg: vm.email,
+            //       userName : 'https://ptetutorials.com/images/user-profile.png'
+            //     }
+            //     userDBRef.set(userData).then(()=>{
+            //       console.log('save DB completed!!!')
+            //     });
+            //   }
+            // });
+
+            console.log('이메일 가입 성공 : ');
+            let currentUser = vm.$firebase.auth().currentUser;
+            currentUser.updateProfile({
+              displayName:vm.name,
+              photoURL:'https://ptetutorials.com/images/user-profile.png'
+            }).then(function() {
+              console.log('userName 업데이트 성공', currentUser)
+
+              //인증 메일 발송
+              vm.$firebase.auth().useDeviceLanguage();
+              // 이메일 기기언어로 세팅
+              currentUser.sendEmailVerification().then(function() {
+                console.log('인증메일 발송 성공')
+              }).catch(function(error) {
+                console.error('인증메일 발송 에러', error);
               });
+            }).catch(function(error) {
+              console.log(error)
+            });
+
+
+
+
+
+
+
+
+
+
+            // vm.$firebaseDB.collection('members')
+            //   .add({
+            //     name: vm.name,
+            //     email: vm.email,
+            //     photo: 'https://ptetutorials.com/images/user-profile.png'
+            //   })
+            //   .then(function(){
+            //     alert('회원가입이 완료 되었습니다.');
+            //     vm.$EventBus.$emit('toggleClose');
+            //   });
 
           }).catch(function(error) {
             switch(error.code){
@@ -177,6 +225,7 @@
                 break;
             }
           });
+
         }
       }
     },
