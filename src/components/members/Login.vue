@@ -146,17 +146,26 @@
             return vm.$firebase.auth().signInWithEmailAndPassword(this.email, this.password);
           })
           .then(()=>{
-            console.log('구글 이메일/비밀번호 로그인 접속')
+            console.log('구글 이메일 로그인 성공')
             vm.$EventBus.$emit('toggleClose');
             if(location.hash.split('/')[1] == 'chat') window.location.reload(true);
           })
           .catch(function(error) {
-            console.log('접속에러', error.code, error.message)
-            // Handle Errors here.
-            var errorCode = error.code;
-            var errorMessage = error.message;
-            console.log(error)
-            vm.errorMessage.password = '유효하지 않거나 잘못된 비밀번호입니다.';
+            console.error('이메일 로그인 과정 에러', error);
+            switch(error.code){
+              case "auth/invalid-email":
+                alert('유효하지 않은 메일입니다');
+                break;
+              case "auth/user-disabled":
+                alert('사용이 정지된 유저 입니다.');
+                break;
+              case "auth/user-not-found":
+                alert('사용자를 찾을 수 없습니다.');
+                break;
+              case "auth/wrong-password":
+                alert("잘못된 패스워드 입니다.");
+                break;
+            }
           });
         }
 

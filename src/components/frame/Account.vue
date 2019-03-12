@@ -31,7 +31,7 @@
       })
     },
     created(){
-      this.connectMemberCheck();
+      this.onChangeAuthAccount();
 
     },
     methods:{
@@ -53,6 +53,78 @@
           email: email,
           photo: photo
         }));
+      },
+
+      onChangeAuthAccount(){
+        const vm = this;
+        this.$firebase.auth().onAuthStateChanged(function(user) {
+          if (user) {
+            console.log('onChangeAuthAccount', user)
+
+            vm.$firebaseRealDB.goOnline(); // 데이터 베이스 명시적 온라인
+
+            user.providerData.forEach(function (profile) {
+              console.log("Sign-in provider: " + profile.providerId);
+              console.log("  Provider-specific UID: " + profile.uid);
+              console.log("  Name: " + profile.displayName);
+              console.log("  Email: " + profile.email);
+              console.log("  Photo URL: " + profile.photoURL);
+
+              vm.isLogined = true;
+
+              //vm.saveUserAtIndexedDB(user, vm.userName, vm.userPhoto, false)
+
+              let tmpUserData = {};
+              if(profile.providerId == 'password'){
+                // Cloud Firestore Database
+                vm.$firebaseDB.collection('members').where('email','==',profile.email)
+                  .onSnapshot(function(querySnapshot) {
+
+                    querySnapshot.forEach(function(doc) {
+
+
+                      tmpUserData.userName = doc.data().name;
+                      // tmpUserData.userEmail = doc.data().email;
+                      // tmpUserData.userPhoto = doc.data().photo;
+                      // indexedDB test
+                      //
+                      // session storage
+                      //vm.saveToStorageMemInfo(vm.userName, vm.userEmail, vm.userPhoto);
+                    });
+
+                    //vm.setCurrentUserData(tmpUserData);
+                  });
+
+              }else if(profile.providerId =='google.com'){
+                tmpUserData.userName = profile.displayName;
+                tmpUserData.userEmail = profile.email;
+                tmpUserData.userPhoto = profile.photoURL;
+
+                vm.setCurrentUserData(tmpUserData);
+
+                //indexed Database
+                // vm.saveUserAtIndexedDB(user, vm.userName, vm.userPhoto, false)
+
+                //session storage
+                //vm.saveToStorageMemInfo(vm.userName, vm.userEmail, vm.userPhoto);
+              }
+            });
+
+            //console.log('user...', user)
+
+          } else {
+            console.log('signed out!')
+            // User is signed out.
+            vm.isLogined = false;
+            vm.email = null;
+            vm.photo = null;
+            vm.userName = null;
+
+            vm.setCurrentUserData({});
+          }
+        });
+
+        this.$EventBus.$on('loginPop', this.login);
       },
 
       /** * User데이터를 IndexedDB에 저장 및 데이터 변경 */
@@ -175,79 +247,7 @@
         });
       },
 
-      connectMemberCheck(){
-        const vm = this;
-        this.$firebase.auth().onAuthStateChanged(function(user) {
-          if (user) {
-            // uid 전역 변수에 할당
-            window.globalVars.currentUserUID = user.uid;
-            console.log('Account', user)
 
-
-
-            user.providerData.forEach(function (profile) {
-              console.log("Sign-in provider: " + profile.providerId);
-              console.log("  Provider-specific UID: " + profile.uid);
-              console.log("  Name: " + profile.displayName);
-              console.log("  Email: " + profile.email);
-              console.log("  Photo URL: " + profile.photoURL);
-
-              vm.isLogined = true;
-              let tmpUserData = {};
-              //tmpUserData.uid = user.uid;
-              console.log('tmpUserData:::', tmpUserData)
-              if(profile.providerId == 'password'){
-                // Cloud Firestore Database
-                vm.$firebaseDB.collection('members').where('email','==',profile.email)
-                  .onSnapshot(function(querySnapshot) {
-
-                    querySnapshot.forEach(function(doc) {
-
-
-                      tmpUserData.userName = doc.data().name;
-                      // tmpUserData.userEmail = doc.data().email;
-                      // tmpUserData.userPhoto = doc.data().photo;
-                      // indexedDB test
-                      vm.saveUserAtIndexedDB(user, vm.userName, vm.userPhoto, false)
-                      // session storage
-                      //vm.saveToStorageMemInfo(vm.userName, vm.userEmail, vm.userPhoto);
-                    });
-
-                    console.log('저장되는 userData', tmpUserData)
-                    vm.setCurrentUserData(tmpUserData);
-                  });
-
-              }else if(profile.providerId =='google.com'){
-                tmpUserData.userName = profile.displayName;
-                tmpUserData.userEmail = profile.email;
-                tmpUserData.userPhoto = profile.photoURL;
-
-                vm.setCurrentUserData(tmpUserData);
-
-                //indexed Database
-                vm.saveUserAtIndexedDB(user, vm.userName, vm.userPhoto, false)
-
-                //session storage
-                //vm.saveToStorageMemInfo(vm.userName, vm.userEmail, vm.userPhoto);
-              }
-            });
-
-            //console.log('user...', user)
-
-          } else {
-            console.log('signed out!')
-            // User is signed out.
-            vm.isLogined = false;
-            vm.email = null;
-            vm.photo = null;
-            vm.userName = null;
-
-            vm.setCurrentUserData({});
-          }
-        });
-
-        this.$EventBus.$on('loginPop', this.login);
-      },
 
 
       signUp(){

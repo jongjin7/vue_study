@@ -22,8 +22,8 @@
         <div class="invalid-feedback">{{ errorMessage.passwordRe }}</div>
       </div>
       <hr class="my-4">
-      <button type="submit" class="btn btn-primary w-100" v-if="!isLogined">가입하기</button>
-      <button type="submit" class="btn btn-primary w-100" v-else>수정하기</button>
+      <button type="submit" class="btn btn-primary w-100">가입하기</button>
+      <!--<button type="submit" class="btn btn-primary w-100">수정하기</button>-->
     </form>
   </div>
 </template>
@@ -33,8 +33,8 @@
     name: "SignUp",
     data(){
       return{
-        name:'xp1111',
-        email:'test1@naver.com',
+        name:'홍길동',
+        email:'test@naver.com',
         password:'test!234',
         passwordRe:'test!234',
         errorMessage:{
@@ -47,7 +47,6 @@
       }
     },
     created(){
-      //this.fetchData();
     },
     mounted(){
 
@@ -56,20 +55,6 @@
 
     },
     methods:{
-      fetchData(){
-        const vm = this;
-        this.$firebase.auth().onAuthStateChanged(function(user) {
-          if (user) {
-            vm.email = user.email;
-            vm.isLogined = true;
-          }else{
-            vm.email = '';
-            vm.isLogined = false;
-          }
-        });
-
-      },
-
       checkName(){
         const blank_pattern = /^\s+|\s+$/g;
         const event = event || window.event;
@@ -152,51 +137,26 @@
           this.$setPersistence.then(()=>{
             return vm.$firebase.auth().createUserWithEmailAndPassword(vm.email, vm.password);
           }).then((user) => {
-            // let vm = this;
-            // let userDBRef = this.$firebaseRealDB.ref(USER_DATA.REAR_FIREDB_NAME +'/'+ USER_DATA.INDEXDB_STORE + '/'+ user.uid);
-            // userDBRef.once('value').then((dataSnapShot) =>{
-            //   // User Ref에 데이터가 없을 경우 데이터 저장
-            //   console.log('유저 정보 존재 유무:', dataSnapShot.hasChildren())
-            //   if (!dataSnapShot.hasChildren()) {
-            //     let userData = {
-            //       email: vm.name,
-            //       profileImg: vm.email,
-            //       userName : 'https://ptetutorials.com/images/user-profile.png'
-            //     }
-            //     userDBRef.set(userData).then(()=>{
-            //       console.log('save DB completed!!!')
-            //     });
-            //   }
-            // });
-
-            console.log('이메일 가입 성공 : ');
+            console.log('이메일 가입 성공');
             let currentUser = vm.$firebase.auth().currentUser;
             currentUser.updateProfile({
               displayName:vm.name,
               photoURL:'https://ptetutorials.com/images/user-profile.png'
             }).then(function() {
               console.log('userName 업데이트 성공', currentUser)
+              vm.$EventBus.$emit('toggleClose');
 
               //인증 메일 발송
-              vm.$firebase.auth().useDeviceLanguage();
-              // 이메일 기기언어로 세팅
-              currentUser.sendEmailVerification().then(function() {
-                console.log('인증메일 발송 성공')
-              }).catch(function(error) {
-                console.error('인증메일 발송 에러', error);
-              });
+              //vm.$firebase.auth().useDeviceLanguage(); // 이메일 기기언어로 세팅
+
+              // currentUser.sendEmailVerification().then(function() {
+              //   console.log('인증메일 발송 성공')
+              // }).catch(function(error) {
+              //   console.error('인증메일 발송 에러', error);
+              // });
             }).catch(function(error) {
               console.log(error)
             });
-
-
-
-
-
-
-
-
-
 
             // vm.$firebaseDB.collection('members')
             //   .add({
@@ -205,8 +165,7 @@
             //     photo: 'https://ptetutorials.com/images/user-profile.png'
             //   })
             //   .then(function(){
-            //     alert('회원가입이 완료 되었습니다.');
-            //     vm.$EventBus.$emit('toggleClose');
+            //
             //   });
 
           }).catch(function(error) {
@@ -232,9 +191,5 @@
 
   };
 </script>
-<style lang="scss">
-
-
-</style>
 
 
