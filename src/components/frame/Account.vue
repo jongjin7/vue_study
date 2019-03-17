@@ -178,20 +178,29 @@
 
       onChangeAuthAccount(){
         const vm = this;
+        console.log('sss', JSON.parse(sessionStorage.getItem('currentUser')))
+        if(sessionStorage.getItem('currentUser') !== null) {
+          vm.setIsUserLogin(); //접속 상태를 store에 갱신
+          vm.setCurrentUserData(JSON.parse(sessionStorage.getItem('currentUser')));
+        }
         console.log('account onChangeAuthAccount mehods')
         // 로그인후 접속 정보를 로컬에 저장하고 onAuthStateChanged함수를 실행한다.
         // 페이지 리로딩 후 현재 접속자의 정보가 로컬에 저장되어있는지 확인 후 저장되어 있다면 로컬정보를 가져오고,
         // 저장되지 않았다면 서버에서 정보를 가져온다.
-
+let prev = new Date();
         this.$firebase.auth().onAuthStateChanged(function(user) {
           console.log('account:: $firebase.auth통신후 user정보 가져오기')
-
+console.log('after', new Date() - prev)
           if (user) {
             console.log('logIn::onChangeAuthAccount', vm.isUserLogin)
             vm.$firebaseRealDB.goOnline(); // 데이터 베이스 명시적 온라인
 
-            vm.setIsUserLogin(); //접속 상태를 store에 갱신
-            vm.setCurrentUserData(user);
+
+            if(sessionStorage.getItem('currentUser') === null) {
+              sessionStorage.setItem('currentUser', JSON.stringify(user));
+              vm.setIsUserLogin(); //접속 상태를 store에 갱신
+              vm.setCurrentUserData(user);
+            }
 
             if(vm.fromLogin) vm.checkAndSaveUser(user);
             // 로그인 후 접속상태 정보를 사용하고자 하는 컴포넌트(router의 hash정보)에 보내기, 현재는 챗방 게이트에서 사용됨
@@ -202,6 +211,7 @@
             if(vm.isUserLogin){
               vm.setIsUserLogin();
               vm.setCurrentUserData([]);
+              sessionStorage.removeItem('currentUser')
             }
             console.log('sss', location.hash)
           }
