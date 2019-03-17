@@ -1,6 +1,6 @@
 <template>
   <div>
-    <form class="" @submit.stop.prevent="sendSignUpMember">
+    <form class="" @submit.stop.prevent="submitSignUpMember">
       <div class="form-group">
         <label for="s-name">닉네임</label>
         <input type="text" class="form-control" id="s-name" autocomplete="off" autofocus placeholder="닉네임(별명)을 적어주세요" @focusout="checkName" v-model="name" required>
@@ -47,6 +47,7 @@
       }
     },
     created(){
+
     },
     mounted(){
 
@@ -127,7 +128,7 @@
         return this.password === this.passwordRe
       },
 
-      sendSignUpMember(){
+      submitSignUpMember(){
         let vm = this;
         console.log('this.errorSubmitValidator')
         if(!this.comparePassword()){
@@ -143,7 +144,8 @@
               displayName:vm.name,
               photoURL:'https://ptetutorials.com/images/user-profile.png'
             }).then(function() {
-              console.log('userName 업데이트 성공', currentUser)
+              console.log('userName 업데이트 성공', currentUser);
+              vm.$EventBus.$emit('onSaveUserIndexedDB', currentUser, false);
               vm.$EventBus.$emit('toggleClose');
 
               //인증 메일 발송
@@ -169,6 +171,7 @@
             //   });
 
           }).catch(function(error) {
+            console.log('error', error)
             switch(error.code){
               case "auth/email-already-in-use":
                 alert('이미 사용중인 이메일 입니다.');

@@ -1,11 +1,8 @@
 import Constant from '../../common/Constant';
 
 const state = {
+  isUserLogin:false,
   connectedUserData:'',
-  msgDatas:[],
-  chatTargetUserName: null,
-  chatRoomId: null,
-
   chatRoom:{
     msgDatas:[
       // {
@@ -48,6 +45,10 @@ const getters = {
 
 //mutations
 const mutations = {
+  setIsUserLogin:($state, $payload)=>{
+    $state.isUserLogin = !$state.isUserLogin;
+  },
+
   setCurrentUserData:($state, $payload)=>{
     $state.connectedUserData = $payload;
   },
@@ -101,6 +102,10 @@ const mutations = {
 
 //actions
 const actions = {
+  setIsUserLogin:({ commit }, $payload) =>{
+    commit('setIsUserLogin');
+  },
+
   // 접속한 유저 정보 저장
   setCurrentUserData:({ commit }, $payload) =>{
     commit('setCurrentUserData', $payload);

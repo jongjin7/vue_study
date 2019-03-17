@@ -35,6 +35,10 @@ export default {
 </script>
 
 <style lang="scss">
+  [v-cloack] {
+    display: none;
+  }
+
   .invalid-feedback{
     display: block;
   }

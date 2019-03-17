@@ -1,6 +1,6 @@
 <template>
   <div class="pop-login-content">
-    <form class="" @submit.stop.prevent="loginGoogleEmail">
+    <form class="" @submit.stop.prevent="submitSignInWithEmailAndPassword">
       <div class="form-group">
         <label for="login-email">이메일</label>
         <input type="email" name="inp-login" class="form-control" id="login-email" autocomplete="off" autofocus placeholder="email@example.com" @focusout="checkEmail" v-model="email">
@@ -69,7 +69,7 @@
       this.fetchData();
     },
     mounted(){
-      this.googleAuthLogin()
+      this.signInWithGoogleOAuth()
     },
     computed:{
       compareEmail(){
@@ -137,18 +137,20 @@
         this.checkPassword();
       },
 
-      loginGoogleEmail(){
+      submitSignInWithEmailAndPassword(){
         const vm = this;
         this.checkSubmitValidate();
-        console.log('loginGoogleEmail', this.errorSubmitValidator)
+        console.log('submitSignInWithEmailAndPassword', this.errorSubmitValidator)
         if(!this.errorSubmitValidator){ //전체 폼에 에러가 없다면
           this.$setPersistence.then(()=>{
-            return vm.$firebase.auth().signInWithEmailAndPassword(this.email, this.password);
+            return this.$firebase.auth().signInWithEmailAndPassword(this.email, this.password);
           })
-          .then(()=>{
-            console.log('구글 이메일 로그인 성공')
-            vm.$EventBus.$emit('toggleClose');
-            if(location.hash.split('/')[1] == 'chat') window.location.reload(true);
+          .then((user)=>{
+            console.log('구글 이메일 로그인 성공', user)
+
+            this.$EventBus.$emit('onTypeAuth', true);
+            this.$EventBus.$emit('toggleClose');
+            //if(location.hash.split('/')[1] == 'chat') window.location.reload(true);
           })
           .catch(function(error) {
             console.error('이메일 로그인 과정 에러', error);
@@ -171,7 +173,7 @@
 
       },
 
-      googleAuthLogin(){
+      signInWithGoogleOAuth(){
         // 익명 사용자 업그레이드
         // Temp variable to hold the anonymous user data if needed.
         let data = null;
@@ -185,6 +187,7 @@
               // User successfully signed in.
               // Return type determines whether we continue the redirect automatically
               // or whether we leave that to developer to handle.
+              console.log('authResult', authResult, redirectUrl)
               return true;
             },
             uiShown: function () {
@@ -207,8 +210,17 @@
           ],
         }
 
-        this.$firebaseUi.start('#firebaseui-auth-container', uiConfig);
+        this.$setPersistence.then(()=>{
+            this.$firebaseUi.start('#firebaseui-auth-container', uiConfig)
+        })
+        .catch((error)=>{
+          console.log('error', error)
+        })
+
+
       },
+
+
 
       kakaoLogout(){
         let that = this;

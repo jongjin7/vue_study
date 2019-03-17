@@ -1,13 +1,13 @@
 <template>
-  <div class="d-inline-block align-middle logined" v-if="isLogined">
+  <div class="d-inline-block align-middle logined" v-if="isUserLogin" >
     <!--<button class="badge badge-light" @click="modifyUserInfo">회원정보 수정</button>-->
     <button class="badge badge-success" @click="logout">로그아웃</button>
-    <span :style="'background-image: url(' + connectUserData.userPhoto + ');'" class="pic rounded-circle"></span>
-    <small class="text-white">[ {{ connectUserData.userName }} ] 접속중...</small>
+    <span :style="'background-image: url(' + connectUserData.photoURL + ');'" class="pic rounded-circle"></span>
+    <small class="text-white">[ {{ connectUserData.displayName }} ] 접속중...</small>
   </div>
-  <div class="d-inline-block align-middle" v-else>
+  <div class="d-inline-block align-middle" v-else >
     <button class="badge badge-light badge" @click="signUp">회원가입</button>
-    <button class="badge badge-success" @click="login">로그인</button>
+    <button class="badge badge-success" @click="openLoginPopup">로그인</button>
   </div>
 </template>
 <script>
@@ -18,117 +18,42 @@
     name:'Account',
     data(){
       return{
-        isLogined:false,
-        userAccountData:{},
-        userName:null,
-        userPhoto:null,
-        userEmail:null,
+        fromLogin:false,
       }
     },
     computed:{
       ...mapState({
         connectUserData: ({ socket }) => socket.connectedUserData,
+        isUserLogin: ({ socket }) => socket.isUserLogin,
       })
     },
     created(){
+      console.log('Amount created')
       this.onChangeAuthAccount();
+      this.$EventBus.$on('openLoginPopup', this.openLoginPopup);
+      this.$EventBus.$on('onSaveUserIndexedDB', this.saveUserAtIndexedDB); //신규 User를 IndexedDB에서 체크 후 저장
+      this.$EventBus.$on('onTypeAuth', $payload => this.fromLogin = $payload);
 
+    },
+    mounted(){
+      //console.log('Amount mounted')
     },
     methods:{
       ...mapActions([
-        'setCurrentUserData'
+        'setCurrentUserData',
+        'setIsUserLogin'
       ]),
       ...mapMutations(['currentUserInfo']),
 
       showModalpopup(title, componentName){
-        this.showModal = true;
         window.globalVars.pop_title = title;
         window.globalVars.pop_content = componentName;
         this.$EventBus.$emit('toggleClose');
       },
 
-      saveToStorageMemInfo(name,email,photo){
-        sessionStorage.setItem('memberInfo',JSON.stringify({
-          name:  name,
-          email: email,
-          photo: photo
-        }));
-      },
-
-      onChangeAuthAccount(){
-        const vm = this;
-        this.$firebase.auth().onAuthStateChanged(function(user) {
-          if (user) {
-            console.log('onChangeAuthAccount', user)
-
-            vm.$firebaseRealDB.goOnline(); // 데이터 베이스 명시적 온라인
-
-            user.providerData.forEach(function (profile) {
-              console.log("Sign-in provider: " + profile.providerId);
-              console.log("  Provider-specific UID: " + profile.uid);
-              console.log("  Name: " + profile.displayName);
-              console.log("  Email: " + profile.email);
-              console.log("  Photo URL: " + profile.photoURL);
-
-              vm.isLogined = true;
-
-              //vm.saveUserAtIndexedDB(user, vm.userName, vm.userPhoto, false)
-
-              let tmpUserData = {};
-              if(profile.providerId == 'password'){
-                // Cloud Firestore Database
-                vm.$firebaseDB.collection('members').where('email','==',profile.email)
-                  .onSnapshot(function(querySnapshot) {
-
-                    querySnapshot.forEach(function(doc) {
-
-
-                      tmpUserData.userName = doc.data().name;
-                      // tmpUserData.userEmail = doc.data().email;
-                      // tmpUserData.userPhoto = doc.data().photo;
-                      // indexedDB test
-                      //
-                      // session storage
-                      //vm.saveToStorageMemInfo(vm.userName, vm.userEmail, vm.userPhoto);
-                    });
-
-                    //vm.setCurrentUserData(tmpUserData);
-                  });
-
-              }else if(profile.providerId =='google.com'){
-                tmpUserData.userName = profile.displayName;
-                tmpUserData.userEmail = profile.email;
-                tmpUserData.userPhoto = profile.photoURL;
-
-                vm.setCurrentUserData(tmpUserData);
-
-                //indexed Database
-                // vm.saveUserAtIndexedDB(user, vm.userName, vm.userPhoto, false)
-
-                //session storage
-                //vm.saveToStorageMemInfo(vm.userName, vm.userEmail, vm.userPhoto);
-              }
-            });
-
-            //console.log('user...', user)
-
-          } else {
-            console.log('signed out!')
-            // User is signed out.
-            vm.isLogined = false;
-            vm.email = null;
-            vm.photo = null;
-            vm.userName = null;
-
-            vm.setCurrentUserData({});
-          }
-        });
-
-        this.$EventBus.$on('loginPop', this.login);
-      },
-
       /** * User데이터를 IndexedDB에 저장 및 데이터 변경 */
-      saveUserAtIndexedDB(user, userName, userPhoto, isSave){
+      saveUserAtIndexedDB(user, isSave){
+        console.log('saveUserAtIndexedDB', user, isSave)
         let vm = this;
 
         if(indexedDB){
@@ -148,13 +73,13 @@
             let store = tranSaction.objectStore(objectName);
             store.get(user.uid).onsuccess = function(event){
               let data = event.target.result;
-              let tmpUserData = {
-                uid: user.uid,
-                email: user.email,
-                profileImg: userPhoto,
-                userName: userName,
-              }
-              vm.currentUserInfo(tmpUserData); //vuex store에 접속자 정보 저장
+              // let tmpUserData = {
+              //   uid: user.uid,
+              //   email: user.email,
+              //   profileImg: user.photoURL,
+              //   userName: user.displayName,
+              // }
+              // vm.currentUserInfo(tmpUserData); //vuex store에 접속자 정보 저장
               console.log('IndexedDb query 결과', data);
 
               // 데이터가 없으면 저장
@@ -163,8 +88,8 @@
                 store.put({
                   uid: user.uid,
                   email: user.email,
-                  profileImg: userPhoto,
-                  userName: userName,
+                  photoURL : user.photoURL ? user.photoURL : '',
+                  displayName : user.userName ? user.userName : user.displayName,
                   isSave: false
                 })
               }
@@ -175,8 +100,8 @@
                 store.put({
                   uid: user.uid,
                   email: user.email,
-                  profileImg: userPhoto,
-                  userName: userName,
+                  photoURL : user.photoURL ? user.photoURL : '',
+                  displayName : user.userName ? user.userName : user.displayName,
                   isSave: true
                 })
               }
@@ -205,12 +130,14 @@
             let store = tranSaction.objectStore(objectName);
 
             // indexedDB에서 데이터 읽어오기
+            console.log('checkAndSaveUser user', user, user.uid)
             store.get(user.uid).onsuccess = function(event) {
               let data = event.target.result;
-
-              console.log('신규유저 체크', data.isSave)
-              if(!data.isSave){
+              console.log('신규유저 체크', data)
+              if(data !== undefined && !data.isSave){
                 vm.saveUserAtRealDB(data);
+              }else{
+                vm.saveUserAtIndexedDB(user,true);
               }
             }
 
@@ -232,20 +159,56 @@
         let userDBRef = this.$firebaseRealDB.ref(USER_DATA.REAR_FIREDB_NAME +'/'+ USER_DATA.INDEXDB_STORE + '/'+ user.uid);
         userDBRef.once('value').then((dataSnapShot) =>{
           // User Ref에 데이터가 없을 경우 데이터 저장
-          console.log('유저 정보 존재 유무:', dataSnapShot.hasChildren())
+          console.log('유저 정보 존재 유무:', dataSnapShot.hasChildren(), user.profileImg, user.userName)
           if (!dataSnapShot.hasChildren()) {
             let userData = {
               email: user.email,
-              profileImg: user.photoURL,
+              profileImg: user.photoURL ? user.photoURL : '',
               userName : user.displayName
             }
             userDBRef.set(userData).then(()=>{
               console.log('cbUserAfterSave completed!!!')
-              vm.saveUserAtIndexedDB(user, userData.userName, userData.profileImg, true);
+              vm.saveUserAtIndexedDB(user, true);
+            }).catch((error)=>{
+              console.log('realDB error',  error)
             });
           }
         });
       },
+
+      onChangeAuthAccount(){
+        const vm = this;
+        console.log('account onChangeAuthAccount mehods')
+        // 로그인후 접속 정보를 로컬에 저장하고 onAuthStateChanged함수를 실행한다.
+        // 페이지 리로딩 후 현재 접속자의 정보가 로컬에 저장되어있는지 확인 후 저장되어 있다면 로컬정보를 가져오고,
+        // 저장되지 않았다면 서버에서 정보를 가져온다.
+
+        this.$firebase.auth().onAuthStateChanged(function(user) {
+          console.log('account:: $firebase.auth통신후 user정보 가져오기')
+
+          if (user) {
+            console.log('logIn::onChangeAuthAccount', vm.isUserLogin)
+            vm.$firebaseRealDB.goOnline(); // 데이터 베이스 명시적 온라인
+
+            vm.setIsUserLogin(); //접속 상태를 store에 갱신
+            vm.setCurrentUserData(user);
+
+            if(vm.fromLogin) vm.checkAndSaveUser(user);
+            // 로그인 후 접속상태 정보를 사용하고자 하는 컴포넌트(router의 hash정보)에 보내기, 현재는 챗방 게이트에서 사용됨
+            vm.$EventBus.$emit('currentConnectionStatus');
+
+          } else {
+            console.log('logOut::onChangeAuthAccount')
+            if(vm.isUserLogin){
+              vm.setIsUserLogin();
+              vm.setCurrentUserData([]);
+            }
+            console.log('sss', location.hash)
+          }
+        });
+      },
+
+
 
 
 
@@ -256,16 +219,19 @@
       modifyUserInfo(){
         this.showModalpopup('회원정보수정','modifyUserInfo');
       },
-      login(){
+      openLoginPopup(){
         this.showModalpopup('로그인','login');
       },
       logout(){
         const vm = this;
 
         this.$firebase.auth().signOut().then(function() {
-          alert('로그아웃 되었습니다.');
-          sessionStorage.removeItem('memberInfo');
-          if(location.hash.split('/')[1] == 'chat') vm.$router.push('/');
+          if(confirm('로그아웃 하시겠습니까?')){
+            if(vm.$firebaseRealDB){
+              vm.$firebaseRealDB.goOffline(); // 데이터 베이스를 명시적으로 오프라인
+            }
+            vm.$firebaseRealDB.auth().signOut();
+          }
         }).catch(function(error) {
           // An error happened.
         });

@@ -42,7 +42,7 @@ export default {
     getDataToServerCommunity(){
       const vm = this;
       const currentTime = this.$firebase.firestore.Timestamp.fromDate(new Date()).seconds;
-      console.log('currentTime Seconds ==>'+ currentTime)
+      //console.log('currentTime Seconds ==>'+ currentTime)
       const dataCollectionCommunity = this.$firebaseDB.collection('community').doc('content').collection('community-data');
 
 
