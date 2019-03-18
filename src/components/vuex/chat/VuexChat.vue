@@ -8,7 +8,7 @@
         <button type="button" class="btn btn-primary" @click="$EventBus.$emit('openLoginPopup')">로그인하기</button>
       </div>
       <div v-else>
-        <!--<SiteMemberList  />-->
+        <AllUserList />
       </div>
     </div>
   </div>
@@ -17,7 +17,7 @@
   const STORAGE_KEY_MEMBER_INFO = 'memberInfo';
 
   import { mapState, mapMutations, mapActions } from "vuex";
-  import SiteMemberList from './SiteMemberList';
+  import AllUserList from './AllUserList';
 
   export default{
     name: 'ChatRoomByVuex',
@@ -90,7 +90,7 @@
       }
     },
     components:{
-      SiteMemberList,
+      AllUserList,
     }
   }
 </script>

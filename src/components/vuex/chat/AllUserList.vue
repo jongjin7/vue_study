@@ -4,14 +4,13 @@
     <ul class="contacts">
       <li v-for="user in targetUserList">
         <!-- @click.stop.prevent="showModalpopup('유저팝업', 'chatUser'); $EventBus.$emit('showModal');" -->
-        <a href="#" @click.stop.prevent=""  @dblclick="openChatRoom(user)">
+        <a href="#" @click.stop.prevent="openChatRoom(user)">
           <div class="img_cont">
             <img src="https://devilsworkshop.org/files/2013/01/enlarged-facebook-profile-picture.jpg" class="rounded-circle user_img">
             <span class="online_icon"></span>
           </div>
           <div class="user_info">
-            <span>{{ user.userName }}</span>
-            <p>Maryam is online</p>
+            <span>{{ user.displayName }}</span>
           </div>
         </a>
       </li>
@@ -35,7 +34,7 @@ import { timestampToTime, yyyyMMddHHmmsss } from '@/plugins/timestamp';
 import { mapState, mapGetters, mapActions, mapMutations } from 'vuex'
 
 export default {
-  name: "SiteMemberList",
+  name: "AllUserList",
   data(){
     return{
       targetUserList:[],
@@ -46,7 +45,7 @@ export default {
   },
   computed:{
     ...mapState({
-      currentUser: ({ socket }) => socket.chatUsers.currentUserInfo //socket ==> this.state.socket으로 매핑
+      currentUser: ({ socket }) => socket.connectedUserData //socket ==> this.state.socket으로 매핑
     }),
   },
   methods:{
@@ -62,9 +61,10 @@ export default {
     ]),
 
     openChatRoom(targetUser){
+      console.log('openChatRoom')
       var roomUsersUid = [targetUser.uid, this.currentUser.uid ]; // 챗방 유저리스트
-      var roomUsersName = [targetUser.userName, this.currentUser.userName ] // 챗방 유저 이름
-      var chatRoomId = '@@myChatRoomUser__@@@__' + roomUsersUid[0] + '__@@@__' + roomUsersUid[1];
+      var roomUsersName = [targetUser.displayName, this.currentUser.displayName ] // 챗방 유저 이름
+      var chatRoomId = '@@myChatRoomUser__@@@__' + roomUsersUid[0] + '__@@@__' + yyyyMMddHHmmsss();
 
       this.roomUsersList(roomUsersUid);
       this.roomUsersName(roomUsersName);
@@ -73,7 +73,7 @@ export default {
 
       this.changeIsOpenChatRoom();
       this.$router.push({name: 'OpenedChatRoom', params:{ userId: roomUsersName[1] }});
-     // console.log('채팅 시작!',  targetUser, roomUsersUid, roomUsersName[1])
+      console.log('채팅 시작!',  targetUser, roomUsersUid, roomUsersName)
 
     },
 
@@ -86,14 +86,12 @@ export default {
 
     getUserData(){
       let vm = this;
-      let currentUid ='';
       let userDBRef = this.$firebaseRealDB.ref(USER_DATA.REAR_FIREDB_NAME +'/'+ USER_DATA.INDEXDB_STORE);
       userDBRef.off();
 
       userDBRef.orderByChild("userName").once('value').then((dataSnapShot) =>{
-        console.log('현재 접속한 유저 uid:', window.globalVars.currentUserUID)
         dataSnapShot.forEach((data) =>{
-          if (data.key !== window.globalVars.currentUserUID) {
+          if (data.key !== vm.currentUser.uid) {
              console.log(data.key, data.val())
             let tmp = data.val();
             tmp.uid = data.key;
@@ -120,6 +118,11 @@ export default {
     vertical-align: middle;
     text-align: center;
   }
+
+  .contacts li a{
+    text-decoration: none;
+  }
+
   .user_img{
     height: 70px;
     width: 70px;
@@ -166,21 +169,22 @@ export default {
   }
   .user_info span{
     font-size: 0.75rem;
-    color: #0300c5;
   }
   .user_info p{
     margin-bottom: 0;
     font-size: 0.5rem;
     color:#999;
   }
-
-  .user_info:hover{
-    background: #e9e9e9;
+  .contacts li a{
+    text-decoration: none;
+    color: #444;
   }
-  .user_info:hover span{
+  .contacts li a:hover{
     color:#007bff;
+    font-weight: bold;
   }
-  .user_info:hover p{
-    color:#444;
+  .contacts li a:hover .user_img{
+    border-color:#007bff;
   }
+
 </style>

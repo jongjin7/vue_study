@@ -159,19 +159,8 @@
             }).catch(function(error) {
               console.log(error)
             });
-
-            // vm.$firebaseDB.collection('members')
-            //   .add({
-            //     name: vm.name,
-            //     email: vm.email,
-            //     photo: 'https://ptetutorials.com/images/user-profile.png'
-            //   })
-            //   .then(function(){
-            //
-            //   });
-
           }).catch(function(error) {
-            console.log('error', error)
+            //console.log('error', error)
             switch(error.code){
               case "auth/email-already-in-use":
                 alert('이미 사용중인 이메일 입니다.');

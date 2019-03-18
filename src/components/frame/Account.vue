@@ -108,9 +108,10 @@
 
               tranSaction.oncomplete = function(){
                 console.log('IndexedDb 트랜잭션 완료')
+                vm.checkAndSaveUser(user) //호출할 적절한 위치 찾기 2019.03.04
                 db.close();
 
-                vm.checkAndSaveUser(user) //호출할 적절한 위치 찾기 2019.03.04
+
               }
             }
           }
@@ -134,8 +135,10 @@
             store.get(user.uid).onsuccess = function(event) {
               let data = event.target.result;
               console.log('신규유저 체크', data)
-              if(data !== undefined && !data.isSave){
-                vm.saveUserAtRealDB(data);
+              if(data !== undefined){
+                if(!data.isSave){
+                  vm.saveUserAtRealDB(data);
+                }
               }else{
                 vm.saveUserAtIndexedDB(user,true);
               }
@@ -163,12 +166,13 @@
           if (!dataSnapShot.hasChildren()) {
             let userData = {
               email: user.email,
-              profileImg: user.photoURL ? user.photoURL : '',
-              userName : user.displayName
+              photoURL: user.photoURL ? user.photoURL : '',
+              displayName : user.displayName
             }
             userDBRef.set(userData).then(()=>{
               console.log('cbUserAfterSave completed!!!')
-              vm.saveUserAtIndexedDB(user, true);
+              if(!vm.fromLogin) vm.saveUserAtIndexedDB(user, true);
+              else if (location.hash.split('/')[1] == 'chat') window.location.reload(true);
             }).catch((error)=>{
               console.log('realDB error',  error)
             });
@@ -178,19 +182,17 @@
 
       onChangeAuthAccount(){
         const vm = this;
-        console.log('sss', JSON.parse(sessionStorage.getItem('currentUser')))
-        if(sessionStorage.getItem('currentUser') !== null) {
-          vm.setIsUserLogin(); //접속 상태를 store에 갱신
-          vm.setCurrentUserData(JSON.parse(sessionStorage.getItem('currentUser')));
-        }
         console.log('account onChangeAuthAccount mehods')
         // 로그인후 접속 정보를 로컬에 저장하고 onAuthStateChanged함수를 실행한다.
         // 페이지 리로딩 후 현재 접속자의 정보가 로컬에 저장되어있는지 확인 후 저장되어 있다면 로컬정보를 가져오고,
         // 저장되지 않았다면 서버에서 정보를 가져온다.
-let prev = new Date();
+        if(sessionStorage.getItem('currentUser') !== null) {
+          vm.setIsUserLogin(); //접속 상태를 store에 갱신
+          vm.setCurrentUserData(JSON.parse(sessionStorage.getItem('currentUser')));
+        }
+
         this.$firebase.auth().onAuthStateChanged(function(user) {
           console.log('account:: $firebase.auth통신후 user정보 가져오기')
-console.log('after', new Date() - prev)
           if (user) {
             console.log('logIn::onChangeAuthAccount', vm.isUserLogin)
             vm.$firebaseRealDB.goOnline(); // 데이터 베이스 명시적 온라인
@@ -217,10 +219,6 @@ console.log('after', new Date() - prev)
           }
         });
       },
-
-
-
-
 
 
       signUp(){

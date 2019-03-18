@@ -1,12 +1,12 @@
 <template>
   <div class="view-container">
-    <div class="bg-view-title py-2 text-center"><strong>{{ targetUser.userName }}</strong>님과 채팅중입니다.</div>
+    <div class="bg-view-title py-2 text-center"><strong>{{ targetUser.displayName }}</strong>님과 채팅중입니다.</div>
     <div class="msg_history" v-auto-bottom="msgDatas">
       <div class="hr-date small"><span>2019.01.29 (화)</span></div>
       <div :class="{'incoming_msg':(msg.uid === targetUser.uid ), 'outgoing_msg':(msg.uid === currentUser.uid )}" v-for="(msg, index) in msgDatas">
         <div class="incoming_msg_img" v-if="msg.uid === targetUser.uid">
           <span :style="'background-image: url(' + msg.profileImg + ');'" class="pic rounded-circle"></span>
-          {{ msg.userName }}
+          {{ msg.displayName }}
         </div>
         <div class="received_msg" v-if="msg.uid === targetUser.uid">
           <div class="received_withd_msg">
@@ -69,7 +69,7 @@
       computed:{
         ...mapState({
           roomId: ({ socket }) => socket.chatRoom.roomId,
-          currentUser: ({ socket }) => socket.chatUsers.currentUserInfo,
+          currentUser: ({ socket }) => socket.connectedUserData,
           targetUser: ({ socket }) => socket.chatUsers.targetUserInfo
         }),
       },

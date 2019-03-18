@@ -12,7 +12,7 @@ import { USER_DATA, CHAT_ROOM } from '../../../common/Constant';
 import { mapState, mapGetters, mapActions } from "vuex";
 
 export default {
-    name: "messageInputForm",
+    name: "MessageInputForm",
     data() {
       return {
         writeMsg: '',
@@ -26,7 +26,7 @@ export default {
         roomUsersList: ({ socket }) => socket.chatRoom.roomUsersList,
         roomUsersName: ({ socket }) => socket.chatRoom.roomUsersName,
 
-        currentUser: ({ socket }) => socket.chatUsers.currentUserInfo,
+        currentUser: ({ socket }) => socket.connectedUserData,
         targetUser: ({ socket }) => socket.chatUsers.targetUserInfo
       }),
       ...mapGetters(['getChatTargetUser', 'getChatRoomId']),

@@ -9,7 +9,7 @@
         </div>
         <div class="mesgs">
           <chatRoomView :msgDatas="getMessageData" />
-          <messageInputForm v-on:submitMessage="sendMessage" />
+          <MessageInputForm v-on:submitMessage="sendMessage" />
         </div>
       </div>
     </div>
@@ -23,7 +23,7 @@
   import SearchChatRoomList from './SearchChatRoomList';
   import ChatRoomList from './ChatRoomList';
   import ChatRoomView from './ChatRoomView';
-  import messageInputForm from './messageInputForm';
+  import MessageInputForm from './MessageInputForm';
   import ChatUserList from './ChatUserList';
 
   import { mapGetters, mapMutations, mapActions, mapState } from 'vuex';
@@ -106,9 +106,9 @@
         let vm = this;
         let regCurrentUser = new RegExp(this.currentUser.uid, 'g');
         let regTargetUser = new RegExp(this.targetUser.uid, 'g');
-console.log('uid', regCurrentUser, regTargetUser)
+console.log('hasCurrentRoomeMessages', regCurrentUser, regTargetUser)
 
-        let roomRef = this.$firebaseRealDB.ref(USER_DATA.REAR_FIREDB_NAME + '/RoomUsers/');
+        /*let roomRef = this.$firebaseRealDB.ref(USER_DATA.REAR_FIREDB_NAME + '/RoomUsers/');
         roomRef.once('value', (snapshot)=>{
           let dataValue = snapshot.val();
           snapshot.forEach((data)=>{
@@ -141,7 +141,7 @@ console.log('uid', regCurrentUser, regTargetUser)
             }
 
           })
-        })
+        })*/
       },
 
 
@@ -231,7 +231,7 @@ console.log('uid', regCurrentUser, regTargetUser)
       ChatUserList,
       ChatRoomList,
       ChatRoomView,
-      messageInputForm,
+      MessageInputForm,
     }
   }
 </script>
