@@ -108,7 +108,7 @@
 
               tranSaction.oncomplete = function(){
                 console.log('IndexedDb 트랜잭션 완료')
-                vm.checkAndSaveUser(user) //호출할 적절한 위치 찾기 2019.03.04
+                //vm.checkAndSaveUser(user) //호출할 적절한 위치 찾기 2019.03.04
                 db.close();
 
 
@@ -140,7 +140,8 @@
                   vm.saveUserAtRealDB(data);
                 }
               }else{
-                vm.saveUserAtIndexedDB(user,true);
+                // 로그인시 진행
+                vm.saveUserAtRealDB(user,true);
               }
             }
 
@@ -171,8 +172,8 @@
             }
             userDBRef.set(userData).then(()=>{
               console.log('cbUserAfterSave completed!!!')
-              if(!vm.fromLogin) vm.saveUserAtIndexedDB(user, true);
-              else if (location.hash.split('/')[1] == 'chat') window.location.reload(true);
+              vm.saveUserAtIndexedDB(user, true);
+              //if (location.hash.split('/')[1] == 'chat') window.location.reload(true);
             }).catch((error)=>{
               console.log('realDB error',  error)
             });

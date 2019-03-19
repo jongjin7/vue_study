@@ -46,8 +46,33 @@ function timestampToTime (timestamp) {
  */
 const addNumZero = (n) => n > 9 ? "" + n: "0" + n;
 
+function timestampToTimeForRoomList(timestamp) {
+  var date = new Date(timestamp),
+    year = date.getFullYear(),
+    month = date.getMonth() + 1,
+    day = date.getDate(),
+    hour = date.getHours(),
+    minute = date.getMinutes();
+
+  var nowDate = new Date(),
+    nowYear = nowDate.getFullYear(),
+    nowMonth = nowDate.getMonth() + 1,
+    nowDay = nowDate.getDate(),
+    nowHour = nowDate.getHours(),
+    nowMinute = nowDate.getMinutes();
+  var result;
+
+  if (year === nowYear && month === nowMonth && day === nowDay) {
+    result = FirebaseChat.pad(hour) + ":" + FirebaseChat.pad(minute);
+  } else {
+    result = FirebaseChat.pad(year) + "-" + FirebaseChat.pad(month) + "-" + FirebaseChat.pad(day);
+  }
+
+  return result;
+}
 
 export {
   timestampToTime,
-  yyyyMMddHHmmsss
+  yyyyMMddHHmmsss,
+  timestampToTimeForRoomList
 }
