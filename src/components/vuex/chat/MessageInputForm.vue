@@ -72,8 +72,8 @@ console.log('timeStamp', this.$firebase.database.ServerValue.TIMESTAMP)
         multiUpdates['Messages/' + this.getChatRoomId + '/' + messageRefKey] = {
           uid: this.currentUser.uid,
           message: this.writeMsg,
-          userName:this.currentUser.userName,
-          profileImg:this.currentUser.profileImg,
+          displayName:this.currentUser.displayName,
+          photoURL:this.currentUser.photoURL,
           timeStamp: this.$firebase.database.ServerValue.TIMESTAMP
         }
 
@@ -90,13 +90,13 @@ console.log('timeStamp', this.$firebase.database.ServerValue.TIMESTAMP)
                 roomUserListLength == 2 && i == 1 ? roomUserList[0]   // 1대 1 대화 이고 i값이 1이면
                   : '', // 나머지
               lastMessage : this.writeMsg,
-              profileImg : this.targetUser.profileImg,
+              photoURL : this.targetUser.photoURL,
               timestamp: this.$firebase.database.ServerValue.TIMESTAMP
 
             };
           }
         }
-
+console.log('ssss', multiUpdates)
        this.$firebaseRealDB.ref(USER_DATA.REAR_FIREDB_NAME).update(multiUpdates);
 
        this.writeMsg = '';

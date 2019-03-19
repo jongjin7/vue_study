@@ -61,7 +61,7 @@ export default {
     ]),
 
     openChatRoom(targetUser){
-      console.log('openChatRoom')
+      console.log('openChatRoom', targetUser)
       var roomUsersUid = [targetUser.uid, this.currentUser.uid ]; // 챗방 유저리스트
       var roomUsersName = [targetUser.displayName, this.currentUser.displayName ] // 챗방 유저 이름
       var chatRoomId = '@@myChatRoomUser__@@@__' + roomUsersUid[0] + '__@@@__' + yyyyMMddHHmmsss();
@@ -72,7 +72,15 @@ export default {
       this.targetUserInfo(targetUser);
 
       this.changeIsOpenChatRoom();
-      this.$router.push({name: 'OpenedChatRoom', params:{ userId: roomUsersName[1] }});
+      // * 저장되어 있는 챗방 정보를 DB조회시 필요한 것 *
+      // 챗방 유저 이름(roomUserName), 챗방 유저 리스트(room userList), roomID, roomType(ONE VS ONE), room target ID,
+      // 로컬에 각 유저별 채팅 정보를 저장할까==> 각 유저에 매핑되어 있는 정보를 이용
+      // 열린 챗방이 있는 경우 룸리스트를 트리거한다.
+      // 새로운 방이라면 챗방정보를 생성하고 오픈한다.
+
+      // 클릭하는 유저 정보에 챗방 정보를 갖고 있어야 한다.
+
+      //this.$router.push({name: 'OpenedChatRoom', params:{ userId: roomUsersName[0] }});
       console.log('채팅 시작!',  targetUser, roomUsersUid, roomUsersName)
 
     },
@@ -84,15 +92,37 @@ export default {
       this.$EventBus.$emit('toggleClose');
     },
 
+    loadChatRoomUserList(){
+      let vm = this;
+      let userDBRef = this.$firebaseRealDB.ref(USER_DATA.REAR_FIREDB_NAME);
+
+
+      userDBRef.child('RoomUsers').once('value').then((dataSnapShot) =>{
+        dataSnapShot.forEach((data) =>{
+          console.log('roomList', data.val())
+        });
+      });
+
+
+      userDBRef.child('UserRooms').once('value').then((dataSnapShot) =>{
+        dataSnapShot.forEach((data) =>{
+         console.log('userRooms', data.val())
+        });
+      });
+
+    },
+
     getUserData(){
+      this.loadChatRoomUserList();
+
       let vm = this;
       let userDBRef = this.$firebaseRealDB.ref(USER_DATA.REAR_FIREDB_NAME +'/'+ USER_DATA.INDEXDB_STORE);
-      userDBRef.off();
+      //userDBRef.off();
 
-      userDBRef.orderByChild("userName").once('value').then((dataSnapShot) =>{
+      userDBRef.orderByChild("displayName").once('value').then((dataSnapShot) =>{
         dataSnapShot.forEach((data) =>{
           if (data.key !== vm.currentUser.uid) {
-             console.log(data.key, data.val())
+             //console.log(data.val())
             let tmp = data.val();
             tmp.uid = data.key;
 
