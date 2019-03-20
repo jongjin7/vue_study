@@ -38,10 +38,12 @@ export default {
   data(){
     return{
       targetUserList:[],
+      chatRoomList:[],
+      chatUserList:'',
     }
   },
   created(){
-    this.getUserData();
+    this.fetchUserList();
   },
   computed:{
     ...mapState({
@@ -60,11 +62,20 @@ export default {
 
     ]),
 
+    checkCurruntUserRoomList(targetUser){
+      let roomList = sessionStorage.getItem('chatRoomList');
+      for(let i=0, leng = roomList.length; i<leng; i++){
+
+      }
+    },
+
     openChatRoom(targetUser){
       console.log('openChatRoom', targetUser)
       var roomUsersUid = [targetUser.uid, this.currentUser.uid ]; // 챗방 유저리스트
       var roomUsersName = [targetUser.displayName, this.currentUser.displayName ] // 챗방 유저 이름
-      var chatRoomId = '@@myChatRoomUser__@@@__' + roomUsersUid[0] + '__@@@__' + yyyyMMddHHmmsss();
+      var chatRoomId = '@roomMaker@' + roomUsersUid[0] + '@time@' + yyyyMMddHHmmsss();
+
+      this.checkCurruntUserRoomList(targetUser);
 
       this.roomUsersList(roomUsersUid);
       this.roomUsersName(roomUsersName);
@@ -78,10 +89,11 @@ export default {
       // 열린 챗방이 있는 경우 룸리스트를 트리거한다.
       // 새로운 방이라면 챗방정보를 생성하고 오픈한다.
 
-      // 클릭하는 유저 정보에 챗방 정보를 갖고 있어야 한다.
+      // targetUser: 참여했던 챗방 정보를 갖고 있어야 한다.
+      // ONE_VS_ONE@@targetUserUid
 
-      //this.$router.push({name: 'OpenedChatRoom', params:{ userId: roomUsersName[0] }});
-      console.log('채팅 시작!',  targetUser, roomUsersUid, roomUsersName)
+      this.$router.push({name: 'OpenedChatRoom', params:{ userId: roomUsersName[0] }});
+      console.log('채팅 시작!',  chatRoomId, targetUser, roomUsersUid, roomUsersName)
 
     },
 
@@ -92,45 +104,90 @@ export default {
       this.$EventBus.$emit('toggleClose');
     },
 
-    loadChatRoomUserList(){
-      let vm = this;
-      let userDBRef = this.$firebaseRealDB.ref(USER_DATA.REAR_FIREDB_NAME);
-
-
-      userDBRef.child('RoomUsers').once('value').then((dataSnapShot) =>{
-        dataSnapShot.forEach((data) =>{
-          console.log('roomList', data.val())
-        });
-      });
-
-
-      userDBRef.child('UserRooms').once('value').then((dataSnapShot) =>{
-        dataSnapShot.forEach((data) =>{
-         console.log('userRooms', data.val())
-        });
-      });
-
+    saveRoomListToSessionStorage (loomList){
+      console.log('session save')
+      // *기술적 이슈
+      // 채팅방에서 대화 참여시 새로운 사용자가 회원가입하여 접속한 유저에게
+      // 메시지를 보내면 챗메인의 유저리스트와 채팅룸 리스트가 동기화 되어야 하는데
+      // 세션스토리지를 이용하면 어떻게 동기화 할지 고민이 필요하다.
+      //if(sessionStorage.getItem('chatRoomList') === null){
+        sessionStorage.setItem('chatRoomList', JSON.stringify(loomList));
+      //}
     },
 
-    getUserData(){
-      this.loadChatRoomUserList();
-
+    loadChatRoomList(){
       let vm = this;
-      let userDBRef = this.$firebaseRealDB.ref(USER_DATA.REAR_FIREDB_NAME +'/'+ USER_DATA.INDEXDB_STORE);
-      //userDBRef.off();
+      let rootRoomRef = this.$firebaseRealDB.ref(USER_DATA.REAR_FIREDB_NAME);
 
-      userDBRef.orderByChild("displayName").once('value').then((dataSnapShot) =>{
+
+      rootRoomRef.child('RoomUsers').once('value').then((dataSnapShot) =>{
         dataSnapShot.forEach((data) =>{
-          if (data.key !== vm.currentUser.uid) {
-             //console.log(data.val())
-            let tmp = data.val();
-            tmp.uid = data.key;
-
-            vm.targetUserList.push(tmp);
-          }
+          //console.log('roomList', data.val())
         });
       });
+
+
+
+      // ONE_VS_ONE, targetUserUid 정보로 쿼리하기...룸리스트
+      let roomRef = rootRoomRef.child('UserRooms/'+this.currentUser.uid );
+      roomRef.off();
+
+      roomRef.once('value').then((dataSnapShot) =>{
+        let tmpData = []
+        dataSnapShot.forEach((data) =>{
+          //console.log('userRooms', data.val())
+          tmpData.push(data.val());
+        });
+
+        vm.saveRoomListToSessionStorage(tmpData);
+      });
     },
+
+    fetchUserList(){
+      this.chatUserList = sessionStorage.getItem('chatUserList');
+
+      if(this.chatUserList === null){
+        this.loadChatRoomList();
+console.log(1)
+        let vm = this;
+        let userDBRef = this.$firebaseRealDB.ref(USER_DATA.REAR_FIREDB_NAME +'/'+ USER_DATA.INDEXDB_STORE);
+        userDBRef.off();
+
+        userDBRef.orderByChild("displayName").once('value').then((dataSnapShot) =>{
+          let tmpList=[];
+          dataSnapShot.forEach((data) =>{
+            if (data.key !== vm.currentUser.uid) {
+              //console.log(data.val())
+              let tmp = data.val();
+              tmp.uid = data.key;
+              tmpList.push(tmp);
+            }
+          });
+          return tmpList;
+        }).then((tmpList)=>{
+          new Promise((resolve, reject)=>{
+            setTimeout(()=>{
+              resolve(sessionStorage.setItem('chatUserList', JSON.stringify(tmpList)));
+            },100);
+          }).then(()=>{
+            console.log('callback')
+            vm.fetchAftersaveUserListSession();
+          });
+        })
+      }else{
+        console.log(2)
+        this.fetchAftersaveUserListSession();
+      }
+    },
+
+    fetchAftersaveUserListSession(){
+      console.log('fetch session')
+      let useList = sessionStorage.getItem('chatUserList');
+      let parseData = JSON.parse(useList); //load to session storage 'roomList'
+      for(let i=0, leng = parseData.length; i<leng; i++){
+        this.targetUserList.push(parseData[i]);
+      }
+    }
   }
 }
 </script>
