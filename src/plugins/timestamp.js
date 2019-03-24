@@ -46,7 +46,8 @@ function timestampToTime (timestamp) {
  */
 const addNumZero = (n) => n > 9 ? "" + n: "0" + n;
 
-function timestampToTimeForRoomList(timestamp) {
+function timeForRoomList(timestamp) {
+
   var date = new Date(timestamp),
     year = date.getFullYear(),
     month = date.getMonth() + 1,
@@ -63,9 +64,9 @@ function timestampToTimeForRoomList(timestamp) {
   var result;
 
   if (year === nowYear && month === nowMonth && day === nowDay) {
-    result = FirebaseChat.pad(hour) + ":" + FirebaseChat.pad(minute);
+    result = addNumZero(hour) + ":" + addNumZero(minute);
   } else {
-    result = FirebaseChat.pad(year) + "-" + FirebaseChat.pad(month) + "-" + FirebaseChat.pad(day);
+    result = addNumZero(year) + "-" + addNumZero(month) + "-" + addNumZero(day);
   }
 
   return result;
@@ -74,5 +75,5 @@ function timestampToTimeForRoomList(timestamp) {
 export {
   timestampToTime,
   yyyyMMddHHmmsss,
-  timestampToTimeForRoomList
+  timeForRoomList
 }

@@ -1,6 +1,6 @@
 <template>
     <div>
-      <button>친구초대</button>
+      <button>1:1 채팅</button>
       <button>선물하기</button>
     </div>
 </template>

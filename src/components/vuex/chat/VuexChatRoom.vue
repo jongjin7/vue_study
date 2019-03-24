@@ -1,15 +1,15 @@
 <template>
   <div>
-    <h1 class="mb-4">Vuex 라이브러리를 이용한 WebChat</h1>
+    <h1 class="mb-4">Vuex, RealDatabase를 이용한 웹 메신저</h1>
     <div class="messaging">
       <div class="inbox_msg">
         <div class="inbox_people">
           <SearchChatRoomList />
-          <ChatUserList :userList="chatUsersList" />
+          <ChatRoomList :userRoomList="chatRoomListData" v-on:changeChatRoom ="changeChatRoom" />
         </div>
         <div class="mesgs">
-          <chatRoomView :msgDatas="getMessageData" />
-          <MessageInputForm v-on:submitMessage="sendMessage" />
+          <chatRoomView :msgDatas="messageDatas" />
+          <MessageInputForm />
         </div>
       </div>
     </div>
@@ -17,14 +17,13 @@
 </template>
 
 <script>
-  import { USER_DATA } from '../../../common/Constant';
-  import { timestampToTime, yyyyMMddHHmmsss } from '@/plugins/timestamp';
+  import { USER_DATA, CHAT_ROOM } from '../../../common/Constant';
+  import { timestampToTime, yyyyMMddHHmmsss, timeForRoomList } from '@/plugins/timestamp';
 
   import SearchChatRoomList from './SearchChatRoomList';
   import ChatRoomList from './ChatRoomList';
   import ChatRoomView from './ChatRoomView';
   import MessageInputForm from './MessageInputForm';
-  import ChatUserList from './ChatUserList';
 
   import { mapGetters, mapMutations, mapActions, mapState } from 'vuex';
 
@@ -32,16 +31,15 @@
     name: "VuexChatRoom",
     data(){
       return{
-
+        chatRoomListData:'',
+        messageDatas:[],
       }
     },
     computed: {
       ...mapState({
         roomId: ({ socket }) => socket.chatRoom.roomId,
-        currentUser: ({ socket }) => socket.chatUsers.currentUserInfo,
+        currentUser: ({ socket }) => socket.connectedUserData,
         targetUser: ({ socket }) => socket.chatUsers.targetUserInfo,
-        getMessageData: ({ socket }) => socket.chatRoom.msgDatas,
-        chatUsersList: ({ socket }) => socket.chatUsersVsList,
       }),
 
       ...mapGetters([
@@ -52,47 +50,54 @@
     },
     created(){
       this.checkCorrectAccess(); //정상적인 절차로 채팅방 입장하는지 체크
-      this.getChatUserList();
+      this.getChatRoomList();
     },
     destroyed(){
       if(this.getIsOpenChatRoom){
         this.changeIsOpenChatRoom();
-        this.removeMessageList();
-        this.removeChatUserList();
+        this.messageDatas = [];
       }
     },
     watch:{
       $route : 'checkCorrectAccess'
     },
     methods:{
+      test(){
+        console.log('search에서 트리거')
+      },
+      ...mapMutations([
+        'updateMessageDatas',
+      ]),
       ...mapActions([
         'changeIsOpenChatRoom',
-        'getMessageList',
         'saveChatRoomId',
-        'removeMessageList',
-        'chatUserList',
         'removeChatUserList'
       ]),
 
-      getChatUserList(){
+      getChatRoomList(){
         let vm = this;
+        let rootRoomRef = this.$firebaseRealDB.ref(USER_DATA.REAR_FIREDB_NAME);
+        let roomRef = rootRoomRef.child('UserRooms/'+this.currentUser.uid );
+        roomRef.off();
 
-        let chatUserListRef = this.$firebaseRealDB.ref(USER_DATA.REAR_FIREDB_NAME + '/UserRooms/'+ this.currentUser.uid);
-        chatUserListRef.on('value', (snapshot)=> {
-          let tmpData=[]
-          snapshot.forEach((data)=>{
-            console.log('userList', data.val())
-            tmpData.push(data.val())
-          })
-          vm.chatUserList(tmpData)
-        })
+        roomRef.on('value', (dataSnapShot) =>{
+          let tmpData = []
+          dataSnapShot.forEach((data) =>{
+            let tmp = data.val();
+            tmp.roomUserName = tmp.roomUserName.split(CHAT_ROOM.SPLIT_CHAR);
+            tmp.timestamp = timeForRoomList(tmp.timestamp);
+            tmpData.push(tmp);
+          });
+          console.log('roomList', tmpData)
+          vm.chatRoomListData = tmpData;
+        });
       },
 
       checkCorrectAccess(){
         if(this.getIsOpenChatRoom){
           //새로고침하면 잘못된 접근이라고 판단하고 있음.
           console.log('올바른 챗방접근')
-          this.hasCurrentRoomeMessages();
+          this.getMessageDatas();
         }else{
           alert('올바른 접근이 아닙니다.')
           this.$router.push('/chat');
@@ -100,55 +105,15 @@
 
       },
 
-      hasCurrentRoomeMessages(){
-        // 방 존재 체크 ==> 1:1 채팅룸(RoomUsers List)이 생성이 안되어 있다면, 새로운 룸을 생성하고 글쓰기폼을 활성화한다.
-        // 글쓰기 안하고 채팅룸 리스트를 선택하면 방의 존재를 체크 후 새로운 방 활성
-        let vm = this;
-        let regCurrentUser = new RegExp(this.currentUser.uid, 'g');
-        let regTargetUser = new RegExp(this.targetUser.uid, 'g');
-console.log('hasCurrentRoomeMessages', regCurrentUser, regTargetUser)
-
-        /*let roomRef = this.$firebaseRealDB.ref(USER_DATA.REAR_FIREDB_NAME + '/RoomUsers/');
-        roomRef.once('value', (snapshot)=>{
-          let dataValue = snapshot.val();
-          snapshot.forEach((data)=>{
-            let testReg1 = regCurrentUser.test(data.key);
-            let testReg2 = regTargetUser.test(data.key);
-            console.log('dataKey와 활성화된 채팅방 ID',testReg1, testReg2, data.key)
-
-            if(testReg1 && testReg2){
-              console.log('저장되어 있는 채팅방')
-
-              console.log('changeRoomId', vm.roomId)
-              let tp = new Promise((resolve,reject)=>{
-                setTimeout(()=>{
-                  vm.saveChatRoomId(data.key)
-                  resolve(data.key); // 채팅방ID 저장
-                },30);
-
-              });
-              tp.then((newRoomId)=>{
-                console.log('promise', vm.roomId, newRoomId)
-
-                let messageRef = this.$firebaseRealDB.ref(USER_DATA.REAR_FIREDB_NAME + '/Messages/'+ newRoomId);
-                messageRef.once('value', (snapshot)=>{
-                  console.log('message', snapshot.val())
-                })
-
-                vm.fetchMessageList();
-              });
-
-            }
-
-          })
-        })*/
+      changeChatRoom(){
+        this.messageDatas = [];
+        this.getMessageDatas();
       },
 
-
-      fetchMessageList(){
+      getMessageDatas(){
         let vm = this;
         let count=0;
-        console.log('선택한 대화자와 1:1 시작  ==> 메시지 데이타 받기', this.roomId)
+        console.log('선택한 대화자와 1:1 시작  ==> 메시지 데이타 받기', this.targetUser)
         if(this.roomId){
           let messageRef = this.$firebaseRealDB.ref(USER_DATA.REAR_FIREDB_NAME + '/Messages/' + this.roomId);
           if(messageRef) messageRef.off();
@@ -157,37 +122,16 @@ console.log('hasCurrentRoomeMessages', regCurrentUser, regTargetUser)
             let dataValue = dataSnapShot.val();
             let tmpData = {
               uid: dataValue.uid,
-              userName: dataValue.userName,
-              profileImg: dataValue.profileImg,
+              displayName: dataValue.displayName,
+              photoURL: dataValue.photoURL,
               timeStamp: timestampToTime(dataValue.timeStamp),
               message: dataValue.message
             };
-            console.log('data', dataValue.timeStamp, count++)
-
-
-
-            vm.getMessageList(tmpData);
+            console.log('data', tmpData.uid, vm.targetUser.uid, vm.currentUser.uid)
+            if( tmpData.uid == vm.targetUser.uid || tmpData.uid == vm.currentUser.uid) vm.messageDatas.push(tmpData);
           });
         }
 
-      },
-
-      timeStamp(){
-        let today = new Date();
-        let getDate = {
-          currentDate:today,
-          //DAY:today.getFullYear() +'.'+ (today.getMonth()+1) +'.'+ today.getDate(),
-          fullDate:today.toISOString().slice(0, 10),
-          currentTime:((today.getHours()>12)? today.getHours()-12 : today.getHours()) + ":" +
-            ("0" + today.getMinutes()).slice(-2) + ":" +
-            ("0" + today.getSeconds()).slice(-2),
-          timeForm:(today.getHours() < 12 )? '오전':'오후',
-          strWeekDay:['일','월','화','수','목','금','토'][today.getDay()],
-        }
-
-        //console.log(getDate);
-
-        return getDate;
       },
 
       dateForm(date){
@@ -199,36 +143,12 @@ console.log('hasCurrentRoomeMessages', regCurrentUser, regTargetUser)
       sendMessage(msg) {
         console.log('vueChat sendMessage')
 
-
-
-        // this.pushMsgData({
-        //   from: {
-        //     name:'나',
-        //     date:this.timeStamp().fullDate,
-        //     time:this.timeStamp().timeForm +' '+ this.timeStamp().currentTime,
-        //   },
-        //   msg,
-        // });
-        // console.log('send', this.loginedMember.photo)
-        // // send from message through socket & DB
-        // this.$sendMessage({
-        //   name: this.loginedMember.name,
-        //   photo: this.loginedMember.photo,
-        //   date: this.timeStamp().fullDate,
-        //   time: this.timeStamp().timeForm +' '+ this.timeStamp().currentTime,
-        //   msg,
-        //
-        // });
       },
 
-      fetchData() {
-
-      },
     },
 
     components:{
       SearchChatRoomList,
-      ChatUserList,
       ChatRoomList,
       ChatRoomView,
       MessageInputForm,
@@ -334,6 +254,10 @@ console.log('hasCurrentRoomeMessages', regCurrentUser, regTargetUser)
       border-bottom: 1px solid #c4c4c4;
       margin: 0;
       padding: 18px 16px 10px;
+
+      &:hover{
+        background: #eaeaea;
+      }
     }
     .inbox_chat {
       height: 100%;

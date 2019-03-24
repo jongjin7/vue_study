@@ -12,7 +12,7 @@ const debug = process.env.NODE_ENV !== 'production';
 export const store = new Vuex.Store({
   modules: {
     socket,
-    todos,
+    //todos,
     // demo
   },
 

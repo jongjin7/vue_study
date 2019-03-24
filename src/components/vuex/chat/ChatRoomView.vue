@@ -1,11 +1,14 @@
 <template>
   <div class="view-container">
-    <div class="bg-view-title py-2 text-center"><strong>{{ targetUser.displayName }}</strong>님과 채팅중입니다.</div>
+    <div class="bg-view-title py-2 text-center">
+      <strong>{{ targetUser.displayName }}</strong>님과 채팅중입니다.
+      <a href="#" @click.stop.prevent="showModalpopup('대화상대 초대하기', 'chatInvite'); $EventBus.$emit('showModal');">초대</a>
+    </div>
     <div class="msg_history" v-auto-bottom="msgDatas">
       <div class="hr-date small"><span>2019.01.29 (화)</span></div>
       <div :class="{'incoming_msg':(msg.uid === targetUser.uid ), 'outgoing_msg':(msg.uid === currentUser.uid )}" v-for="(msg, index) in msgDatas">
         <div class="incoming_msg_img" v-if="msg.uid === targetUser.uid">
-          <span :style="'background-image: url(' + msg.profileImg + ');'" class="pic rounded-circle"></span>
+          <span :style="'background-image: url(' + msg.photoURL + ');'" class="pic rounded-circle"></span>
           {{ msg.displayName }}
         </div>
         <div class="received_msg" v-if="msg.uid === targetUser.uid">
@@ -64,8 +67,7 @@
           tmp:''
         }
       },
-      created(){
-      },
+
       computed:{
         ...mapState({
           roomId: ({ socket }) => socket.chatRoom.roomId,
@@ -73,10 +75,22 @@
           targetUser: ({ socket }) => socket.chatUsers.targetUserInfo
         }),
       },
+      created(){
+        console.log('view page', this.targetUser)
+      },
       methods:{
         fetchMessageList(){
 
-        }
+        },
+        clickInvite(){
+
+        },
+        showModalpopup(title, componentName, post){
+          window.globalVars.pop_title = title;
+          window.globalVars.pop_content = componentName;
+
+          this.$EventBus.$emit('toggleClose');
+        },
       }
 
     }

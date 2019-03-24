@@ -22,8 +22,8 @@ export const USER_DATA ={
 }
 
 export const CHAT_ROOM ={
-  TYPE_MULTI : 'ROOM_MULTI',
-  TYPE_ONE_VS_ONE: 'ROOM_ONE_VS_ONE',
+  TYPE_MULTI : 'MULTI',
+  TYPE_ONE_VS_ONE: 'ONE_VS_ONE',
   SPLIT_CHAR:'@spl@'
 }
 

@@ -13,6 +13,9 @@ import { mapState, mapGetters, mapActions } from "vuex";
 
 export default {
     name: "MessageInputForm",
+    props:[
+
+    ],
     data() {
       return {
         writeMsg: '',
@@ -32,7 +35,6 @@ export default {
       ...mapGetters(['getChatTargetUser', 'getChatRoomId']),
     },
     created(){
-console.log('timeStamp', this.$firebase.database.ServerValue.TIMESTAMP)
 
     },
     mounted(){
@@ -43,6 +45,10 @@ console.log('timeStamp', this.$firebase.database.ServerValue.TIMESTAMP)
       ...mapActions([
         'sendChatMessage',
       ]),
+      submitChatMessage1(e){
+        console.log(e.target)
+        this.$emit('submitInputMessage');
+      },
       submitChatMessage() {
         if (this.writeMsg.length === 0 ) return false;
 
@@ -69,14 +75,13 @@ console.log('timeStamp', this.$firebase.database.ServerValue.TIMESTAMP)
 
         multiUpdates ={}; // 변수 초기화
         // 테스트 메세지 저장
-        multiUpdates['Messages/' + this.getChatRoomId + '/' + messageRefKey] = {
+        multiUpdates['Messages/' + this.roomId + '/' + messageRefKey] = {
           uid: this.currentUser.uid,
           message: this.writeMsg,
           displayName:this.currentUser.displayName,
           photoURL:this.currentUser.photoURL,
           timeStamp: this.$firebase.database.ServerValue.TIMESTAMP
         }
-
 
         //유저별 룸리스트 저장
         if(roomUserList && roomUserListLength > 0){
@@ -90,16 +95,16 @@ console.log('timeStamp', this.$firebase.database.ServerValue.TIMESTAMP)
                 roomUserListLength == 2 && i == 1 ? roomUserList[0]   // 1대 1 대화 이고 i값이 1이면
                   : '', // 나머지
               lastMessage : this.writeMsg,
+              displayName: this.currentUser.displayName,
               photoURL : this.targetUser.photoURL,
               timestamp: this.$firebase.database.ServerValue.TIMESTAMP
 
             };
           }
         }
-console.log('ssss', multiUpdates)
-       this.$firebaseRealDB.ref(USER_DATA.REAR_FIREDB_NAME).update(multiUpdates);
-
-       this.writeMsg = '';
+//console.log('multiUpdates', multiUpdates)
+        this.$firebaseRealDB.ref(USER_DATA.REAR_FIREDB_NAME).update(multiUpdates);
+        this.writeMsg = '';
       },
 
       onPasteAfterClearTag : function(e){

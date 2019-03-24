@@ -6,13 +6,16 @@
         <!-- @click.stop.prevent="showModalpopup('유저팝업', 'chatUser'); $EventBus.$emit('showModal');" -->
         <a href="#" @click.stop.prevent="openChatRoom(user)">
           <div class="img_cont">
-            <img src="https://devilsworkshop.org/files/2013/01/enlarged-facebook-profile-picture.jpg" class="rounded-circle user_img">
+            <img :src="user.photoURL" class="rounded-circle user_img">
             <span class="online_icon"></span>
           </div>
           <div class="user_info">
             <span>{{ user.displayName }}</span>
           </div>
         </a>
+        <div class="checkInvite">
+          <input type="checkbox" name="">
+        </div>
       </li>
       <!--<li>-->
         <!--<a href="#" class="img_cont">-->
@@ -37,13 +40,17 @@ export default {
   name: "AllUserList",
   data(){
     return{
-      targetUserList:[],
+      targetUserList:'',
       chatRoomList:[],
       chatUserList:'',
+
+      roomId:'',
     }
   },
   created(){
     this.fetchUserList();
+
+
   },
   computed:{
     ...mapState({
@@ -51,6 +58,10 @@ export default {
     }),
   },
   methods:{
+    ...mapMutations([
+      'currentUserInfo',
+      'setRoomId',
+    ]),
     ...mapActions([
       'saveTargetUserName',
       'saveChatRoomId',
@@ -62,25 +73,43 @@ export default {
 
     ]),
 
-    checkCurruntUserRoomList(targetUser){
-      let roomList = sessionStorage.getItem('chatRoomList');
-      for(let i=0, leng = roomList.length; i<leng; i++){
+    checkCurruntUserRoomList(targetUserUid){
+      let roomList = JSON.parse(sessionStorage.getItem('chatRoomList'));
+      let isOpenRoom = false;
+      let filterRoomList = roomList.filter((obj)=>{
+        let a = obj.roomOneVSOneTarget == targetUserUid;
+        let b = obj.roomType == 'ONE_VS_ONE';
 
-      }
+        //console.log(obj, targetUserUid, a, obj.roomOneVSOneTarget, b)
+        if(a === true && b === true){
+          this.setRoomId(obj.roomId);
+          isOpenRoom = true;
+        }
+        return isOpenRoom;
+      })
+
+      console.log('tmp', filterRoomList)
+      return filterRoomList.length > 0;
     },
 
     openChatRoom(targetUser){
       console.log('openChatRoom', targetUser)
       var roomUsersUid = [targetUser.uid, this.currentUser.uid ]; // 챗방 유저리스트
       var roomUsersName = [targetUser.displayName, this.currentUser.displayName ] // 챗방 유저 이름
-      var chatRoomId = '@roomMaker@' + roomUsersUid[0] + '@time@' + yyyyMMddHHmmsss();
 
-      this.checkCurruntUserRoomList(targetUser);
-
+      this.targetUserInfo(targetUser);
       this.roomUsersList(roomUsersUid);
       this.roomUsersName(roomUsersName);
-      this.saveChatRoomId(chatRoomId); // 채팅방ID 저장
-      this.targetUserInfo(targetUser);
+
+      if(this.checkCurruntUserRoomList(roomUsersUid[0])){ //오픈된 방이 있다면?
+        console.log('열린방',roomUsersName[0], this.roomId)
+
+      }else{
+        var chatRoomId = '@roomMaker@' + roomUsersUid[0] + '@time@' + yyyyMMddHHmmsss();
+        this.setRoomId(chatRoomId); // 채팅방ID 저장
+      }
+
+
 
       this.changeIsOpenChatRoom();
       // * 저장되어 있는 챗방 정보를 DB조회시 필요한 것 *
@@ -104,14 +133,14 @@ export default {
       this.$EventBus.$emit('toggleClose');
     },
 
-    saveRoomListToSessionStorage (loomList){
-      console.log('session save')
+    saveRoomListToSessionStorage (roomList){
+      console.log('session save', roomList)
       // *기술적 이슈
       // 채팅방에서 대화 참여시 새로운 사용자가 회원가입하여 접속한 유저에게
       // 메시지를 보내면 챗메인의 유저리스트와 채팅룸 리스트가 동기화 되어야 하는데
       // 세션스토리지를 이용하면 어떻게 동기화 할지 고민이 필요하다.
       //if(sessionStorage.getItem('chatRoomList') === null){
-        sessionStorage.setItem('chatRoomList', JSON.stringify(loomList));
+        sessionStorage.setItem('chatRoomList', JSON.stringify(roomList));
       //}
     },
 
@@ -138,16 +167,15 @@ export default {
           //console.log('userRooms', data.val())
           tmpData.push(data.val());
         });
-
         vm.saveRoomListToSessionStorage(tmpData);
       });
     },
 
     fetchUserList(){
       this.chatUserList = sessionStorage.getItem('chatUserList');
-
+      this.loadChatRoomList();
       if(this.chatUserList === null){
-        this.loadChatRoomList();
+
 console.log(1)
         let vm = this;
         let userDBRef = this.$firebaseRealDB.ref(USER_DATA.REAR_FIREDB_NAME +'/'+ USER_DATA.INDEXDB_STORE);
@@ -183,10 +211,7 @@ console.log(1)
     fetchAftersaveUserListSession(){
       console.log('fetch session')
       let useList = sessionStorage.getItem('chatUserList');
-      let parseData = JSON.parse(useList); //load to session storage 'roomList'
-      for(let i=0, leng = parseData.length; i<leng; i++){
-        this.targetUserList.push(parseData[i]);
-      }
+      this.targetUserList = JSON.parse(useList); //load to session storage 'roomList'
     }
   }
 }

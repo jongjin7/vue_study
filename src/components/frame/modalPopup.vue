@@ -17,6 +17,7 @@
             <signUpContent v-else-if="currentPopContent == 'modifyUserInfo'" />
 
             <chatUserProfile v-else-if="currentPopContent == 'chatUser'" />
+            <chatInvite v-else-if="currentPopContent == 'chatInvite'" />
           </div>
 
           <div class="modal-footer d-none"></div>
@@ -32,6 +33,7 @@ import loginContent from "../members/Login.vue";
 import signUpContent from "../members/SignUp.vue";
 import photoEditor from "../board_photo/PopBoardPhotoWrite.vue";
 import chatUserProfile from "../vuex/chat/PopChatUserProfile.vue";
+import chatInvite from "../vuex/chat/PopChatInvite.vue";
 
 export default{
   name: "modalPopupFrame",
@@ -55,6 +57,7 @@ export default{
     photoEditor,
     signUpContent,
     chatUserProfile,
+    chatInvite,
   }
 }
 </script>

@@ -7,7 +7,7 @@
       <div class="stylish-input-group">
         <input type="text" class="search-bar"  placeholder="검색" >
         <span class="input-group-addon">
-          <button type="button"> <i class="fa fa-search" aria-hidden="true"></i></button>
+          <button type="button" v-on:click="thisTest()"> <i class="fa fa-search" aria-hidden="true"></i></button>
         </span>
       </div>
     </div>
@@ -19,12 +19,16 @@
       name: "SearchChatRoomList",
       mounted(){
         let vm = this;
+
         $(this.$el).find('.recent_heading').click(function(){
           $(this).parents('.messaging').toggleClass('closed');
         })
       },
       methods:{
-
+        thisTest(){
+          console.log(11111)
+          this.$emit('test');
+        }
       }
     }
 </script>

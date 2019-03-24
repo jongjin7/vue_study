@@ -38,9 +38,6 @@ const getters = {
     return $state.chatRoom.isOpenChatRoom;
   },
 
-  getMessageData($state){
-    return $state.chatRoom.msgDatas
-  }
 };
 
 //mutations
@@ -51,6 +48,10 @@ const mutations = {
 
   setCurrentUserData:($state, $payload)=>{
     $state.connectedUserData = $payload;
+  },
+
+  setRoomId :($state, $payload)=>{
+    $state.chatRoom.roomId = $payload;
   },
 
   roomUsersList:($state, $payload)=>{
@@ -66,6 +67,17 @@ const mutations = {
   targetUserInfo:($state, $payload) => {
     $state.chatUsers.targetUserInfo = $payload;
   },
+
+  updateMessageDatas:($state, $payload)=>{
+    if($payload !== null){
+      $state.chatRoom.msgDatas.push($payload);
+    }else{
+      $state.chatRoom.msgDatas = [];
+    }
+  },
+
+
+
 
 
 
@@ -86,10 +98,6 @@ const mutations = {
 
   getMessageList:($state, $payload)=>{
     $state.chatRoom.msgDatas.push($payload);
-  },
-
-  removeMessageList:($state, $payload)=>{
-    $state.chatRoom.msgDatas = [];
   },
 
   chatUserList:($state, $payload)=>{
@@ -139,9 +147,6 @@ const actions = {
 
   getMessageList:({ commit }, $payload) =>{
     commit('getMessageList', $payload)
-  },
-  removeMessageList:({ commit }, $payload) =>{
-    commit('removeMessageList')
   },
 
   chatUserList:({commit}, $payload) =>{
