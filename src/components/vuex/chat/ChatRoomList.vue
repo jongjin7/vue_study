@@ -44,18 +44,17 @@ export default {
   methods:{
     ...mapMutations([
       'currentUserInfo',
+      'targetUserInfo',
 
       'setRoomId',
       'roomUsersList',
       'roomUsersName',
     ]),
     ...mapActions([
-      'targetUserInfo',
+
     ]),
 
     clickCurrentRoomMessage(user){
-      console.log('aaa',user);
-
       this.setRoomId(user.roomId);
       this.roomUsersList(user.roomUserlist.split(CHAT_ROOM.SPLIT_CHAR));
       let targetUserUid = user.roomUserlist.split(CHAT_ROOM.SPLIT_CHAR)[0];

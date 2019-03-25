@@ -43,7 +43,7 @@
       }),
 
       ...mapGetters([
-        'getIsOpenChatRoom'
+        'getIsOpenChatRoom',
       ])
 
 
@@ -70,8 +70,6 @@
       ]),
       ...mapActions([
         'changeIsOpenChatRoom',
-        'saveChatRoomId',
-        'removeChatUserList'
       ]),
 
       getChatRoomList(){
@@ -127,7 +125,7 @@
               timeStamp: timestampToTime(dataValue.timeStamp),
               message: dataValue.message
             };
-            console.log('data', tmpData.uid, vm.targetUser.uid, vm.currentUser.uid)
+            //console.log('data', tmpData.uid, vm.targetUser.uid, vm.currentUser.uid)
             if( tmpData.uid == vm.targetUser.uid || tmpData.uid == vm.currentUser.uid) vm.messageDatas.push(tmpData);
           });
         }

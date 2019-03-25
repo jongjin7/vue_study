@@ -1,8 +1,8 @@
 <template>
   <div class="type_msg">
     <div class="input_msg_write">
-      <input type="text" id="message-field" class="write_msg" placeholder="메시지를 입력하세요"  v-model="writeMsg" @keyup.13="submitChatMessage" :readonly="getChatRoomId === null" />
-      <button class="msg_send_btn" type="button" @click="submitChatMessage" :disabled="getChatRoomId === null"><i class="fa fa-paper-plane-o" aria-hidden="true"></i></button>
+      <input type="text" id="message-field" class="write_msg" placeholder="메시지를 입력하세요"  v-model="writeMsg" @keyup.13="submitChatMessage" />
+      <button class="msg_send_btn" type="button" @click="submitChatMessage"><i class="fa fa-paper-plane-o" aria-hidden="true"></i></button>
     </div>
   </div>
 </template>
@@ -32,7 +32,6 @@ export default {
         currentUser: ({ socket }) => socket.connectedUserData,
         targetUser: ({ socket }) => socket.chatUsers.targetUserInfo
       }),
-      ...mapGetters(['getChatTargetUser', 'getChatRoomId']),
     },
     created(){
 
@@ -42,9 +41,6 @@ export default {
       document.querySelector('#message-field').addEventListener('paste', this.onPasteAfterClearTag.bind(this));
     },
     methods: {
-      ...mapActions([
-        'sendChatMessage',
-      ]),
       submitChatMessage1(e){
         console.log(e.target)
         this.$emit('submitInputMessage');
@@ -65,7 +61,7 @@ export default {
 
         if(this.roomMsgData.length === 0){ //메시지 처음 입력하는 경우
           for(var i=0; i < roomUserListLength; i++){
-            multiUpdates['RoomUsers/' +this.getChatRoomId + '/' + roomUserList[i]] = true;
+            multiUpdates['RoomUsers/' +this.roomId + '/' + roomUserList[i]] = true;
           }
           //권한때문에 먼저 저장
           this.$firebaseRealDB.ref(USER_DATA.REAR_FIREDB_NAME).update(multiUpdates);

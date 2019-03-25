@@ -61,15 +61,15 @@ export default {
     ...mapMutations([
       'currentUserInfo',
       'setRoomId',
-    ]),
-    ...mapActions([
-      'saveTargetUserName',
-      'saveChatRoomId',
-      'changeIsOpenChatRoom',
-      'targetUserInfo',
-
       'roomUsersList',
       'roomUsersName',
+      'targetUserInfo',
+    ]),
+    ...mapActions([
+      'changeIsOpenChatRoom',
+
+
+
 
     ]),
 
@@ -205,6 +205,7 @@ console.log(1)
       }else{
         console.log(2)
         this.fetchAftersaveUserListSession();
+
       }
     },
 

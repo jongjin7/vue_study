@@ -1,8 +1,10 @@
-import Constant from '../../common/Constant';
+import Vue from 'vue';
+import { USER_DATA } from '../../common/Constant';
 
 const state = {
   isUserLogin:false,
   connectedUserData:'',
+  chatUserList:[],
   chatRoom:{
     msgDatas:[
       // {
@@ -26,17 +28,16 @@ const state = {
 
 //getter
 const getters = {
-
-  getChatTargetUser($state){
-    return $state.chatTargetUserName;
-  },
-  getChatRoomId($state){
-    return $state.chatRoom.roomId;
-  },
-
   getIsOpenChatRoom($state){
     return $state.chatRoom.isOpenChatRoom;
   },
+
+  getInvitableList: ($state, $payload) => {
+    console.log('초대 가능한 멤버 리스트', $state.chatUsers.targetUserInfo.uid, $state.chatUserList)
+
+    return $state.chatUserList.filter(user => user.uid !== $state.chatUsers.targetUserInfo.uid)
+
+  }
 
 };
 
@@ -76,40 +77,52 @@ const mutations = {
     }
   },
 
-
-
-
-
-
-  currentTargetUserName:($state, $payload) =>{
-    $state.chatTargetUserName = $payload;
+  chatUserList:($state, $payload)=>{
+    $state.chatUsersVsList=$payload;
   },
-  currentChatRoomId:($state, $payload) =>{
-    $state.chatRoom.roomId = $payload;
+
+  getUserList:($state, $payload)=>{
+    $state.chatUserList = $payload;
   },
+
+
+
+
+
+
 
   changeIsOpenChatRoom:($state, $payload)=>{
     $state.chatRoom.isOpenChatRoom = !$state.chatRoom.isOpenChatRoom;
   },
 
-  sendChatMessage:($state, $payload)=>{
-    $state.chatRoom.msgDatas.push($payload);
-  },
-
-  getMessageList:($state, $payload)=>{
-    $state.chatRoom.msgDatas.push($payload);
-  },
-
-  chatUserList:($state, $payload)=>{
-    $state.chatUsersVsList=$payload;
-  },
-  removeChatUserList:($state, $payload)=>{
-    $state.chatUsersVsList='';
-  }
 }
 
 //actions
 const actions = {
+  getUserList:({commit}, $payload) => {
+    console.log('currentUser action', Vue.prototype.$firebaseRealDB)
+    const currentUser = state.connectedUserData;
+    const rootRoomRef = Vue.prototype.$firebaseRealDB.ref(USER_DATA.REAR_FIREDB_NAME);
+    let userDBRef = rootRoomRef.child('Users/');
+    userDBRef.off();
+
+    userDBRef.orderByChild("displayName").once('value').then((dataSnapShot) =>{
+      let tmpData=[];
+      dataSnapShot.forEach((data) =>{
+        if (data.key !== currentUser.uid) {
+          let tmp = data.val();
+          tmp.uid = data.key;
+          tmpData.push(tmp);
+        }
+      });
+
+      commit('getUserList', tmpData);
+    });
+  },
+
+
+
+
   setIsUserLogin:({ commit }, $payload) =>{
     commit('setIsUserLogin');
   },
@@ -119,42 +132,10 @@ const actions = {
     commit('setCurrentUserData', $payload);
   },
 
-  roomUsersList:({ commit } ,$payload)=>{
-    commit('roomUsersList', $payload)
-  },
-  roomUsersName:({ commit } ,$payload)=>{
-    commit('roomUsersName', $payload)
-  },
-
-  saveTargetUserName: ({ commit }, $payload) => {
-    commit('currentTargetUserName', $payload)
-  },
-  saveChatRoomId: ({ commit }, $payload) => {
-    commit('currentChatRoomId', $payload)
-  },
-
   changeIsOpenChatRoom: ({ commit }, $payload) =>{
     commit('changeIsOpenChatRoom');
   },
 
-  sendChatMessage:({ commit }, $payload) => {
-    commit('sendChatMessage', $payload)
-  },
-
-  targetUserInfo:({ commit }, $payload) => {
-    commit('targetUserInfo', $payload)
-  },
-
-  getMessageList:({ commit }, $payload) =>{
-    commit('getMessageList', $payload)
-  },
-
-  chatUserList:({commit}, $payload) =>{
-    commit('chatUserList', $payload)
-  },
-  removeChatUserList:({commit}, $payload) =>{
-    commit('chatUserList')
-  }
 
 };
 
