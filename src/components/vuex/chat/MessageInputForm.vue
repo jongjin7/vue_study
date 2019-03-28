@@ -34,18 +34,23 @@ export default {
       }),
     },
     created(){
-
+      this.$EventBus.$on('saveMessage', this.submitChatMessage)
     },
     mounted(){
       // html태그를 포함하는 내용 붙여넣기 할때 일반 텍스트로 치환
       document.querySelector('#message-field').addEventListener('paste', this.onPasteAfterClearTag.bind(this));
     },
     methods: {
-      submitChatMessage1(e){
-        console.log(e.target)
-        this.$emit('submitInputMessage');
+      submitChatMessage(parm){
+        console.log('type', typeof parm, parm.messageType)
+        if(parm.messageType !== undefined && parm.messageType === 'invite'){
+          console.log('arg',parm.message)
+        }else{
+          console.log('일반 메시지 상태')
+        }
+
       },
-      submitChatMessage() {
+      submitChatMessage1() {
         if (this.writeMsg.length === 0 ) return false;
 
         let vm = this;

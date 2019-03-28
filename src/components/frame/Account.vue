@@ -195,7 +195,6 @@
         this.$firebase.auth().onAuthStateChanged(function(user) {
           console.log('account:: $firebase.auth통신후 user정보 가져오기')
           if (user) {
-
             vm.$firebaseRealDB.goOnline(); // 데이터 베이스 명시적 온라인
 
             if(sessionStorage.getItem('currentUser') === null) {

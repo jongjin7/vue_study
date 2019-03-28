@@ -7,7 +7,7 @@
         <a href="#" @click.stop.prevent="openChatRoom(user)">
           <div class="img_cont">
             <img :src="user.photoURL" class="rounded-circle user_img">
-            <span class="online_icon"></span>
+            <span class="online_icon" :class="{ offline : isUserOffline }"></span>
           </div>
           <div class="user_info">
             <span>{{ user.displayName }}</span>
@@ -42,11 +42,13 @@ export default {
       chatUserList:'',
 
       roomId:'',
+      isUserOffline:true,
     }
   },
   created(){
     this.fetchUserList();
 
+    this.checkOnlineUser();
 
   },
   computed:{
@@ -64,11 +66,27 @@ export default {
     ]),
     ...mapActions([
       'changeIsOpenChatRoom',
-
-
-
-
     ]),
+
+    checkOnlineUser(){
+      let vm = this;
+      let userUid = this.currentUser.uid;
+      let myConnectionsRef = this.$firebaseRealDB.ref(USER_DATA.REAR_FIREDB_NAME+'/UsersConnection/'+userUid+'/connection');
+      let lastOnlineRef = this.$firebaseRealDB.ref(USER_DATA.REAR_FIREDB_NAME+'/UsersConnection/'+userUid+'/lastOnline');
+      let connectedRef = this.$firebaseRealDB.ref('/.info/connected');
+
+      connectedRef.on('value', function(snap) {
+        if (snap.val() === true) {
+          myConnectionsRef.set(true);
+          // 연결 단절 이벤트
+          myConnectionsRef.onDisconnect().set(false);
+          lastOnlineRef.onDisconnect().set(vm.$firebase.database.ServerValue.TIMESTAMP);
+        }
+      });
+
+
+      console.log('checkOnlineUser', userUid, myConnectionsRef, lastOnlineRef, connectedRef)
+    },
 
     checkCurruntUserRoomList(targetUserUid){
       let roomList = JSON.parse(sessionStorage.getItem('chatRoomList'));

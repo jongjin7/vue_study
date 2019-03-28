@@ -83,12 +83,12 @@
           //arrInviteUserName.push(inviteUserName);
         }
 
-        console.log(this.currentRoomUserList.concat(arrInviteUserList), this.currentRoomUserName.concat(arrInviteUserName))
+        //console.log('초대되는 멤버 리스트와 이름 합치기', this.currentRoomUserList.concat(arrInviteUserList), this.currentRoomUserName.concat(arrInviteUserName))
         this.roomUsersList(this.currentRoomUserList.concat(arrInviteUserList));
         this.roomUsersName(this.currentRoomUserName.concat(arrInviteUserName));
         this.afterInviteUsers();
         console.log('초대 update', updates)
-        //this.roomUserlist.sort();
+        this.$EventBus.$emit('saveMessage',{messageType:'invite', message:arrInviteUserName.join()+'님이 초대되었습니다.'})
         //this.firebase.database.ref().update(updates);
         //멤버가 초때되면 새로운 방이 생성되고 인사말이 자동 출력되도록 한다.(방 유지 목적)
         this.$EventBus.$emit('toggleClose');
