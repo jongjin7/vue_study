@@ -13,9 +13,6 @@
             <span>{{ user.displayName }}</span>
           </div>
         </a>
-        <div class="checkInvite">
-          <input type="checkbox" name="">
-        </div>
       </li>
       <!--<li>-->
         <!--<a href="#" class="img_cont">-->
@@ -98,6 +95,7 @@ export default {
       var roomUsersName = [targetUser.displayName, this.currentUser.displayName ] // 챗방 유저 이름
 
       this.targetUserInfo(targetUser);
+      console.log('spred', ...roomUsersUid)
       this.roomUsersList(roomUsersUid);
       this.roomUsersName(roomUsersName);
 

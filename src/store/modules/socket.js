@@ -18,6 +18,7 @@ const state = {
     isOpenChatRoom:false,
     roomUsersList:'',
     roomUsersName:'',
+    invitableList:[],
   },
   chatUsers:{
     currentUserInfo:[], //name, uid
@@ -33,16 +34,38 @@ const getters = {
   },
 
   getInvitableList: ($state, $payload) => {
-    console.log('초대 가능한 멤버 리스트', $state.chatUsers.targetUserInfo.uid, $state.chatUserList)
+    console.log('초대 가능한 멤버 리스트', $state.chatUsers.targetUserInfo.uid, $state.chatUserList, $state.chatUsers)
 
-    return $state.chatUserList.filter(user => user.uid !== $state.chatUsers.targetUserInfo.uid)
+    let filterMember =  $state.chatUserList.filter((user) => {
+      let isMember = $state.chatRoom.roomUsersList.includes(user.uid)
+      console.log('find', isMember)
+      return !$state.chatRoom.roomUsersList.includes(user.uid);
+    });
+    return filterMember;
+  },
 
-  }
+
 
 };
 
 //mutations
 const mutations = {
+  inviteUserNewMember: ($state, $payload)=>{
+     let tmp = getters.getInvitableList($state);
+    // console.log('checked list111', tmp.filter(user => user.checked))
+    let newMember = getters.getInvitableList($state).filter(user => user.checked);
+    let newMemberListUid = newMember.map(mem => mem.uid)
+    let prevMember = $state.chatRoom.newMember;
+    console.log('join', newMember,newMemberListUid, prevMember)
+    $state.chatRoom.invitableList = getters.getInvitableList($state).filter(user => user.checked);
+  },
+
+  afterInviteUsers:($state, $payload)=>{
+    $state.chatRoom.invitableList = getters.getInvitableList($state).forEach((user)=>{
+      if(user.checked) user.checked = false;
+    })
+  },
+
   setIsUserLogin:($state, $payload)=>{
     $state.isUserLogin = !$state.isUserLogin;
   },
@@ -84,6 +107,8 @@ const mutations = {
   getUserList:($state, $payload)=>{
     $state.chatUserList = $payload;
   },
+
+
 
 
 
