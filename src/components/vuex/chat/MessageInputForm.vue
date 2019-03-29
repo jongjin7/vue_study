@@ -43,8 +43,18 @@ export default {
     methods: {
       submitChatMessage(parm){
         console.log('type', typeof parm, parm.messageType)
-        if(parm.messageType !== undefined && parm.messageType === 'invite'){
-          console.log('arg',parm.message)
+        if(parm.messageType !== undefined){
+          if(parm.messageType === 'invite'){
+            console.log('arg',parm.message)
+          }else if(parm.messageType === 'file'){
+            console.log('파일을 보냈습니다.')
+            //파일전송 메세지
+            // if(downloadURL && fileName){
+            //   msg = "<a class='waves-effect waves-light btn blue' download='"+fileName+"' href='"+ downloadURL +"'>다운로드</a></br>" +
+            //     "<span class=''>파일명 : "+ fileName +"</span>";
+            // }
+
+          }
         }else{
           console.log('일반 메시지 상태')
         }

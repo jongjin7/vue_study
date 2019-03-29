@@ -13,12 +13,19 @@
         </div>
         <div class="received_msg" v-if="msg.uid === targetUser.uid">
           <div class="received_withd_msg">
-            <p>{{ msg.message }}</p>
+            <div>{{ msg.message }}</div>
             <span class="time_date">{{ msg.timeStamp }}</span>
           </div>
         </div>
         <div class="sent_msg" v-else>
-          <p>{{ msg.message }}</p>
+          <div>{{ msg.message }}</div>
+          <span class="time_date">{{ msg.timeStamp }}</span>
+        </div>
+
+        <!-- 파일 첨부하기 -->
+        <div class="files" v-if="msg.messageType == 'file'">
+          <div class="progress-bar progress-bar-striped progress-bar-animated" style="width: 40%">40%</div>
+          <div>파일 내용... 출력...</div>
           <span class="time_date">{{ msg.timeStamp }}</span>
         </div>
       </div>
