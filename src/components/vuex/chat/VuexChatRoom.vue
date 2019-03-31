@@ -8,7 +8,7 @@
           <ChatRoomList :userRoomList="chatRoomListData" v-on:changeChatRoom ="changeChatRoom" />
         </div>
         <div class="mesgs">
-          <chatRoomView :msgDatas="messageDatas" />
+          <chatRoomView :msgDatas="messageDatas" :progress ="progressRatio" />
           <MessageInputForm />
         </div>
       </div>
@@ -18,6 +18,7 @@
 
 <script>
   import { USER_DATA, CHAT_ROOM } from '../../../common/Constant';
+  import { Utils } from '@/plugins/utils';
   import { timestampToTime, yyyyMMddHHmmsss, timeForRoomList } from '@/plugins/timestamp';
 
   import SearchChatRoomList from './SearchChatRoomList';
@@ -33,6 +34,7 @@
       return{
         chatRoomListData:'',
         messageDatas:[],
+        progressRatio:'',
       }
     },
     computed: {
@@ -51,6 +53,8 @@
     created(){
       this.checkCorrectAccess(); //정상적인 절차로 채팅방 입장하는지 체크
       this.getChatRoomList();
+
+      this.$EventBus.$on('changeProgressRatio', this.changeProgressRatio)
     },
     destroyed(){
       if(this.getIsOpenChatRoom){
@@ -64,6 +68,11 @@
     methods:{
       test(){
         console.log('search에서 트리거')
+      },
+
+      changeProgressRatio(data){
+        console.log('changeProgress', data)
+        this.progressRatio = data;
       },
       ...mapMutations([
         'updateMessageDatas',
@@ -125,21 +134,11 @@
               timeStamp: timestampToTime(dataValue.timeStamp),
               message: dataValue.message
             };
+
             //console.log('data', tmpData.uid, vm.targetUser.uid, vm.currentUser.uid)
             if( tmpData.uid == vm.targetUser.uid || tmpData.uid == vm.currentUser.uid) vm.messageDatas.push(tmpData);
           });
         }
-
-      },
-
-      dateForm(date){
-        let strlocalDate = date.split('');
-        strlocalDate[0]+'년 ' + strlocalDate[1]+'월 ' + strlocalDate[2]+'일 ';
-        return strlocalDate;
-      },
-
-      sendMessage(msg) {
-        console.log('vueChat sendMessage')
 
       },
 
@@ -301,6 +300,8 @@
       margin: 0;
       padding: 5px 10px 5px 12px;
       width: 100%;
+      word-break: break-all;
+
     }
     .time_date {
       color: #747474;
@@ -318,19 +319,103 @@
 
       .view-container{
         position: relative;
-        &.inactive{
-          &:before{
-            position: absolute; left:0; top:0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            width:100%; height:100%;
-            background: #fff;
-            content:'대화자를 선택하세요.';
-            z-index: 10;
-            font-size: 24px;
+        &.is-dragover{
+          .dragdrop-input{
+            display:block;
+            pointer-events: none;
           }
         }
+
+        &.after-drop{
+          .dragdrop-input{
+            .inner-wrap{
+              &:before{
+                display:block;
+                position:absolute; width:100%; height:100%;
+                content:'';
+                border:1px solid transparent;
+                animation:fileInputShow 2s infinite ease-in-out;
+              }
+              .result-msg{
+                .file-upload-droparea{
+                  .before-info{
+                    display: none;
+                  }
+                  .after-info{
+                    display: block;
+                  }
+                }
+              }
+            }
+          }
+        }
+
+        //드래그드롭 인풋
+        .dragdrop-input{
+          display:none;
+          //opacity:0;
+
+          .inner-wrap{
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            position:absolute; left:0; right:0; top:0; bottom:0;
+            z-index:10;
+            background:rgba(white, 0.8);
+
+            .result-msg{
+              position:relative;
+              min-width:300px;
+              //width:80%;
+              h1{
+                color:red;
+                .icon{
+                  display:block;
+                }
+              }
+              .file-upload-droparea{
+                background:rgba(#eaeaea,1);
+                border-radius:10px;
+                border:1px solid #e1e1e1;
+                padding:10px;
+                .before-info{
+                  .icon{
+                    display:block;
+                    font-size:72px;
+                  }
+                }
+                .after-info{
+                  display:none;
+                  .progress{
+                    background:#cbd4da;
+                  }
+                }
+              }
+
+              .btn-mini{
+                position:absolute; top:-30px; right:-30px;
+                cursor:pointer;
+                width:50px; height:50px;
+                border:none;
+                border-radius:50%;
+                box-shadow:2px 2px 10px rgba(black, 0.1);
+              }
+            }
+          }
+        }
+
+        @keyframes fileInputShow{
+          0%{
+            border-width:1px;
+            border-color:transparent;
+          }
+          50%{
+            border-width:5px;
+            border-color:#ffc107;
+          }
+        }
+        
+
 
         .bg-view-title{
           background: #c1c1c1;
@@ -339,13 +424,14 @@
     }
 
     .sent_msg p {
-      background: #05728f none repeat scroll 0 0;
+      background: #eaeaea;
       border-radius: 3px;
       font-size: 14px;
       margin: 0;
-      color: #fff;
+      color: #444;
       padding: 5px 10px 5px 12px;
       width: 100%;
+      word-break: break-all;
     }
     .outgoing_msg {
       overflow: hidden;
@@ -354,43 +440,92 @@
     .sent_msg {
       float: right;
       width: 46%;
+
     }
 
     .type_msg {
+      display:flex;
+      //height:80px;
+      height:45px;
+      align-items:center;
       border-top: 1px solid #c4c4c4;
       position: relative;
-      padding-right: 50px;
-      padding-left: 15px;
+      background:#e9e9e9;
 
-      &.inactive{
-        background: rgba(gray,0.2);
+      input, button, textarea{
+        outline:none;
       }
     }
-    .input_msg_write input {
-      background: rgba(0, 0, 0, 0) none repeat scroll 0 0;
-      border: medium none;
-      color: #4c4c4c;
-      font-size: 15px;
-      min-height: 48px;
-      width: 100%;
+    .file-label{
+      position:absolute; left:0; top:0;
+    }
+    .input_msg_write {
+      position:relative;
+      height: inherit; width:100%;
+      .blank{
+        position:absolute; top:0; right:-50px;
+        display:block;
+        vertical-align:top;
+        width:50px; height:inherit;
+        content:'';
+        background:#f8f8f8;
+      }
+      textarea {
+        position:absolute; left:0; top:0; z-index:2;
+        background: #f8f8f8;
+        border: none;
+        color: #4c4c4c;
+        font-size: 15px;
+        width: 100%; height:inherit;
+        vertical-align:top;
+        overflow-y:auto;
+        resize: none;
 
-      &[readonly]{
-        opacity: 0.5;
+        &[readonly]{
+          opacity: 0.5;
+        }
+        &:focus{
+          background:#fff;
+          &+.blank{
+            display:block;
+            background:#fff;
+          }
+        }
+      }
+
+      input[type="file"] {
+        position:absolute; left:0; top:0;
+        width:100%; height:100%;
+        z-index:1;
+        border:1px solid blue;
       }
     }
 
-    .msg_send_btn {
-      background: #05728f none repeat scroll 0 0;
+
+    .btn_send {
+      //background: #05728f;
+      position:relative;
       border: medium none;
-      border-radius: 50%;
-      color: #fff;
       cursor: pointer;
-      font-size: 17px;
-      height: 33px;
-      position: absolute;
-      right: 15px;
-      top: 8px;
-      width: 33px;
+      margin-bottom:0;
+      color:#05728f;
+      line-height:1;
+
+      &.send_msg{
+        top:2px;
+        font-size:36px;
+        background:transparent;
+        i.txt{
+          position:absolute; left:14px; top:9px;
+          font-size:11px;
+          color:#fff;
+        }
+      }
+
+      &.send_file{
+        margin:-2px 8px 0 6px;
+        font-size:30px;
+      }
 
       &[disabled]{
         cursor:default;
@@ -406,7 +541,23 @@
       padding-left: 15px;
       overflow-y: scroll;
     }
+
+    .msg_box{
+      img{
+        border-radius:3px;
+        margin: 4px 0;
+      }
+      a:hover{
+        img{
+          opacity: 0.8;
+        }
+      }
+    }
   }
+
+
+
+  
 
   @media (max-width:767px){
     .messaging{

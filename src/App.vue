@@ -50,4 +50,11 @@ export default {
     color:#888 !important;
   }
 
+  .blind{
+    position:absolute !important; left:-9999px !important; top:-9999px !important; font-size:0 !important;
+  }
+  i,em{
+    font-style:normal;
+  }
+
 </style>
