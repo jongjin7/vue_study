@@ -29,7 +29,7 @@
 </template>
 
 <script>
-import { USER_DATA } from "@/common/Constant";
+  import { USER_DATA, CHAT_ROOM } from '@/common/Constant';
 import { timestampToTime, yyyyMMddHHmmsss } from '@/plugins/timestamp';
 import { mapState, mapGetters, mapActions, mapMutations } from 'vuex'
 
@@ -63,16 +63,18 @@ export default {
       'roomUsersList',
       'roomUsersName',
       'targetUserInfo',
+      'isOpenChatRoom'
     ]),
     ...mapActions([
-      'changeIsOpenChatRoom',
+
     ]),
+
 
     checkOnlineUser(){
       let vm = this;
       let userUid = this.currentUser.uid;
-      let myConnectionsRef = this.$firebaseRealDB.ref(USER_DATA.REAR_FIREDB_NAME+'/UsersConnection/'+userUid+'/connection');
-      let lastOnlineRef = this.$firebaseRealDB.ref(USER_DATA.REAR_FIREDB_NAME+'/UsersConnection/'+userUid+'/lastOnline');
+      let myConnectionsRef = this.$firebaseRealDB.ref(USER_DATA.REAR_FIREDB_NAME + '/UsersConnection/' + userUid + '/connection');
+      let lastOnlineRef = this.$firebaseRealDB.ref(USER_DATA.REAR_FIREDB_NAME + '/UsersConnection/' + userUid + '/lastOnline');
       let connectedRef = this.$firebaseRealDB.ref('/.info/connected');
 
       connectedRef.on('value', function(snap) {
@@ -113,7 +115,6 @@ export default {
       var roomUsersName = [targetUser.displayName, this.currentUser.displayName ] // 챗방 유저 이름
 
       this.targetUserInfo(targetUser);
-      console.log('spred', ...roomUsersUid)
       this.roomUsersList(roomUsersUid);
       this.roomUsersName(roomUsersName);
 
@@ -126,8 +127,11 @@ export default {
       }
 
 
-
-      this.changeIsOpenChatRoom();
+      // 채팅룸 활성 상태 저장
+      let storage = sessionStorage.getItem(CHAT_ROOM.STORAGE_KEY_OPEN_ROOM);
+      if(storage === null){
+        sessionStorage.setItem(CHAT_ROOM.STORAGE_KEY_OPEN_ROOM, JSON.stringify({isOpen: true}))
+      }
       // * 저장되어 있는 챗방 정보를 DB조회시 필요한 것 *
       // 챗방 유저 이름(roomUserName), 챗방 유저 리스트(room userList), roomID, roomType(ONE VS ONE), room target ID,
       // 로컬에 각 유저별 채팅 정보를 저장할까==> 각 유저에 매핑되어 있는 정보를 이용

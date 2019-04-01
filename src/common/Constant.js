@@ -22,6 +22,8 @@ export const USER_DATA ={
 }
 
 export const CHAT_ROOM ={
+  STORAGE_KEY_OPEN_ROOM : 'OPEN_CHAT_ROOM',
+
   TYPE_MULTI : 'MULTI',
   TYPE_ONE_VS_ONE: 'ONE_VS_ONE',
   SPLIT_CHAR:'@spl@'

@@ -17,7 +17,7 @@
 </template>
 
 <script>
-  import { USER_DATA, CHAT_ROOM } from '../../../common/Constant';
+  import { USER_DATA, CHAT_ROOM } from '@/common/Constant';
   import { Utils } from '@/plugins/utils';
   import { timestampToTime, yyyyMMddHHmmsss, timeForRoomList } from '@/plugins/timestamp';
 
@@ -35,51 +35,58 @@
         chatRoomListData:'',
         messageDatas:[],
         progressData:'',
+        isOpenedRoom:false
       }
     },
     computed: {
       ...mapState({
+        isOpenRoom: ({ socket }) => socket.isOpenChatRoom,
         roomId: ({ socket }) => socket.chatRoom.roomId,
         currentUser: ({ socket }) => socket.connectedUserData,
         targetUser: ({ socket }) => socket.chatUsers.targetUserInfo,
       }),
-
-      ...mapGetters([
-        'getIsOpenChatRoom',
-      ])
-
-
     },
     created(){
-      this.checkCorrectAccess(); //정상적인 절차로 채팅방 입장하는지 체크
-      this.getChatRoomList();
+      //this.checkCorrectAccess(); //정상적인 절차로 채팅방 입장하는지 체크
 
       this.$EventBus.$on('changeProgressRatio', this.changeProgressRatio)
+
+      this.checkOpenedChatRoom();
     },
     destroyed(){
-      if(this.getIsOpenChatRoom){
-        this.changeIsOpenChatRoom();
+      if(this.isOpenRoom){
+        this.isOpenChatRoom(false);
         this.messageDatas = [];
       }
     },
     watch:{
-      $route : 'checkCorrectAccess'
+
     },
     methods:{
-      test(){
-        console.log('search에서 트리거')
-      },
+      ...mapMutations([
+        'updateMessageDatas',
+        'isCloseChatRoom',
+        'isOpenChatRoom'
+      ]),
 
       changeProgressRatio(data){
         console.log('changeProgress', data)
         this.progressData = data;
       },
-      ...mapMutations([
-        'updateMessageDatas',
-      ]),
-      ...mapActions([
-        'changeIsOpenChatRoom',
-      ]),
+
+      checkOpenedChatRoom(){
+        let storage = sessionStorage.getItem(CHAT_ROOM.STORAGE_KEY_OPEN_ROOM);
+        console.log('ssstorage', storage)
+        if(storage !== null){
+          this.getChatRoomList();
+          this.getMessageDatas();
+          this.isOpenChatRoom(true);
+        }else{
+          alert('비정상 접근입니다.');
+          this.$router.push('/chat');
+        }
+
+      },
 
       getChatRoomList(){
         let vm = this;
@@ -101,10 +108,9 @@
       },
 
       checkCorrectAccess(){
-        if(this.getIsOpenChatRoom){
+        if(this.isOpenChatRoom){
           //새로고침하면 잘못된 접근이라고 판단하고 있음.
           console.log('올바른 챗방접근')
-          this.getMessageDatas();
         }else{
           alert('올바른 접근이 아닙니다.')
           this.$router.push('/chat');
@@ -119,7 +125,6 @@
 
       getMessageDatas(){
         let vm = this;
-        let count=0;
         console.log('선택한 대화자와 1:1 시작  ==> 메시지 데이타 받기', this.targetUser)
         if(this.roomId){
           let messageRef = this.$firebaseRealDB.ref(USER_DATA.REAR_FIREDB_NAME + '/Messages/' + this.roomId);
@@ -136,7 +141,10 @@
             };
 
             //console.log('data', tmpData.uid, vm.targetUser.uid, vm.currentUser.uid)
-            if( tmpData.uid == vm.targetUser.uid || tmpData.uid == vm.currentUser.uid) vm.messageDatas.push(tmpData);
+            if( tmpData.uid == vm.targetUser.uid || tmpData.uid == vm.currentUser.uid) {
+              console.log('data download...')
+              vm.messageDatas.push(tmpData);
+            }
           });
         }
 
@@ -378,7 +386,9 @@
                 background:rgba(#eaeaea,1);
                 border-radius:10px;
                 border:1px solid #e1e1e1;
-                padding:10px;
+                padding:15px 10px;
+                max-width: 400px;
+
                 .before-info{
                   .icon{
                     display:block;
@@ -387,8 +397,24 @@
                 }
                 .after-info{
                   display:none;
+
+                  .file-list{
+                    width:90%;
+                    margin: 15px auto 0;
+                  }
+
+                  .file-name{
+                    font-size: 0.5em;
+                    margin-bottom: 0.5em;
+                    line-height:1;
+                  }
                   .progress{
                     background:#cbd4da;
+                  }
+
+                  button{
+                    font-size: 0.65em;
+                    padding:0.15em 0.5em;
                   }
                 }
               }

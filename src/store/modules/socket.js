@@ -1,8 +1,9 @@
 import Vue from 'vue';
-import { USER_DATA } from '../../common/Constant';
+import { USER_DATA, CHAT_ROOM } from '../../common/Constant';
 
 const state = {
   isUserLogin:false,
+  isOpenChatRoom:false,
   connectedUserData:'',
   chatUserList:[],
   chatRoom:{
@@ -15,7 +16,6 @@ const state = {
       // }
     ],
     roomId:'',
-    isOpenChatRoom:false,
     roomUsersList:'',
     roomUsersName:'',
     invitableList:[],
@@ -29,10 +29,6 @@ const state = {
 
 //getter
 const getters = {
-  getIsOpenChatRoom($state){
-    return $state.chatRoom.isOpenChatRoom;
-  },
-
   getInvitableList: ($state, $payload) => {
     console.log('초대 가능한 멤버 리스트', $state.chatUsers.targetUserInfo.uid, $state.chatUserList, $state.chatUsers)
 
@@ -43,13 +39,19 @@ const getters = {
     });
     return filterMember;
   },
-
-
-
 };
 
 //mutations
 const mutations = {
+  isOpenChatRoom:($state, $payload)=>{
+    $state.isOpenChatRoom = $payload;
+  },
+
+  isCloseChatRoom:($state, $payload)=>{
+    sessionStorage.removeItem(CHAT_ROOM.STORAGE_KEY_OPEN_ROOM);
+    $state.isOpenChatRoom = false;
+  },
+
   inviteUserNewMember: ($state, $payload)=>{
      let tmp = getters.getInvitableList($state);
     // console.log('checked list111', tmp.filter(user => user.checked))
@@ -116,9 +118,7 @@ const mutations = {
 
 
 
-  changeIsOpenChatRoom:($state, $payload)=>{
-    $state.chatRoom.isOpenChatRoom = !$state.chatRoom.isOpenChatRoom;
-  },
+
 
 }
 
@@ -145,6 +145,12 @@ const actions = {
     });
   },
 
+  setIsOpenChatRoom:({ commit })=>{
+
+
+    commit('setIsOpenChatRoom', storage);
+  },
+
 
 
 
@@ -157,9 +163,7 @@ const actions = {
     commit('setCurrentUserData', $payload);
   },
 
-  changeIsOpenChatRoom: ({ commit }, $payload) =>{
-    commit('changeIsOpenChatRoom');
-  },
+
 
 
 };

@@ -201,17 +201,17 @@
               sessionStorage.setItem('currentUser', JSON.stringify(user));
               vm.setIsUserLogin(); //접속 상태를 store에 갱신
               vm.setCurrentUserData(user);
-
-              user.providerData.forEach(function (profile) {
-                console.log('logIn::onChangeAuthAccount', vm.isUserLogin, profile)
-                if(profile.providerId == 'password'){
-                  if(vm.fromLogin) vm.checkAndSaveUser(user);
-                }else if(profile.providerId == 'google.com'){
-                  vm.checkAndSaveUser(user);
-                }
-              });
             }
 
+            user.providerData.forEach(function (profile) {
+              console.log('logIn::onChangeAuthAccount', vm.isUserLogin, profile)
+              if(profile.providerId == 'password'){
+                if(vm.fromLogin) vm.checkAndSaveUser(user);
+              }else if(profile.providerId == 'google.com'){
+                console.log('ssss')
+                vm.checkAndSaveUser(user);
+              }
+            });
             // 로그인 후 접속상태 정보를 사용하고자 하는 컴포넌트(router의 hash정보)에 보내기, 현재는 챗방 게이트에서 사용됨
             vm.$EventBus.$emit('currentConnectionStatus');
 

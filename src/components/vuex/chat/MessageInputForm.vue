@@ -45,7 +45,7 @@ export default {
 
     },
     created(){
-      this.$EventBus.$on('fileChange', this.onDragDrop)
+      this.$EventBus.$on('fileChange', this.onDragDropFileChange)
       this.$EventBus.$on('saveMessage', this.submitChatMessage)
 
 
@@ -62,7 +62,7 @@ export default {
         this.submitChatMessage({messageType:'file', message : files[0]});
       },
 
-      onDragDrop(files){
+      onDragDropFileChange(files){
         this.submitChatMessage({messageType:'file', message : files});
       },
 
@@ -98,7 +98,7 @@ export default {
                 // Get task progress, including the number of bytes uploaded and the total number of bytes to be uploaded
                 var progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
                 //console.log('Upload is ' + progress + '% done');
-                vm.$EventBus.$emit('changeProgressRatio', {name: parm.message.name, value: progress.toFixed(2) + '%'} );
+                vm.$EventBus.$emit('changeProgressRatio', progress.toFixed(2) + '%');
                 if(progress == 100){
                   //setTimeout(function(){ vm.$EventBus.$emit('removeDropzone') }, 1000);
                 }
@@ -202,7 +202,7 @@ export default {
               roomOneVSOneTarget : roomUserListLength == 2 && i == 0 ? roomUserList[1] :  // 1대 1 대화이고 i 값이 0 이면
                 roomUserListLength == 2 && i == 1 ? roomUserList[0]   // 1대 1 대화 이고 i값이 1이면
                   : '', // 나머지
-              lastMessage : Utils.hasHtmlTag(this.writeMsg).is? '파일을 보냈습니다.' : hasHtmlTag,
+              lastMessage : Utils.hasHtmlTag(this.writeMsg).is? '파일을 보냈습니다.' : this.writeMsg,
               displayName: this.currentUser.displayName,
               photoURL : this.targetUser.photoURL,
               timestamp: this.$firebase.database.ServerValue.TIMESTAMP

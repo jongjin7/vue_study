@@ -69,13 +69,13 @@
             </div>
             <!-- 파일을 선택한다면? -->
             <div class="after-info">
-              <p class="txt h6 is-file">다중 파일 전송중...</p>
-              <div class="file-list">
-                <p class="mb-1" v-html="progress.name"></p>
+              <h3 class="txt h5 is-file">다중 파일 전송중...</h3>
+              <div class="file-list" v-for="list in fileList">
+                <p class="file-name">{{ list }}</p>
                 <div class="progress">
-                  <div class="progress-bar progress-bar-striped progress-bar-animated" :style="'width:' + progress.value + ''">{{ progress.value }}</div>
+                  <div class="progress-bar progress-bar-striped progress-bar-animated" :style="'width:' + progress[1] + ''">{{ progress[1] }}</div>
                 </div>
-                <div class="btns pt-2">
+                <div class="btns pt-1">
                   <button type="button" class="btn btn-sm">일시중지 토글</button>
                   <button type="button" class="btn btn-sm btn-warning">취소</button>
                 </div>
@@ -83,8 +83,9 @@
 
 
               <!-- 메시지 출력 -->
-              <div class="info-msg pb-1 small invalid-feedback">
-                진행상태 메시지나 에러메시지를 출력한다.
+              <div class="info-msg pb-1 mt-3 small invalid-feedback">
+                <font-awesome-icon icon="exclamation"  />
+                <span>진행상태 메시지나 에러메시지를 출력한다.</span>
               </div>
             </div>
           </div>
@@ -113,6 +114,7 @@
       return {
         isDropzone: false,
         isDragover: false,
+        fileList:[],
       }
     },
 
@@ -152,8 +154,10 @@
           console.log('droppedFiles', droppedFiles)
           for(var i=0; i < droppedFiles.length; i++){
             console.log(droppedFiles[i].name + " - " + droppedFiles[i].size);
+            vm.fileList.push(droppedFiles[i].name);
             vm.$EventBus.$emit('fileChange', droppedFiles[i]); //파일 전송 트리거
           }
+          console.log('vmList', vm.fileList)
           //vm.$EventBus.$emit('fileChange', droppedFiles)
         }else{
           console.log('파일전송중입니다.')
