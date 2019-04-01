@@ -63,7 +63,7 @@ export default {
       },
 
       onDragDrop(files){
-        this.submitChatMessage({messageType:'file', message : files[0]});
+        this.submitChatMessage({messageType:'file', message : files});
       },
 
       submitChatMessage(parm){
@@ -98,9 +98,9 @@ export default {
                 // Get task progress, including the number of bytes uploaded and the total number of bytes to be uploaded
                 var progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
                 //console.log('Upload is ' + progress + '% done');
-                vm.$EventBus.$emit('changeProgressRatio', progress + '%' );
+                vm.$EventBus.$emit('changeProgressRatio', {name: parm.message.name, value: progress.toFixed(2) + '%'} );
                 if(progress == 100){
-                  setTimeout(function(){ vm.$EventBus.$emit('removeDropzone') }, 1000);
+                  //setTimeout(function(){ vm.$EventBus.$emit('removeDropzone') }, 1000);
                 }
                 switch (snapshot.state) {
                   case vm.$firebase.storage.TaskState.PAUSED: // or 'paused'
@@ -138,16 +138,11 @@ export default {
                     vm.writeMsg = '<a href="'+ downloadURL +'">' + parm.message.name + '</a>';
                   }
 
-                  vm.submitChatMessage1();
+                  //vm.submitChatMessage1();
                 });
               });
 
             }
-            //파일전송 메세지
-            // if(downloadURL && fileName){
-            //   msg = "<a class='waves-effect waves-light btn blue' download='"+fileName+"' href='"+ downloadURL +"'>다운로드</a></br>" +
-            //     "<span class=''>파일명 : "+ fileName +"</span>";
-            // }
 
 
             // [파일 첨부 프로세스]

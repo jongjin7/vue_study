@@ -8,7 +8,7 @@
           <ChatRoomList :userRoomList="chatRoomListData" v-on:changeChatRoom ="changeChatRoom" />
         </div>
         <div class="mesgs">
-          <chatRoomView :msgDatas="messageDatas" :progress ="progressRatio" />
+          <chatRoomView :msgDatas="messageDatas" :progress ="progressData" />
           <MessageInputForm />
         </div>
       </div>
@@ -34,7 +34,7 @@
       return{
         chatRoomListData:'',
         messageDatas:[],
-        progressRatio:'',
+        progressData:'',
       }
     },
     computed: {
@@ -72,7 +72,7 @@
 
       changeProgressRatio(data){
         console.log('changeProgress', data)
-        this.progressRatio = data;
+        this.progressData = data;
       },
       ...mapMutations([
         'updateMessageDatas',
@@ -337,6 +337,7 @@
                 animation:fileInputShow 2s infinite ease-in-out;
               }
               .result-msg{
+                //pointer-events: auto;
                 .file-upload-droparea{
                   .before-info{
                     display: none;
@@ -414,7 +415,7 @@
             border-color:#ffc107;
           }
         }
-        
+
 
 
         .bg-view-title{
@@ -557,7 +558,7 @@
 
 
 
-  
+
 
   @media (max-width:767px){
     .messaging{

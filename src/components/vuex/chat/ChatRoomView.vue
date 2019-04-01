@@ -69,13 +69,21 @@
             </div>
             <!-- 파일을 선택한다면? -->
             <div class="after-info">
-              <p class="txt h6 is-file">파일 전송중...</p>
-              <div class="progress">
-                <div class="progress-bar progress-bar-striped progress-bar-animated" :style="'width:' + progress + ''">{{ progress }}</div>
+              <p class="txt h6 is-file">다중 파일 전송중...</p>
+              <div class="file-list">
+                <p class="mb-1" v-html="progress.name"></p>
+                <div class="progress">
+                  <div class="progress-bar progress-bar-striped progress-bar-animated" :style="'width:' + progress.value + ''">{{ progress.value }}</div>
+                </div>
+                <div class="btns pt-2">
+                  <button type="button" class="btn btn-sm">일시중지 토글</button>
+                  <button type="button" class="btn btn-sm btn-warning">취소</button>
+                </div>
               </div>
 
+
               <!-- 메시지 출력 -->
-              <div class="info-msg text-primary">
+              <div class="info-msg pb-1 small invalid-feedback">
                 진행상태 메시지나 에러메시지를 출력한다.
               </div>
             </div>
@@ -141,7 +149,12 @@
           vm.isDropzone = true;
           vm.isDragover = true;
           let droppedFiles = e.originalEvent.dataTransfer.files;
-          vm.$EventBus.$emit('fileChange', droppedFiles); //파일 전송 트리거
+          console.log('droppedFiles', droppedFiles)
+          for(var i=0; i < droppedFiles.length; i++){
+            console.log(droppedFiles[i].name + " - " + droppedFiles[i].size);
+            vm.$EventBus.$emit('fileChange', droppedFiles[i]); //파일 전송 트리거
+          }
+          //vm.$EventBus.$emit('fileChange', droppedFiles)
         }else{
           console.log('파일전송중입니다.')
         }
