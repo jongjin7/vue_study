@@ -41,7 +41,6 @@ export default {
       chatRoomList:[],
       chatUserList:'',
 
-      roomId:'',
       isUserOffline:true,
     }
   },
@@ -53,12 +52,12 @@ export default {
   },
   computed:{
     ...mapState({
-      currentUser: ({ socket }) => socket.connectedUserData //socket ==> this.state.socket으로 매핑
+      currentUser: ({ socket }) => socket.ownerInfo, //socket ==> this.state.socket으로 매핑
+      roomId: ({ socket }) => socket.chatRoom.roomId,
     }),
   },
   methods:{
     ...mapMutations([
-      'currentUserInfo',
       'setRoomId',
       'roomUsersList',
       'roomUsersName',
@@ -118,11 +117,9 @@ export default {
       this.roomUsersList(roomUsersUid);
       this.roomUsersName(roomUsersName);
 
-      if(this.checkCurruntUserRoomList(roomUsersUid[0])){ //오픈된 방이 있다면?
-        console.log('열린방',roomUsersName[0], this.roomId)
-
-      }else{
-        var chatRoomId = '@roomMaker@' + roomUsersUid[0] + '@time@' + yyyyMMddHHmmsss();
+      // 개설된 채팅방이 없다면?
+      if(!this.checkCurruntUserRoomList(roomUsersUid[0])){
+        let chatRoomId = '@roomMaker@' + roomUsersUid[0] + '@time@' + yyyyMMddHHmmsss();
         this.setRoomId(chatRoomId); // 채팅방ID 저장
       }
 
@@ -130,7 +127,11 @@ export default {
       // 채팅룸 활성 상태 저장
       let storage = sessionStorage.getItem(CHAT_ROOM.STORAGE_KEY_OPEN_ROOM);
       if(storage === null){
-        sessionStorage.setItem(CHAT_ROOM.STORAGE_KEY_OPEN_ROOM, JSON.stringify({isOpen: true}))
+        let tmpStorage = {
+          roomId: this.roomId,
+          targetUser: targetUser,
+        }
+        sessionStorage.setItem(CHAT_ROOM.STORAGE_KEY_OPEN_ROOM, JSON.stringify(tmpStorage))
       }
       // * 저장되어 있는 챗방 정보를 DB조회시 필요한 것 *
       // 챗방 유저 이름(roomUserName), 챗방 유저 리스트(room userList), roomID, roomType(ONE VS ONE), room target ID,
@@ -142,7 +143,7 @@ export default {
       // ONE_VS_ONE@@targetUserUid
 
       this.$router.push({name: 'OpenedChatRoom', params:{ userId: roomUsersName[0] }});
-      console.log('채팅 시작!',  chatRoomId, targetUser, roomUsersUid, roomUsersName)
+      console.log('채팅 시작!',  targetUser, roomUsersUid, roomUsersName)
 
     },
 

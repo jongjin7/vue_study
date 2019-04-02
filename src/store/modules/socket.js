@@ -4,7 +4,7 @@ import { USER_DATA, CHAT_ROOM } from '../../common/Constant';
 const state = {
   isUserLogin:false,
   isOpenChatRoom:false,
-  connectedUserData:'',
+  ownerInfo:'',
   chatUserList:[],
   chatRoom:{
     msgDatas:[
@@ -19,10 +19,11 @@ const state = {
     roomUsersList:'',
     roomUsersName:'',
     invitableList:[],
+    targetUserInfo:[],
   },
   chatUsers:{
-    currentUserInfo:[], //name, uid
-    targetUserInfo:[],
+
+
   },
   chatUsersVsList:'',
 };
@@ -30,7 +31,7 @@ const state = {
 //getter
 const getters = {
   getInvitableList: ($state, $payload) => {
-    console.log('초대 가능한 멤버 리스트', $state.chatUsers.targetUserInfo.uid, $state.chatUserList, $state.chatUsers)
+    console.log('초대 가능한 멤버 리스트', $state.chatRoom.targetUserInfo.uid, $state.chatUserList, $state.chatUsers)
 
     let filterMember =  $state.chatUserList.filter((user) => {
       let isMember = $state.chatRoom.roomUsersList.includes(user.uid)
@@ -56,7 +57,7 @@ const mutations = {
      let tmp = getters.getInvitableList($state);
     // console.log('checked list111', tmp.filter(user => user.checked))
     let newMember = getters.getInvitableList($state).filter(user => user.checked);
-    let newMemberListUid = newMember.map(mem => mem.uid)
+    let newMemberListUid = newMember.map(mem => mem.uid);
     let prevMember = $state.chatRoom.newMember;
     console.log('join', newMember,newMemberListUid, prevMember)
     $state.chatRoom.invitableList = getters.getInvitableList($state).filter(user => user.checked);
@@ -72,14 +73,9 @@ const mutations = {
     $state.isUserLogin = !$state.isUserLogin;
   },
 
-  setCurrentUserData:($state, $payload)=>{
-    $state.connectedUserData = $payload;
-  },
-
   setRoomId :($state, $payload)=>{
     $state.chatRoom.roomId = $payload;
   },
-
   roomUsersList:($state, $payload)=>{
     $state.chatRoom.roomUsersList = $payload;
   },
@@ -87,11 +83,11 @@ const mutations = {
     $state.chatRoom.roomUsersName = $payload;
   },
 
-  currentUserInfo:($state, $payload) => {
-    $state.chatUsers.currentUserInfo = $payload;
+  setCurrentUserData:($state, $payload)=>{
+    $state.ownerInfo = $payload;
   },
   targetUserInfo:($state, $payload) => {
-    $state.chatUsers.targetUserInfo = $payload;
+    $state.chatRoom.targetUserInfo = $payload;
   },
 
   updateMessageDatas:($state, $payload)=>{
@@ -109,24 +105,13 @@ const mutations = {
   getUserList:($state, $payload)=>{
     $state.chatUserList = $payload;
   },
-
-
-
-
-
-
-
-
-
-
-
 }
 
 //actions
 const actions = {
   getUserList:({commit}, $payload) => {
     console.log('currentUser action', Vue.prototype.$firebaseRealDB)
-    const currentUser = state.connectedUserData;
+    const currentUser = state.chatUsers.ownerInfo;
     const rootRoomRef = Vue.prototype.$firebaseRealDB.ref(USER_DATA.REAR_FIREDB_NAME);
     let userDBRef = rootRoomRef.child('Users/');
     userDBRef.off();
@@ -150,21 +135,6 @@ const actions = {
 
     commit('setIsOpenChatRoom', storage);
   },
-
-
-
-
-  setIsUserLogin:({ commit }, $payload) =>{
-    commit('setIsUserLogin');
-  },
-
-  // 접속한 유저 정보 저장
-  setCurrentUserData:({ commit }, $payload) =>{
-    commit('setCurrentUserData', $payload);
-  },
-
-
-
 
 };
 

@@ -121,8 +121,8 @@
     computed: {
       ...mapState({
         roomId: ({socket}) => socket.chatRoom.roomId,
-        currentUser: ({socket}) => socket.connectedUserData,
-        targetUser: ({socket}) => socket.chatUsers.targetUserInfo
+        currentUser: ({socket}) => socket.ownerInfo,
+        targetUser: ({socket}) => socket.chatRoom.targetUserInfo
       }),
 
 

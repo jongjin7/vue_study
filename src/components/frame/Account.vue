@@ -23,7 +23,7 @@
     },
     computed:{
       ...mapState({
-        connectUserData: ({ socket }) => socket.connectedUserData,
+        connectUserData: ({ socket }) => socket.ownerInfo,
         isUserLogin: ({ socket }) => socket.isUserLogin,
       })
     },
@@ -39,11 +39,10 @@
       //console.log('Amount mounted')
     },
     methods:{
-      ...mapActions([
+      ...mapMutations([
         'setCurrentUserData',
         'setIsUserLogin'
       ]),
-      ...mapMutations(['currentUserInfo']),
 
       showModalpopup(title, componentName){
         window.globalVars.pop_title = title;
@@ -79,7 +78,6 @@
               //   profileImg: user.photoURL,
               //   userName: user.displayName,
               // }
-              // vm.currentUserInfo(tmpUserData); //vuex store에 접속자 정보 저장
               console.log('IndexedDb query 결과', data);
 
               // 데이터가 없으면 저장
@@ -204,11 +202,9 @@
             }
 
             user.providerData.forEach(function (profile) {
-              console.log('logIn::onChangeAuthAccount', vm.isUserLogin, profile)
               if(profile.providerId == 'password'){
                 if(vm.fromLogin) vm.checkAndSaveUser(user);
               }else if(profile.providerId == 'google.com'){
-                console.log('ssss')
                 vm.checkAndSaveUser(user);
               }
             });

@@ -39,8 +39,8 @@ export default {
         roomUsersList: ({ socket }) => socket.chatRoom.roomUsersList,
         roomUsersName: ({ socket }) => socket.chatRoom.roomUsersName,
 
-        currentUser: ({ socket }) => socket.connectedUserData,
-        targetUser: ({ socket }) => socket.chatUsers.targetUserInfo
+        currentUser: ({ socket }) => socket.ownerInfo,
+        targetUser: ({ socket }) => socket.chatRoom.targetUserInfo
       }),
 
     },
@@ -180,7 +180,6 @@ export default {
         }
 
 
-
         multiUpdates ={}; // 변수 초기화
         // 테스트 메세지 저장
         multiUpdates['Messages/' + this.roomId + '/' + messageRefKey] = {
@@ -210,7 +209,7 @@ export default {
             };
           }
         }
-//console.log('multiUpdates', multiUpdates)
+console.log('multiUpdates', multiUpdates, USER_DATA.REAR_FIREDB_NAME)
         this.$firebaseRealDB.ref(USER_DATA.REAR_FIREDB_NAME).update(multiUpdates);
         this.writeMsg = '';
       },

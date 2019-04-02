@@ -77,10 +77,6 @@
       }
     },
     methods:{
-      singUp(){
-        console.log('login signup')
-      },
-
       fetchData(){
         if(userData !== null){
           this.email = this.oldEmail;

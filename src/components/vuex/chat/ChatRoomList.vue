@@ -35,7 +35,7 @@ export default {
   },
   computed:{
     ...mapState({
-      currentUser: ({ socket }) => socket.connectedUserData
+      currentUser: ({ socket }) => socket.ownerInfo
     }),
   },
   created(){
@@ -43,7 +43,6 @@ export default {
   },
   methods:{
     ...mapMutations([
-      'currentUserInfo',
       'targetUserInfo',
 
       'setRoomId',

@@ -35,15 +35,16 @@
         chatRoomListData:'',
         messageDatas:[],
         progressData:'',
-        isOpenedRoom:false
+        isOpenedRoomData:false,
+        chatRoomViewData:'',
       }
     },
     computed: {
       ...mapState({
         isOpenRoom: ({ socket }) => socket.isOpenChatRoom,
         roomId: ({ socket }) => socket.chatRoom.roomId,
-        currentUser: ({ socket }) => socket.connectedUserData,
-        targetUser: ({ socket }) => socket.chatUsers.targetUserInfo,
+        currentUser: ({ socket }) => socket.ownerInfo,
+        targetUser: ({ socket }) => socket.chatRoom.targetUserInfo,
       }),
     },
     created(){
@@ -56,7 +57,9 @@
     destroyed(){
       if(this.isOpenRoom){
         this.isOpenChatRoom(false);
+        sessionStorage.removeItem(CHAT_ROOM.STORAGE_KEY_OPEN_ROOM);
         this.messageDatas = [];
+        this.chatRoomViewData ='';
       }
     },
     watch:{
@@ -75,12 +78,14 @@
       },
 
       checkOpenedChatRoom(){
+        console.log('checkRoom')
         let storage = sessionStorage.getItem(CHAT_ROOM.STORAGE_KEY_OPEN_ROOM);
-        console.log('ssstorage', storage)
         if(storage !== null){
           this.getChatRoomList();
-          this.getMessageDatas();
           this.isOpenChatRoom(true);
+
+          let roomInfoData = JSON.parse(storage);
+          this.getMessageDatas(roomInfoData);
         }else{
           alert('비정상 접근입니다.');
           this.$router.push('/chat');
@@ -107,27 +112,22 @@
         });
       },
 
-      checkCorrectAccess(){
-        if(this.isOpenChatRoom){
-          //새로고침하면 잘못된 접근이라고 판단하고 있음.
-          console.log('올바른 챗방접근')
-        }else{
-          alert('올바른 접근이 아닙니다.')
-          this.$router.push('/chat');
-        }
-
-      },
 
       changeChatRoom(){
+        let storage = sessionStorage.getItem(CHAT_ROOM.STORAGE_KEY_OPEN_ROOM);
+        this.getMessageDatas(JSON.parse(storage));
+
         this.messageDatas = [];
-        this.getMessageDatas();
+
       },
 
-      getMessageDatas(){
+      getMessageDatas(roomInfo){
         let vm = this;
-        console.log('선택한 대화자와 1:1 시작  ==> 메시지 데이타 받기', this.targetUser)
-        if(this.roomId){
-          let messageRef = this.$firebaseRealDB.ref(USER_DATA.REAR_FIREDB_NAME + '/Messages/' + this.roomId);
+        vm.messageDatas =[];
+
+        console.log('getMessageData', roomInfo)
+        if(roomInfo.roomId){
+          let messageRef = this.$firebaseRealDB.ref(USER_DATA.REAR_FIREDB_NAME + '/Messages/' + roomInfo.roomId);
           if(messageRef) messageRef.off();
 
           messageRef.limitToLast(50).on('child_added', (dataSnapShot) => {
@@ -140,8 +140,8 @@
               message: dataValue.message
             };
 
-            //console.log('data', tmpData.uid, vm.targetUser.uid, vm.currentUser.uid)
-            if( tmpData.uid == vm.targetUser.uid || tmpData.uid == vm.currentUser.uid) {
+            console.log('data', tmpData.uid, roomInfo.targetUser.uid, vm.currentUser.uid)
+            if( tmpData.uid == roomInfo.targetUser.uid || tmpData.uid == vm.currentUser.uid) {
               console.log('data download...')
               vm.messageDatas.push(tmpData);
             }
