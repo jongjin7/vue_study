@@ -1,8 +1,8 @@
 <template>
   <div class="mb-5">
     <div class="text-center py-4">
-      <h1>My 챗팅룸</h1>
-      <h2 class="h6">Vuex를 이용한 챗팅방입니다.</h2>
+      <h1>웹 메신저</h1>
+      <h2 class="h6"><a href="https://vuex.vuejs.org/kr/" target="_blank">Vuex</a>와 <a href="https://firebase.google.com/docs/database/?authuser=1" target="_blank">RealDatabase</a>를 이용하여 메신저를 구현하였습니다.</h2>
 
       <div class="pt-3 text-center" v-if ="!isUserLogin">
         <button type="button" class="btn btn-primary" @click="$EventBus.$emit('openLoginPopup')">로그인하기</button>
@@ -14,6 +14,7 @@
   </div>
 </template>
 <script>
+  import { USER_DATA, CHAT_ROOM } from '@/common/Constant';
   import { mapState, mapMutations, mapActions } from "vuex";
   import AllUserList from './AllUserList';
 
@@ -38,6 +39,14 @@
     mounted(){
 
     },
+    destroyed(){
+      console.log('hash', location.hash)
+      if(!/\/chat\//gi.test(location.hash)){
+        sessionStorage.removeItem(CHAT_ROOM.STORAGE_KEY_CHAT_USER_LIST);
+        sessionStorage.removeItem(CHAT_ROOM.STORAGE_KEY_CHAT_ROOM_LIST);
+      }
+
+    },
 
     methods:{
       currentConnection(){
@@ -47,6 +56,7 @@
           console.log('vueX Chat gate 로그인이 필요합니다.')
         }else{
           console.log('vueX Chat gate 로그인이 된 상태입니다.')
+
         }
       },
       fetch(){

@@ -3,27 +3,15 @@ import { USER_DATA, CHAT_ROOM } from '../../common/Constant';
 
 const state = {
   isUserLogin:false,
-  isOpenChatRoom:false,
   ownerInfo:'',
   chatUserList:[],
   chatRoom:{
-    msgDatas:[
-      // {
-      //   message: '입력 메시지',
-      //   userName:'사용자명',
-      //   profileImg:'프로필 사진',
-      //   timeStamp: 'new Date()'
-      // }
-    ],
+    msgDatas:[ ],
     roomId:'',
     roomUsersList:'',
     roomUsersName:'',
     invitableList:[],
     targetUserInfo:[],
-  },
-  chatUsers:{
-
-
   },
   chatUsersVsList:'',
 };
@@ -44,15 +32,6 @@ const getters = {
 
 //mutations
 const mutations = {
-  isOpenChatRoom:($state, $payload)=>{
-    $state.isOpenChatRoom = $payload;
-  },
-
-  isCloseChatRoom:($state, $payload)=>{
-    sessionStorage.removeItem(CHAT_ROOM.STORAGE_KEY_OPEN_ROOM);
-    $state.isOpenChatRoom = false;
-  },
-
   inviteUserNewMember: ($state, $payload)=>{
      let tmp = getters.getInvitableList($state);
     // console.log('checked list111', tmp.filter(user => user.checked))
@@ -111,7 +90,7 @@ const mutations = {
 const actions = {
   getUserList:({commit}, $payload) => {
     console.log('currentUser action', Vue.prototype.$firebaseRealDB)
-    const currentUser = state.chatUsers.ownerInfo;
+    const currentUser = state.ownerInfo;
     const rootRoomRef = Vue.prototype.$firebaseRealDB.ref(USER_DATA.REAR_FIREDB_NAME);
     let userDBRef = rootRoomRef.child('Users/');
     userDBRef.off();
@@ -128,12 +107,6 @@ const actions = {
 
       commit('getUserList', tmpData);
     });
-  },
-
-  setIsOpenChatRoom:({ commit })=>{
-
-
-    commit('setIsOpenChatRoom', storage);
   },
 
 };

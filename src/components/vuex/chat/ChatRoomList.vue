@@ -54,7 +54,6 @@ export default {
     ]),
 
     clickCurrentRoomMessage(user){
-      this.setRoomId(user.roomId);
       this.roomUsersList(user.roomUserlist.split(CHAT_ROOM.SPLIT_CHAR));
       let targetUserUid = user.roomUserlist.split(CHAT_ROOM.SPLIT_CHAR)[0];
       console.log('sessionStorage', JSON.parse(sessionStorage.getItem('chatUserList')))
@@ -64,12 +63,13 @@ export default {
       this.targetUserInfo(targetUser[0]);
 
       this.roomUsersName(user.roomUserName);
+      let tmpStorage = {
+        roomId: user.roomId,
+        targetUser: targetUser[0],
+      }
+      sessionStorage.setItem(CHAT_ROOM.STORAGE_KEY_OPEN_ROOM, JSON.stringify(tmpStorage))
+
       this.$emit('changeChatRoom');
-
-      //
-
-
-
     },
 
     showModalpopup(title, componentName, post){

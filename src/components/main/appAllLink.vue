@@ -65,10 +65,21 @@ export default {
 };
 </script>
 <style lang="scss" scoped>
-  .list-group-item{
-    p {
-      margin-bottom:0;
+  .list-group{
+    counter-reset: list-item;
+
+    .list-group-item{
+      h4::before {
+        margin-right: 6px;
+        counter-increment: list-item;                 /* section의 카운터 값을 1씩 증가시킵니다. */
+        content: counter(list-item) '.';                  /* section의 카운터 값을 표시합니다. */
+      }
+      p {
+        margin-bottom:0;
+      }
     }
+
   }
+
 </style>
 

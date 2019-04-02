@@ -102,7 +102,7 @@
 
     },
     destroyed(){
-
+      sessionStorage.removeItem(STORAGE_KEY_COMMUNITY_DETAIL);
     },
     methods:{
       sharePage(){

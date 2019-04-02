@@ -8,7 +8,7 @@
           <ChatRoomList :userRoomList="chatRoomListData" v-on:changeChatRoom ="changeChatRoom" />
         </div>
         <div class="mesgs">
-          <chatRoomView :msgDatas="messageDatas" :progress ="progressData" />
+          <chatRoomView :msgDatas="messageDatas" :targetUser="propTargetUser" :progress ="progressData" />
           <MessageInputForm />
         </div>
       </div>
@@ -35,13 +35,14 @@
         chatRoomListData:'',
         messageDatas:[],
         progressData:'',
-        isOpenedRoomData:false,
+
         chatRoomViewData:'',
+        isOpenChatRoom:false,
+        propTargetUser:'',
       }
     },
     computed: {
       ...mapState({
-        isOpenRoom: ({ socket }) => socket.isOpenChatRoom,
         roomId: ({ socket }) => socket.chatRoom.roomId,
         currentUser: ({ socket }) => socket.ownerInfo,
         targetUser: ({ socket }) => socket.chatRoom.targetUserInfo,
@@ -55,11 +56,17 @@
       this.checkOpenedChatRoom();
     },
     destroyed(){
-      if(this.isOpenRoom){
-        this.isOpenChatRoom(false);
-        sessionStorage.removeItem(CHAT_ROOM.STORAGE_KEY_OPEN_ROOM);
+      if(this.isOpenChatRoom){
+        this.isOpenChatRoom = false;
+
         this.messageDatas = [];
         this.chatRoomViewData ='';
+        sessionStorage.removeItem(CHAT_ROOM.STORAGE_KEY_OPEN_ROOM);
+
+        if(!/\/chat/gi.test(location.hash)){
+          sessionStorage.removeItem(CHAT_ROOM.STORAGE_KEY_CHAT_USER_LIST);
+          sessionStorage.removeItem(CHAT_ROOM.STORAGE_KEY_CHAT_ROOM_LIST);
+        }
       }
     },
     watch:{
@@ -69,8 +76,18 @@
       ...mapMutations([
         'updateMessageDatas',
         'isCloseChatRoom',
-        'isOpenChatRoom'
       ]),
+
+      // todo 구현대기
+      // 스토리지 기반 컴포넌트를 사용할때 필수 컴포넌트가
+      // 사용자에 의해 임의적으로 삭제되어 있는지 확인하는 함수를 캡슐화해서 플로그인으로 사용할 필요가 있음.
+      checkHasNecessaryStorage(){
+        //로그인 정보를 갖는 스토리지를 제거했는지 체크!
+        let storageCurrentUser = sessionStorage.getItem(USER_DATA.CURRENT_USER);
+        if(storageCurrentUser === null) {
+          location.reload(true);
+        }
+      },
 
       changeProgressRatio(data){
         console.log('changeProgress', data)
@@ -78,16 +95,16 @@
       },
 
       checkOpenedChatRoom(){
-        console.log('checkRoom')
         let storage = sessionStorage.getItem(CHAT_ROOM.STORAGE_KEY_OPEN_ROOM);
-        if(storage !== null){
-          this.getChatRoomList();
-          this.isOpenChatRoom(true);
 
+        if(storage !== null){
           let roomInfoData = JSON.parse(storage);
+
+          this.isOpenChatRoom = true;
+          this.getChatRoomList();
           this.getMessageDatas(roomInfoData);
         }else{
-          alert('비정상 접근입니다.');
+          alert('비정상적인 접근입니다.');
           this.$router.push('/chat');
         }
 
@@ -118,7 +135,6 @@
         this.getMessageDatas(JSON.parse(storage));
 
         this.messageDatas = [];
-
       },
 
       getMessageDatas(roomInfo){
@@ -129,6 +145,7 @@
         if(roomInfo.roomId){
           let messageRef = this.$firebaseRealDB.ref(USER_DATA.REAR_FIREDB_NAME + '/Messages/' + roomInfo.roomId);
           if(messageRef) messageRef.off();
+          this.propTargetUser = roomInfo.targetUser; //자식 컴포넌트로 내보낼 대화상대 정보
 
           messageRef.limitToLast(50).on('child_added', (dataSnapShot) => {
             let dataValue = dataSnapShot.val();

@@ -2,17 +2,17 @@
   <div class="main">
     <about-banner />
 
-    <div class="container mb-4">
+    <!--<div class="container mb-4">
       <div class="d-flex justify-content-between align-items-center">
         <h2 class="h4">새로운 소식</h2>
         <span class="text-secondary small">2개의 게시판에서 최신 게시물 추출</span>
       </div>
 
       <latest-list />
-    </div>
+    </div>-->
 
     <div class="container mb-4">
-      <h2 class="h4">전체 페이지 보기</h2>
+      <h2 class="h4">사이트 맵</h2>
       <app-all-link />
     </div>
   </div>
@@ -20,7 +20,7 @@
 
 <script>
 import aboutBanner from "./main/bannerAbout.vue";
-import latestList from "./main/latestList.vue";
+//import latestList from "./main/latestList.vue";
 import appAllLink from "./main/appAllLink.vue";
 
 export default {
@@ -34,7 +34,7 @@ export default {
   },
   components: {
     "about-banner": aboutBanner,
-    "latest-list": latestList,
+    //"latest-list": latestList,
     "app-all-link": appAllLink
   }
 };

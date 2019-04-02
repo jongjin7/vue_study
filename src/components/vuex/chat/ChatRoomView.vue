@@ -107,6 +107,7 @@
   export default {
     name: "ChatRoomView",
     props: [
+      'targetUser',
       'msgDatas',
       'progress',
     ],
@@ -122,7 +123,7 @@
       ...mapState({
         roomId: ({socket}) => socket.chatRoom.roomId,
         currentUser: ({socket}) => socket.ownerInfo,
-        targetUser: ({socket}) => socket.chatRoom.targetUserInfo
+        //targetUser: ({socket}) => socket.chatRoom.targetUserInfo
       }),
 
 
@@ -166,9 +167,7 @@
 
     },
     methods: {
-      fetchMessageList() {
 
-      },
       showModalpopup(title, componentName, post) {
         window.globalVars.pop_title = title;
         window.globalVars.pop_content = componentName;

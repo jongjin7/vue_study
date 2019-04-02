@@ -62,7 +62,6 @@ export default {
       'roomUsersList',
       'roomUsersName',
       'targetUserInfo',
-      'isOpenChatRoom'
     ]),
     ...mapActions([
 
@@ -110,6 +109,11 @@ export default {
 
     openChatRoom(targetUser){
       console.log('openChatRoom', targetUser)
+      let storageCurrentUser = sessionStorage.getItem(USER_DATA.CURRENT_USER);
+      if(storageCurrentUser === null) {
+        location.reload(true);
+      }
+
       var roomUsersUid = [targetUser.uid, this.currentUser.uid ]; // 챗방 유저리스트
       var roomUsersName = [targetUser.displayName, this.currentUser.displayName ] // 챗방 유저 이름
 
@@ -125,8 +129,8 @@ export default {
 
 
       // 채팅룸 활성 상태 저장
-      let storage = sessionStorage.getItem(CHAT_ROOM.STORAGE_KEY_OPEN_ROOM);
-      if(storage === null){
+      let storageOpenRoom = sessionStorage.getItem(CHAT_ROOM.STORAGE_KEY_OPEN_ROOM);
+      if(storageOpenRoom === null){
         let tmpStorage = {
           roomId: this.roomId,
           targetUser: targetUser,
