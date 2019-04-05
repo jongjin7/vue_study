@@ -67,6 +67,27 @@ export default {
 
     ]),
 
+    loadOnlineStatus(){
+      let usersConnectionRef = this.$firebaseRealDB.ref(USER_DATA.REAR_FIREDB_NAME + '/UsersConnection');
+      usersConnectionRef.off();
+
+      var cbUserConnection = function(data){
+
+        var connKey =data.key;
+        var connValue = data.val();
+
+        // 접속한 유저 status:true
+        //if(onlineIcon != null){
+          if(connValue.connection === true){
+            console.log('접속 상태')
+          }else{
+            console.log('끊김 상태')
+          }
+        //}
+      }
+      usersConnectionRef.on('child_added', cbUserConnection.bind(this));
+      usersConnectionRef.on('child_changed', cbUserConnection.bind(this));
+    },
 
     checkOnlineUser(){
       let vm = this;
@@ -186,9 +207,9 @@ export default {
       let roomRef = rootRoomRef.child('UserRooms/'+this.currentUser.uid );
       roomRef.off();
 
-      roomRef.once('value').then((dataSnapShot) =>{
+      roomRef.once('value').then((snapShot) =>{
         let tmpData = []
-        dataSnapShot.forEach((data) =>{
+        snapShot.forEach((data) =>{
           //console.log('userRooms', data.val())
           tmpData.push(data.val());
         });
@@ -206,9 +227,9 @@ console.log(1)
         let userDBRef = this.$firebaseRealDB.ref(USER_DATA.REAR_FIREDB_NAME +'/'+ USER_DATA.INDEXDB_STORE);
         userDBRef.off();
 
-        userDBRef.orderByChild("displayName").once('value').then((dataSnapShot) =>{
+        userDBRef.orderByChild("displayName").once('value').then((snapShot) =>{
           let tmpList=[];
-          dataSnapShot.forEach((data) =>{
+          snapShot.forEach((data) =>{
             if (data.key !== vm.currentUser.uid) {
               //console.log(data.val())
               let tmp = data.val();
@@ -225,6 +246,7 @@ console.log(1)
           }).then(()=>{
             console.log('callback')
             vm.fetchAftersaveUserListSession();
+
           });
         })
       }else{
@@ -238,6 +260,8 @@ console.log(1)
       console.log('fetch session')
       let useList = sessionStorage.getItem('chatUserList');
       this.targetUserList = JSON.parse(useList); //load to session storage 'roomList'
+
+      this.loadOnlineStatus();
     }
   }
 }
