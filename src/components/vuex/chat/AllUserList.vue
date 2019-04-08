@@ -47,8 +47,10 @@
       }
     },
     created() {
+      //this.$EventBus.$on('checkOnlineUser', this.checkOnlineUser);
       this.checkOnlineUser();
-      //this.fetchUserList()
+      this.loadChatRoomList();
+      this.loadChatUserList()
     },
     mounted() {
       this.itemTag = this.$el.querySelectorAll('li')
@@ -67,58 +69,56 @@
         'roomUsersName',
         'targetUserInfo',
       ]),
-      ...mapActions([]),
+      ...mapActions([
 
-      loadOnlineStatus() {
-        return new Promise((resolve, reject) => {
-          let usersConnectionRef = this.$firebaseRealDB.ref(USER_DATA.REAR_FIREDB_NAME + '/UsersConnection');
-          usersConnectionRef.off();
-          var arr = []
-          var cbUserConnection = function (data) {
-            var connKey = data.key;
-            var connValue = data.val();
-            if (connKey !== this.currentUser.uid) {
-              let tmpConnect = {
-                uid: connKey,
-                isConnected: connValue.connection
+      ]),
+
+      loadOnlineStatus(chatUserList) {
+        let usersConnectionRef = this.$firebaseRealDB.ref(USER_DATA.REAR_FIREDB_NAME + '/UsersConnection');
+        usersConnectionRef.off();
+
+        var vm = this;
+        var tmpArr = [];
+
+        var cbUserConnection = function (data) {
+          console.log('loadOnlineStatus::')
+          var connKey = data.key;
+          var connValue = data.val();
+
+          if (connKey !== 'undefined' && connKey !== vm.currentUser.uid) {
+            //console.log('connkey', typeof connKey)
+            let tmp = chatUserList.find((user) => {
+              if (user.uid == connKey) {
+                user.isConnected = connValue.connection;
+                return true;
               }
-              console.log('arr', connValue.connection)
-              arr.push(tmpConnect)
-            }
+            })
+            tmpArr.push(tmp);
+            //console.log('onlineEventHandler', tmpArr)
 
-            resolve(arr)
+            vm.fetchAftersaveUserListSession(tmpArr);
           }
+        }
 
-          usersConnectionRef.on('child_added', cbUserConnection.bind(this));
-          usersConnectionRef.on('child_changed', cbUserConnection.bind(this));
-        })
+        usersConnectionRef.on('child_added', cbUserConnection);
+        usersConnectionRef.on('child_changed', cbUserConnection);
       },
 
       checkOnlineUser() {
+        console.log('allUserListComponent :::=> checkOnlineUser')
         let vm = this;
         let userUid = this.currentUser.uid;
         let myConnectionsRef = this.$firebaseRealDB.ref(USER_DATA.REAR_FIREDB_NAME + '/UsersConnection/' + userUid + '/connection');
         let lastOnlineRef = this.$firebaseRealDB.ref(USER_DATA.REAR_FIREDB_NAME + '/UsersConnection/' + userUid + '/lastOnline');
         let connectedRef = this.$firebaseRealDB.ref('/.info/connected');
 
-        new Promise((resolve, reject) => {
-          resolve(connectedRef.on('value', function (snap) {
-            if (snap.val() === true) {
-              myConnectionsRef.set(true);
-              // 연결 단절 이벤트
-              myConnectionsRef.onDisconnect().set(false);
-              lastOnlineRef.onDisconnect().set(vm.$firebase.database.ServerValue.TIMESTAMP);
-            }
-          }))
-        }).then(() => {
-          return new Promise((resolve, reject) => {
-            vm.loadOnlineStatus().then((stateConnected) => {
-              console.log('loadGap', stateConnected)
-
-              vm.arrConnectedUser = stateConnected;
-              vm.fetchUserList();
-            })
-          })
+        connectedRef.on('value', function (snap) {
+          if (snap.val() === true) {
+            myConnectionsRef.set(true);
+            // 연결 단절 이벤트
+            myConnectionsRef.onDisconnect().set(false);
+            lastOnlineRef.onDisconnect().set(vm.$firebase.database.ServerValue.TIMESTAMP);
+          }
         })
       },
 
@@ -204,16 +204,9 @@
       },
 
       loadChatRoomList() {
+        console.log('loadChatRoomList!!!!')
         let vm = this;
         let rootRoomRef = this.$firebaseRealDB.ref(USER_DATA.REAR_FIREDB_NAME);
-
-
-        rootRoomRef.child('RoomUsers').once('value').then((dataSnapShot) => {
-          dataSnapShot.forEach((data) => {
-            //console.log('roomList', data.val())
-          });
-        });
-
 
         // ONE_VS_ONE, targetUserUid 정보로 쿼리하기...룸리스트
         let roomRef = rootRoomRef.child('UserRooms/' + this.currentUser.uid);
@@ -226,11 +219,11 @@
             tmpData.push(data.val());
           });
           vm.saveRoomListToSessionStorage(tmpData);
+
         });
       },
 
-      fetchUserList() {
-        this.loadChatRoomList();
+      loadChatUserList() {
         // useList Query를 줄일 수 있는 방법은?
         let vm = this;
         let userDBRef = this.$firebaseRealDB.ref(USER_DATA.REAR_FIREDB_NAME + '/' + USER_DATA.INDEXDB_STORE);
@@ -248,27 +241,15 @@
           return chatUserList;
         }).then((chatUserList) => {
             console.log('callback')
-            vm.fetchAftersaveUserListSession(chatUserList);
+          vm.loadOnlineStatus(chatUserList)
+
         })
       },
 
       fetchAftersaveUserListSession(chatUserList) {
-        console.log('fetch session')
-        let vm = this;
-        let tmpArr = [];
-        chatUserList.forEach((user) => {
-          let tmp = vm.arrConnectedUser.find(list => {
-            if(user.uid == list.uid){
-              user.isConnected = list.isConnected;
-              return true
-            }
-          })
+        this.targetUserList = chatUserList; //load to session storage 'roomList'
+        sessionStorage.setItem('chatUserList', JSON.stringify(chatUserList))
 
-          console.log('connectedUser', tmp, user)
-          tmpArr.push(user);
-        })
-        this.targetUserList = tmpArr; //load to session storage 'roomList'
-        sessionStorage.setItem('chatUserList', JSON.stringify(tmpArr))
 
       }
     }

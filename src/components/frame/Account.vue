@@ -190,10 +190,15 @@
           vm.setCurrentUserData(JSON.parse(sessionStorage.getItem('currentUser')));
         }
 
+
+
         this.$firebase.auth().onAuthStateChanged(function(user) {
           console.log('account:: $firebase.auth통신후 user정보 가져오기')
+
           if (user) {
             vm.$firebaseRealDB.goOnline(); // 데이터 베이스 명시적 온라인
+            // 챗 메인 화면일경우 호출
+            //vm.$EventBus.$emit('checkOnlineUser');
 
             if(sessionStorage.getItem('currentUser') === null) {
               sessionStorage.setItem('currentUser', JSON.stringify(user));
@@ -238,9 +243,7 @@
 
         this.$firebase.auth().signOut().then(function() {
           if(confirm('로그아웃 하시겠습니까?')){
-            if(vm.$firebaseRealDB){
-              vm.$firebaseRealDB.goOffline(); // 데이터 베이스를 명시적으로 오프라인
-            }
+            vm.$firebaseRealDB.goOffline(); // 데이터 베이스를 명시적으로 오프라인
             vm.$firebaseRealDB.auth().signOut();
           }
         }).catch(function(error) {
