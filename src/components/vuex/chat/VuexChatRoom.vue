@@ -61,9 +61,10 @@
 
         this.messageDatas = [];
         this.chatRoomViewData ='';
+        this.setCurrentRoomTotalMessage(null);
         sessionStorage.removeItem(CHAT_ROOM.STORAGE_KEY_OPEN_ROOM);
 
-        if(!/\/chat/gi.test(location.hash)){
+        if(!/\/chat/gi.test(location.hash)){ //이동하는 페이지가 채팅룸 메인이 아니라면?
           sessionStorage.removeItem(CHAT_ROOM.STORAGE_KEY_CHAT_USER_LIST);
           sessionStorage.removeItem(CHAT_ROOM.STORAGE_KEY_CHAT_ROOM_LIST);
         }
@@ -76,6 +77,7 @@
       ...mapMutations([
         'updateMessageDatas',
         'isCloseChatRoom',
+        'setCurrentRoomTotalMessage'
       ]),
 
       // todo 구현대기
@@ -95,10 +97,10 @@
       },
 
       checkOpenedChatRoom(){
-        let storage = sessionStorage.getItem(CHAT_ROOM.STORAGE_KEY_OPEN_ROOM);
+        let openRoomInfo = sessionStorage.getItem(CHAT_ROOM.STORAGE_KEY_OPEN_ROOM);
 
-        if(storage !== null){
-          let roomInfoData = JSON.parse(storage);
+        if(openRoomInfo !== null){
+          let roomInfoData = JSON.parse(openRoomInfo);
 
           this.isOpenChatRoom = true;
           this.getChatRoomList();
@@ -112,14 +114,15 @@
 
       getChatRoomList(){
         let vm = this;
-        let rootRoomRef = this.$firebaseRealDB.ref(USER_DATA.REAR_FIREDB_NAME);
-        let roomRef = rootRoomRef.child('UserRooms/'+this.currentUser.uid );
-        roomRef.off();
+        let rootRoomRef = this.$firebaseRealDB.ref(USER_DATA.REAR_FIREDB_NAME).child('UserRooms/'+this.currentUser.uid );
+        rootRoomRef.off();
 
-        roomRef.on('value', (dataSnapShot) =>{
+        rootRoomRef.on('value', (dataSnapShot) =>{
           let tmpData = []
           dataSnapShot.forEach((data) =>{
+
             let tmp = data.val();
+            console.log('getRoomList', tmp.roomUserName)
             tmp.roomUserName = tmp.roomUserName.split(CHAT_ROOM.SPLIT_CHAR);
             tmp.timestamp = timeForRoomList(tmp.timestamp);
             tmpData.push(tmp);
@@ -133,7 +136,7 @@
       changeChatRoom(){
         let storage = sessionStorage.getItem(CHAT_ROOM.STORAGE_KEY_OPEN_ROOM);
         this.getMessageDatas(JSON.parse(storage));
-
+        this.setCurrentRoomTotalMessage(null);
         this.messageDatas = [];
       },
 
@@ -157,10 +160,11 @@
               message: dataValue.message
             };
 
-            console.log('data', tmpData.uid, roomInfo.targetUser.uid, vm.currentUser.uid)
+            //console.log('data', tmpData.uid, roomInfo.targetUser.uid, vm.currentUser.uid)
             if( tmpData.uid == roomInfo.targetUser.uid || tmpData.uid == vm.currentUser.uid) {
-              console.log('data download...')
+              //console.log('data download...')
               vm.messageDatas.push(tmpData);
+              vm.setCurrentRoomTotalMessage(tmpData);
             }
           });
         }
@@ -514,7 +518,7 @@
         content:'';
         background:#f8f8f8;
       }
-      textarea {
+      .write_msg {
         position:absolute; left:0; top:0; z-index:2;
         background: #f8f8f8;
         border: none;
@@ -539,9 +543,9 @@
 
       input[type="file"] {
         position:absolute; left:0; top:0;
-        width:100%; height:100%;
+        //width:100%; height:100%;
         z-index:1;
-        border:1px solid blue;
+        //border:1px solid blue;
       }
     }
 

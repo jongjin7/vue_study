@@ -6,7 +6,8 @@ const state = {
   ownerInfo:'',
   chatUserList:[],
   chatRoom:{
-    msgDatas:[ ],
+    msgDatas:[],
+    currentRoomMessage:[],
     roomId:'',
     roomUsersList:'',
     roomUsersName:'',
@@ -84,6 +85,14 @@ const mutations = {
   getUserList:($state, $payload)=>{
     $state.chatUserList = $payload;
   },
+
+  setCurrentRoomTotalMessage:($state, $payload)=>{
+    if($payload === null){
+      $state.chatRoom.currentRoomMessage = [];
+    }else{
+      $state.chatRoom.currentRoomMessage.push($payload);
+    }
+  }
 }
 
 //actions

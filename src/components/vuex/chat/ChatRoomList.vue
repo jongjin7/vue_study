@@ -39,7 +39,7 @@ export default {
     }),
   },
   created(){
-    this.fetchRoomList();
+
   },
   methods:{
     ...mapMutations([
@@ -54,9 +54,10 @@ export default {
     ]),
 
     clickCurrentRoomMessage(user){
+      console.log('user', user)
       this.roomUsersList(user.roomUserlist.split(CHAT_ROOM.SPLIT_CHAR));
       let targetUserUid = user.roomUserlist.split(CHAT_ROOM.SPLIT_CHAR)[0];
-      console.log('sessionStorage', JSON.parse(sessionStorage.getItem('chatUserList')))
+      console.log('sessionStorage', JSON.parse(sessionStorage.getItem('chatUserList')), user.roomOneVSOneTarget)
       let targetUser = JSON.parse(sessionStorage.getItem('chatUserList')).filter((target)=>{
         return target.uid ===  user.roomOneVSOneTarget
       });
@@ -77,10 +78,6 @@ export default {
       window.globalVars.pop_content = componentName;
 
       this.$EventBus.$emit('toggleClose');
-    },
-
-    fetchRoomList(){
-
     },
 
 

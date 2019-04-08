@@ -18,7 +18,7 @@
   import { Utils } from '@/plugins/utils';
   import {timestampToTime, yyyyMMddHHmmsss, timeForRoomList} from '@/plugins/timestamp';
   import {USER_DATA, CHAT_ROOM} from '../../../common/Constant';
-  import {mapState, mapGetters, mapActions} from "vuex";
+  import {mapState, mapMutations, mapActions} from "vuex";
 
 export default {
     name: "MessageInputForm",
@@ -35,6 +35,7 @@ export default {
       ...mapState({
         roomId: ({ socket }) => socket.chatRoom.roomId,
         roomMsgData: ({ socket }) => socket.chatRoom.msgDatas,
+        currentRoomMessage:({ socket }) => socket.chatRoom.currentRoomMessage,
 
         roomUsersList: ({ socket }) => socket.chatRoom.roomUsersList,
         roomUsersName: ({ socket }) => socket.chatRoom.roomUsersName,
@@ -54,7 +55,11 @@ export default {
       // html태그를 포함하는 내용 붙여넣기 할때 일반 텍스트로 치환
       document.querySelector('#message-field').addEventListener('paste', this.onPasteAfterClearTag.bind(this));
     },
+
     methods: {
+      ...mapMutations([
+        'setCurrentRoomTotalMessage'
+      ]),
       onFileChange(e){
         let files = e.target.files || e.dataTransfer.files;
         if (!files.length) return;
@@ -155,8 +160,8 @@ export default {
           console.log('일반 메시지 상태')
           vm.submitChatMessage1();
         }
-
       },
+
       submitChatMessage1() {
         if (this.writeMsg.length === 0 ) return false;
 
@@ -164,14 +169,13 @@ export default {
         let multiUpdates ={};
        //let messageRef = this.$firebaseRealDB.ref(USER_DATA.REAR_FIREDB_NAME + '/Messages');
         let messageRef = this.$firebaseRealDB.ref(USER_DATA.REAR_FIREDB_NAME).child('Messages');
-
         let messageRefKey = messageRef.push().key; //message key
         //console.log('messageRefKey', messageRefKey);
 
         let roomUserList = this.roomUsersList;
         let roomUserListLength = this.roomUsersList.length;  //채팅멤버
-
-        if(this.roomMsgData.length === 0){ //메시지 처음 입력하는 경우
+console.log('message처음?', this.currentRoomMessage)
+        if(this.currentRoomMessage.length === 0){ //메시지 처음 입력하는 경우
           for(var i=0; i < roomUserListLength; i++){
             multiUpdates['RoomUsers/' +this.roomId + '/' + roomUserList[i]] = true;
           }

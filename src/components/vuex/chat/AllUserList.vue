@@ -81,23 +81,39 @@
         var tmpArr = [];
 
         var cbUserConnection = function (data) {
-          console.log('loadOnlineStatus::')
+
           var connKey = data.key;
           var connValue = data.val();
+//console.log('typeof', typeof connKey, connKey)
 
-          if (connKey !== 'undefined' && connKey !== vm.currentUser.uid) {
-            //console.log('connkey', typeof connKey)
-            let tmp = chatUserList.find((user) => {
-              if (user.uid == connKey) {
+          // chatUserList.find((user) => {
+          //   if (user.uid == connKey) {
+          //     console.log('user.isConnected', user.isConnected)
+          //     if(user.isConnected === undefined){
+          //       user.isConnected = connValue.connection;
+          //       tmpArr.push(tmp);
+          //     }else{
+          //       user.isConnected = !user.isConnected;
+          //
+          //     }
+          //   }
+          // })
+
+          chatUserList.forEach((user)=>{
+            if (user.uid == connKey) {
+              if(user.isConnected === undefined){
                 user.isConnected = connValue.connection;
-                return true;
+              }else{
+                user.isConnected = !user.isConnected;
               }
-            })
-            tmpArr.push(tmp);
-            //console.log('onlineEventHandler', tmpArr)
+            }
+          });
 
-            vm.fetchAftersaveUserListSession(tmpArr);
-          }
+
+          console.log('onlineEventHandler')
+
+          vm.fetchAftersaveUserListSession(chatUserList);
+
         }
 
         usersConnectionRef.on('child_added', cbUserConnection);
@@ -194,13 +210,7 @@
 
       saveRoomListToSessionStorage(roomList) {
         console.log('session save', roomList)
-        // *기술적 이슈
-        // 채팅방에서 대화 참여시 새로운 사용자가 회원가입하여 접속한 유저에게
-        // 메시지를 보내면 챗메인의 유저리스트와 채팅룸 리스트가 동기화 되어야 하는데
-        // 세션스토리지를 이용하면 어떻게 동기화 할지 고민이 필요하다.
-        //if(sessionStorage.getItem('chatRoomList') === null){
         sessionStorage.setItem('chatRoomList', JSON.stringify(roomList));
-        //}
       },
 
       loadChatRoomList() {
@@ -249,8 +259,6 @@
       fetchAftersaveUserListSession(chatUserList) {
         this.targetUserList = chatUserList; //load to session storage 'roomList'
         sessionStorage.setItem('chatUserList', JSON.stringify(chatUserList))
-
-
       }
     }
   }
