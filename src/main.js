@@ -43,7 +43,8 @@ Kakao.init('aa310add55217b47727f8374a302f5c2');
 
 // Setup Firebase
 const config = {
-  apiKey: "AAAAJERPPYs:APA91bFRcmBz5EqEIO-_HlNX7XHsV-9i4GF_Al4SpgkBQvkbcdSezSrex3QpMvQmHGr1Y7Ftn_-Ku8Uv6P-7AWUsJeMRlYObtDFD6CHPkXCgnqs_UgJOInT0eXHkWlsUq2Dg9uab9yog",
+  apiKey: "AIzaSyB08IMhXI50LtpvzXITA4tQZZZWsAx3Py4",
+  //apiKey: "AAAAJERPPYs:APA91bFRcmBz5EqEIO-_HlNX7XHsV-9i4GF_Al4SpgkBQvkbcdSezSrex3QpMvQmHGr1Y7Ftn_-Ku8Uv6P-7AWUsJeMRlYObtDFD6CHPkXCgnqs_UgJOInT0eXHkWlsUq2Dg9uab9yog",
   authDomain: "model-vue-data.firebaseapp.com",
   databaseURL: "https://model-vue-data.firebaseio.com",
   projectId: "model-vue-data",
@@ -73,9 +74,11 @@ Vue.prototype.$firebaseDB = dbFireStore;
 Vue.prototype.$firebaseRealDB = firebase.database();
 Vue.prototype.$firebaseStorage = firebase.storage();
 
+//firebase cloud message사용시 https로 surving되어야 한다.
+// 현재 무료 도메인: http://ittl2875.cf/
 //let firebaseMessage = firebase.messaging();
-//firebaseMessage.usePublicVapidKey("BDLf2pX2_o8PrF4u9ijiqBSqcLSVErhEupGktUpry2VNShqPQy63t38_-4l5vWnVQ8jmlxTfq_Rx7WYYixgTZAU");
-//Vue.prototype.$fireMessage = firebaseMessage;
+// firebaseMessage.usePublicVapidKey("BDLf2pX2_o8PrF4u9ijiqBSqcLSVErhEupGktUpry2VNShqPQy63t38_-4l5vWnVQ8jmlxTfq_Rx7WYYixgTZAU");
+// Vue.prototype.$fireMessage = firebaseMessage;
 
 new Vue({
   el: "#app",

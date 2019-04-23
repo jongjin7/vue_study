@@ -5,6 +5,8 @@ const state = {
   isUserLogin:false,
   ownerInfo:'',
   chatUserList:[],
+  chatRoomList:[],
+  usrsOnline:'',
   chatRoom:{
     msgDatas:[],
     currentRoomMessage:[],
@@ -67,6 +69,7 @@ const mutations = {
     $state.ownerInfo = $payload;
   },
   targetUserInfo:($state, $payload) => {
+    console.log('targetUserInfo', $payload)
     $state.chatRoom.targetUserInfo = $payload;
   },
 
@@ -79,11 +82,15 @@ const mutations = {
   },
 
   chatUserList:($state, $payload)=>{
-    $state.chatUsersVsList=$payload;
+    $state.chatUserList=$payload;
   },
 
   getUserList:($state, $payload)=>{
     $state.chatUserList = $payload;
+  },
+
+  chatRoomList:($state, $payload)=>{
+    $state.chatRoomList = $payload;
   },
 
   setCurrentRoomTotalMessage:($state, $payload)=>{
@@ -92,7 +99,9 @@ const mutations = {
     }else{
       $state.chatRoom.currentRoomMessage.push($payload);
     }
-  }
+  },
+
+
 }
 
 //actions
@@ -117,6 +126,8 @@ const actions = {
       commit('getUserList', tmpData);
     });
   },
+
+
 
 };
 

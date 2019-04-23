@@ -1,16 +1,16 @@
 <template>
   <div class="inbox_chat">
-    <div v-for="user in userRoomList" class="chat_list _active_chat">
+    <div v-for="room in userRoomList" class="chat_list _active_chat">
         <div class="chat_people">
           <a class="" href="#" title="유저 프로파일창 열기" @click.stop.prevent="showModalpopup('유저팝업', 'chatUser'); $EventBus.$emit('showModal');">
             <div class="chat_img">
-              <img :src="'' + user.photoURL + ''" alt="sunil">
+              <img :src="'' + room.photoURL + ''" alt="sunil">
             </div>
           </a>
-          <a href="#" @click.stop.prevent="clickCurrentRoomMessage(user)">
+          <a href="#" @click.stop.prevent="changeChatRoomData(room)">
             <div class="chat_ib">
-              <h5>{{ user.displayName }}<span class="chat_date">{{ user.timestamp }}</span></h5>
-              <p>{{ user.lastMessage }}</p>
+              <h5>{{ room.displayName }}<span class="chat_date">{{ room.timestamp }}</span></h5>
+              <p>{{ room.lastMessage }}</p>
             </div>
           </a>
         </div>
@@ -35,7 +35,8 @@ export default {
   },
   computed:{
     ...mapState({
-      currentUser: ({ socket }) => socket.ownerInfo
+      currentUser: ({ socket }) => socket.ownerInfo,
+      chatUserList: ({ socket }) => socket.chatUserList,
     }),
   },
   created(){
@@ -52,8 +53,18 @@ export default {
     ...mapActions([
 
     ]),
+    changeChatRoomData(roomData){
+      let tmp = {};
+      console.log('this.chatUserList==>' , roomData)
+      tmp.roomId = roomData.roomId;
+      tmp.targetUser = this.chatUserList.filter((user)=>{
+        return user.uid === roomData.roomOneVSOneTarget
+      })[0];
+      console.log('ttfffffffft', tmp)
+      this.$emit('changeChatRoom', tmp);
+    },
 
-    clickCurrentRoomMessage(user){
+    changeChatRoom1(user){
       console.log('user', user)
       this.roomUsersList(user.roomUserlist.split(CHAT_ROOM.SPLIT_CHAR));
       let targetUserUid = user.roomUserlist.split(CHAT_ROOM.SPLIT_CHAR)[0];

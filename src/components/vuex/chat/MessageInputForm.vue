@@ -7,7 +7,7 @@
 
     <div class="input_msg_write">
       <input type="file" class="write_msg" id="inp-file" @change="onFileChange">
-      <textarea id="message-field" class="write_msg" placeholder="메시지를 입력하세요"  v-model="writeMsg" @keyup.13="submitChatMessage" autocomplete="off"></textarea>
+      <textarea id="message-field" class="write_msg" placeholder="메시지를 입력하세요"  v-model="inputMessageData" @keydown ="keyEventSubmitChatMessage" autocomplete="off"></textarea>
       <div class="blank"></div>
     </div>
     <button class="btn_send send_msg" type="button" @click="submitChatMessage"><font-awesome-icon far icon="comment-alt" /><i class="txt">전송</i></button>
@@ -27,13 +27,15 @@ export default {
     ],
     data() {
       return {
-        writeMsg: '',
+        inputMessageData: '',
         isFileAttach:false,
+        isOpenUpChatRoom:false,
       };
     },
     computed:{
       ...mapState({
         roomId: ({ socket }) => socket.chatRoom.roomId,
+        roomList: ({ socket }) => socket.chatRoomList,
         roomMsgData: ({ socket }) => socket.chatRoom.msgDatas,
         currentRoomMessage:({ socket }) => socket.chatRoom.currentRoomMessage,
 
@@ -47,7 +49,7 @@ export default {
     },
     created(){
       this.$EventBus.$on('fileChange', this.onDragDropFileChange)
-      this.$EventBus.$on('saveMessage', this.submitChatMessage)
+      this.$EventBus.$on('saveMessage', this.typeSendMessage)
 
 
     },
@@ -58,25 +60,29 @@ export default {
 
     methods: {
       ...mapMutations([
-        'setCurrentRoomTotalMessage'
+        'setCurrentRoomTotalMessage',
+        'setRoomId'
       ]),
+
       onFileChange(e){
         let files = e.target.files || e.dataTransfer.files;
         if (!files.length) return;
         console.log('onFileChange',e)
-        this.submitChatMessage({messageType:'file', message : files[0]});
+        this.typeSendMessage({messageType:'file', message : files[0]});
       },
 
       onDragDropFileChange(files){
-        this.submitChatMessage({messageType:'file', message : files});
+        this.typeSendMessage({messageType:'file', message : files});
       },
 
-      submitChatMessage(parm){
+      typeSendMessage(parm){
         var vm = this;
         console.log('type', typeof parm, parm.messageType)
         if(parm.messageType !== undefined){
           if(parm.messageType === 'invite'){
             console.log('arg',parm.message)
+            this.inputMessageData = parm.message;
+            vm.submitChatMessage();
           }else if(parm.messageType === 'file'){
             console.log('파일을 보냈습니다.')
             console.log(parm.message)
@@ -138,12 +144,12 @@ export default {
                 uploadTask.snapshot.ref.getDownloadURL().then(function(downloadURL) {
                   console.log('File available at', downloadURL);
                   if(/image\/(png|jpe?g|gif|svg)/.test(parm.message.type)){
-                    vm.writeMsg = '<a href="'+ downloadURL +'"><img src="'+ downloadURL +'"></a>';
+                    vm.inputMessageData = '<a href="'+ downloadURL +'"><img src="'+ downloadURL +'"></a>';
                   }else{
-                    vm.writeMsg = '<a href="'+ downloadURL +'">' + parm.message.name + '</a>';
+                    vm.inputMessageData = '<a href="'+ downloadURL +'">' + parm.message.name + '</a>';
                   }
 
-                  //vm.submitChatMessage1();
+                  //vm.submitChatMessage();
                 });
               });
 
@@ -158,64 +164,124 @@ export default {
           }
         }else{
           console.log('일반 메시지 상태')
-          vm.submitChatMessage1();
+          vm.submitChatMessage();
         }
       },
 
-      submitChatMessage1() {
-        if (this.writeMsg.length === 0 ) return false;
+      keyEventSubmitChatMessage(e){
+        if (e.keyCode === 13 && !e.shiftKey) {
+          e.preventDefault();
+          this.submitChatMessage();
+        }
+      },
 
-        let vm = this;
-        let multiUpdates ={};
-       //let messageRef = this.$firebaseRealDB.ref(USER_DATA.REAR_FIREDB_NAME + '/Messages');
-        let messageRef = this.$firebaseRealDB.ref(USER_DATA.REAR_FIREDB_NAME).child('Messages');
-        let messageRefKey = messageRef.push().key; //message key
-        //console.log('messageRefKey', messageRefKey);
+      checkCurruntUserRoomList(targetUserUid) {
+        let isOpenRoom = false;
+        let filterRoomList = this.roomList.filter((obj) => {
 
-        let roomUserList = this.roomUsersList;
-        let roomUserListLength = this.roomUsersList.length;  //채팅멤버
-console.log('message처음?', this.currentRoomMessage)
-        if(this.currentRoomMessage.length === 0){ //메시지 처음 입력하는 경우
-          for(var i=0; i < roomUserListLength; i++){
-            multiUpdates['RoomUsers/' +this.roomId + '/' + roomUserList[i]] = true;
+          let a = obj.roomOneVSOneTarget == targetUserUid;
+          let b = obj.roomType == 'ONE_VS_ONE';
+
+          //console.log(obj, targetUserUid, a, obj.roomOneVSOneTarget, b)
+          if (a === true && b === true) {
+            console.log('현재 개설된 챗방 roomId', obj.roomId)
+            isOpenRoom = true;
+            this.setRoomId(obj.roomId);
           }
-          //권한때문에 먼저 저장
+          return isOpenRoom;
+        })
+
+        console.log('tmp message input', filterRoomList)
+        return filterRoomList.length > 0;
+      },
+
+      submitChatMessageInvite(msg){
+        this.inputMessageData = msg;
+        this.submitChatMessage();
+      },
+      submitChatMessage() {
+        console.log('submitChatMessage', this.inputMessageData.length);
+        if (this.inputMessageData.length === 0 ) return false;
+
+        // 메시지를 첫 입력전에 방이 개설되었는지 체크, 방이 존재하면 개설된 roomId를 할당한다.
+        let afterTime =0;
+        if (!this.isOpenUpChatRoom) {
+          if(this.checkCurruntUserRoomList(this.targetUser.uid)){
+            this.isOpenUpChatRoom = true;
+
+            // 채팅룸 활성 상태 저장
+            let tmpStorage = {
+              roomId: this.roomId,
+              targetUser: this.targetUser,
+            }
+            sessionStorage.setItem(CHAT_ROOM.STORAGE_KEY_OPEN_ROOM, JSON.stringify(tmpStorage));
+            let openRoomInfo = sessionStorage.getItem(CHAT_ROOM.STORAGE_KEY_OPEN_ROOM);
+            let roomInfoData = JSON.parse(openRoomInfo);
+
+            //todo 입력된 메시지가 먼저 화면에 뿌려진 후 DB에서 받은 메시지 리스트를 뿌리는 문제... 해결 필요
+            this.$EventBus.$emit('updateMessageData', roomInfoData);
+            afterTime = 500;
+          }
+        }
+
+        console.log('방체크후 다음 진행')
+
+        setTimeout(()=>{
+          let vm = this;
+          let multiUpdates ={};
+          //let messageRef = this.$firebaseRealDB.ref(USER_DATA.REAR_FIREDB_NAME + '/Messages');
+          let messageRef = this.$firebaseRealDB.ref(USER_DATA.REAR_FIREDB_NAME).child('Messages');
+          let messageRefKey = messageRef.push().key; //message key
+          //console.log('messageRefKey', messageRefKey);
+
+          let roomUserList = this.roomUsersList;
+          let roomUserListLength = this.roomUsersList.length;  //채팅멤버
+
+          if(this.currentRoomMessage.length === 0){ //메시지 처음 입력하는 경우
+            for(var i=0; i < roomUserListLength; i++){
+              multiUpdates['RoomUsers/' +this.roomId + '/' + roomUserList[i]] = true;
+            }
+            //권한때문에 먼저 저장
+            this.$firebaseRealDB.ref(USER_DATA.REAR_FIREDB_NAME).update(multiUpdates);
+          }
+
+
+          multiUpdates ={}; // 변수 초기화
+          // 테스트 메세지 저장
+          multiUpdates['Messages/' + this.roomId + '/' + messageRefKey] = {
+            uid: this.currentUser.uid,
+            message: this.inputMessageData,
+            displayName:this.currentUser.displayName,
+            photoURL:this.currentUser.photoURL,
+            timeStamp: this.$firebase.database.ServerValue.TIMESTAMP
+          }
+
+          //유저별 룸리스트 저장
+          if(roomUserList && roomUserListLength > 0){
+            for(var i = 0; i < roomUserListLength ; i++){
+              multiUpdates['UserRooms/' + this.roomUsersList[i] + '/' + this.roomId ] = {
+                roomId : this.roomId,
+                roomUserName : this.roomUsersName.join(CHAT_ROOM.SPLIT_CHAR),
+                roomUserlist : this.roomUsersList.join(CHAT_ROOM.SPLIT_CHAR),
+                roomType : roomUserListLength > 2 ? CHAT_ROOM.TYPE_MULTI : CHAT_ROOM.TYPE_ONE_VS_ONE,
+                roomOneVSOneTarget : roomUserListLength == 2 && i == 0 ? roomUserList[1] :  // 1대 1 대화이고 i 값이 0 이면
+                  roomUserListLength == 2 && i == 1 ? roomUserList[0]   // 1대 1 대화 이고 i값이 1이면
+                    : '', // 나머지
+                lastMessage : Utils.hasHtmlTag(this.inputMessageData).is? '파일을 보냈습니다.' : this.inputMessageData,
+                // todo 이름과 사진은 대화 상대 이미지로 고정 필요
+                displayName: this.targetUser.displayName,
+                photoURL : this.targetUser.photoURL,
+                timestamp: this.$firebase.database.ServerValue.TIMESTAMP
+
+              };
+            }
+          }
+          console.log('multiUpdates', this.roomId+'::::', multiUpdates)
           this.$firebaseRealDB.ref(USER_DATA.REAR_FIREDB_NAME).update(multiUpdates);
-        }
+          this.inputMessageData = '';
 
-
-        multiUpdates ={}; // 변수 초기화
-        // 테스트 메세지 저장
-        multiUpdates['Messages/' + this.roomId + '/' + messageRefKey] = {
-          uid: this.currentUser.uid,
-          message: this.writeMsg,
-          displayName:this.currentUser.displayName,
-          photoURL:this.currentUser.photoURL,
-          timeStamp: this.$firebase.database.ServerValue.TIMESTAMP
-        }
-
-        //유저별 룸리스트 저장
-        if(roomUserList && roomUserListLength > 0){
-          for(var i = 0; i < roomUserListLength ; i++){
-            multiUpdates['UserRooms/' + this.roomUsersList[i] + '/' + this.roomId ] = {
-              roomId : this.roomId,
-              roomUserName : this.roomUsersName.join(CHAT_ROOM.SPLIT_CHAR),
-              roomUserlist : this.roomUsersList.join(CHAT_ROOM.SPLIT_CHAR),
-              roomType : roomUserListLength > 2 ? CHAT_ROOM.TYPE_MULTI : CHAT_ROOM.TYPE_ONE_VS_ONE,
-              roomOneVSOneTarget : roomUserListLength == 2 && i == 0 ? roomUserList[1] :  // 1대 1 대화이고 i 값이 0 이면
-                roomUserListLength == 2 && i == 1 ? roomUserList[0]   // 1대 1 대화 이고 i값이 1이면
-                  : '', // 나머지
-              lastMessage : Utils.hasHtmlTag(this.writeMsg).is? '파일을 보냈습니다.' : this.writeMsg,
-              displayName: this.currentUser.displayName,
-              photoURL : this.targetUser.photoURL,
-              timestamp: this.$firebase.database.ServerValue.TIMESTAMP
-
-            };
-          }
-        }
-console.log('multiUpdates', multiUpdates, USER_DATA.REAR_FIREDB_NAME)
-        this.$firebaseRealDB.ref(USER_DATA.REAR_FIREDB_NAME).update(multiUpdates);
-        this.writeMsg = '';
+          if(!this.isOpenUpChatRoom) this.isOpenUpChatRoom = true; //방 개설할때 사용하는 플래그
+        }, afterTime);
       },
 
       onPasteAfterClearTag : function(e){

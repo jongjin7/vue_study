@@ -198,7 +198,7 @@
           if (user) {
             vm.$firebaseRealDB.goOnline(); // 데이터 베이스 명시적 온라인
             // 챗 메인 화면일경우 호출
-            //vm.$EventBus.$emit('checkOnlineUser');
+            vm.$EventBus.$emit('checkOnlineUser');
 
             if(sessionStorage.getItem('currentUser') === null) {
               sessionStorage.setItem('currentUser', JSON.stringify(user));

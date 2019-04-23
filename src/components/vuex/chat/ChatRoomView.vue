@@ -14,12 +14,12 @@
         </div>
         <div class="received_msg" v-if="msg.uid === targetUser.uid">
           <div class="received_withd_msg msg_box">
-            <p v-html="msg.message"></p>
+            <p v-html="msg.message.replace(/(?:\r\n|\r|\n)/g, '<br />')"></p>
             <span class="time_date">{{ msg.timeStamp }}</span>
           </div>
         </div>
         <div class="sent_msg msg_box" v-else>
-          <p v-html="msg.message"></p>
+          <p v-html="msg.message.replace(/(?:\r\n|\r|\n)/g, '<br />')"></p>
           <span class="time_date">{{ msg.timeStamp }}</span>
         </div>
 
@@ -126,7 +126,10 @@
         //targetUser: ({socket}) => socket.chatRoom.targetUserInfo
       }),
 
-
+      replaceBr(msg){
+        console.log('msg', msg)
+        //return msg.replace(/(?:\r\n|\r|\n)/g, '<br />');
+      }
     },
     created() {
       this.$EventBus.$on('removeDropzone', this.removeDropzone)

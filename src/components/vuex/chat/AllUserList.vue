@@ -42,15 +42,19 @@
         chatUserList: '',
 
         arrConnectedUser: [],
-        stateOnline: [],
+        stateOnline: false,
 
       }
     },
     created() {
-      //this.$EventBus.$on('checkOnlineUser', this.checkOnlineUser);
+      this.$EventBus.$on('checkOnlineUser', this.checkOnlineUser);
       this.checkOnlineUser();
+      this.loadOnlineStatus();
+
       this.loadChatRoomList();
-      this.loadChatUserList()
+      this.loadChatUserList();
+
+
     },
     mounted() {
       this.itemTag = this.$el.querySelectorAll('li')
@@ -79,45 +83,46 @@
 
         var vm = this;
         var tmpArr = [];
+        var count =0;
 
         var cbUserConnection = function (data) {
 
           var connKey = data.key;
           var connValue = data.val();
-//console.log('typeof', typeof connKey, connKey)
+          count++;
 
-          // chatUserList.find((user) => {
+          //if(onlineIcon != null){
+          if (vm.currentUser.uid !== connKey && connKey !== 'undefined') {
+            if (connValue.connection === true) {
+              console.log('접속중', connKey,  count)
+
+            } else {
+              console.log('비접속', connKey,  count)
+            }
+          }
+
+          //}
+
+          // chatUserList.forEach((user)=>{
+          //   console.log('isConnected', user, user.isConnected)
           //   if (user.uid == connKey) {
-          //     console.log('user.isConnected', user.isConnected)
           //     if(user.isConnected === undefined){
           //       user.isConnected = connValue.connection;
-          //       tmpArr.push(tmp);
           //     }else{
           //       user.isConnected = !user.isConnected;
-          //
           //     }
           //   }
-          // })
-
-          chatUserList.forEach((user)=>{
-            if (user.uid == connKey) {
-              if(user.isConnected === undefined){
-                user.isConnected = connValue.connection;
-              }else{
-                user.isConnected = !user.isConnected;
-              }
-            }
-          });
+          // });
 
 
-          console.log('onlineEventHandler')
+          //console.log('onlineEventHandler')
 
-          vm.fetchAftersaveUserListSession(chatUserList);
+
 
         }
 
-        usersConnectionRef.on('child_added', cbUserConnection);
-        usersConnectionRef.on('child_changed', cbUserConnection);
+        usersConnectionRef.on('child_added', cbUserConnection.bind(this));
+        usersConnectionRef.on('child_changed', cbUserConnection.bind(this));
       },
 
       checkOnlineUser() {
@@ -126,14 +131,18 @@
         let userUid = this.currentUser.uid;
         let myConnectionsRef = this.$firebaseRealDB.ref(USER_DATA.REAR_FIREDB_NAME + '/UsersConnection/' + userUid + '/connection');
         let lastOnlineRef = this.$firebaseRealDB.ref(USER_DATA.REAR_FIREDB_NAME + '/UsersConnection/' + userUid + '/lastOnline');
-        let connectedRef = this.$firebaseRealDB.ref('/.info/connected');
+        let connectedRef = this.$firebaseRealDB.ref('.info/connected');
 
         connectedRef.on('value', function (snap) {
           if (snap.val() === true) {
+            //console.log("connected", snap);
             myConnectionsRef.set(true);
             // 연결 단절 이벤트
             myConnectionsRef.onDisconnect().set(false);
             lastOnlineRef.onDisconnect().set(vm.$firebase.database.ServerValue.TIMESTAMP);
+
+          }else{
+            //console.log("disconnected");
           }
         })
       },
@@ -167,9 +176,9 @@
         var roomUsersUid = [targetUser.uid, this.currentUser.uid]; // 챗방 유저리스트
         var roomUsersName = [targetUser.displayName, this.currentUser.displayName] // 챗방 유저 이름
 
-        this.targetUserInfo(targetUser);
-        this.roomUsersList(roomUsersUid);
-        this.roomUsersName(roomUsersName);
+        //this.targetUserInfo(targetUser);
+        //this.roomUsersList(roomUsersUid);
+        //this.roomUsersName(roomUsersName);
 
         // 개설된 채팅방이 없다면?
         if (!this.checkCurruntUserRoomList(roomUsersUid[0])) {
@@ -208,10 +217,6 @@
         this.$EventBus.$emit('toggleClose');
       },
 
-      saveRoomListToSessionStorage(roomList) {
-        console.log('session save', roomList)
-        sessionStorage.setItem('chatRoomList', JSON.stringify(roomList));
-      },
 
       loadChatRoomList() {
         console.log('loadChatRoomList!!!!')
@@ -225,7 +230,6 @@
         roomRef.once('value').then((snapShot) => {
           let tmpData = []
           snapShot.forEach((data) => {
-            //console.log('userRooms', data.val())
             tmpData.push(data.val());
           });
           vm.saveRoomListToSessionStorage(tmpData);
@@ -233,7 +237,13 @@
         });
       },
 
+      saveRoomListToSessionStorage(roomList) {
+        console.log('session save', roomList)
+        sessionStorage.setItem('chatRoomList', JSON.stringify(roomList));
+      },
+
       loadChatUserList() {
+        console.log('loadChatUserList==>')
         // useList Query를 줄일 수 있는 방법은?
         let vm = this;
         let userDBRef = this.$firebaseRealDB.ref(USER_DATA.REAR_FIREDB_NAME + '/' + USER_DATA.INDEXDB_STORE);
@@ -243,22 +253,30 @@
           let chatUserList = [];
           snapShot.forEach((data) => {
             if (data.key !== vm.currentUser.uid) {
-              let tmp = data.val();
-              tmp.uid = data.key;
-              chatUserList.push(tmp);
-            }
+                let tmp = data.val();
+                tmp.uid = data.key;
+                //tmp.isConnection = statusOnline;
+                chatUserList.push(tmp);
+              }
           });
           return chatUserList;
         }).then((chatUserList) => {
-            console.log('callback')
-          vm.loadOnlineStatus(chatUserList)
 
+          // chatUserList.forEach((user)=>{
+          //
+          //   if(user.uid === statusUid){
+          //     user.isConnection = statusOnline;
+          //   }
+          // })
+
+            console.log('callback')
+          vm.fetchAftersaveUserListSession(chatUserList);
         })
       },
 
       fetchAftersaveUserListSession(chatUserList) {
         this.targetUserList = chatUserList; //load to session storage 'roomList'
-        sessionStorage.setItem('chatUserList', JSON.stringify(chatUserList))
+        sessionStorage.setItem(CHAT_ROOM.STORAGE_KEY_CHAT_USER_LIST, JSON.stringify(chatUserList))
       }
     }
   }

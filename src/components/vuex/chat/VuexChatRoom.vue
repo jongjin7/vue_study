@@ -38,6 +38,7 @@
 
         chatRoomViewData:'',
         isOpenChatRoom:false,
+
         propTargetUser:'',
       }
     },
@@ -47,11 +48,15 @@
         currentUser: ({ socket }) => socket.ownerInfo,
         targetUser: ({ socket }) => socket.chatRoom.targetUserInfo,
       }),
+
+
     },
     created(){
       //this.checkCorrectAccess(); //정상적인 절차로 채팅방 입장하는지 체크
 
-      this.$EventBus.$on('changeProgressRatio', this.changeProgressRatio)
+      this.$EventBus.$on('changeProgressRatio', this.changeProgressRatio);
+      this.$EventBus.$on('updateMessageData', this.getMessageDatas);
+      //this.$EventBus.$on('changeChatRoom', this.changeChatRoom1);
 
       this.checkOpenedChatRoom();
     },
@@ -77,8 +82,19 @@
       ...mapMutations([
         'updateMessageDatas',
         'isCloseChatRoom',
-        'setCurrentRoomTotalMessage'
+        'setCurrentRoomTotalMessage',
+        'chatUserList',
+        'chatRoomList',
+        'setRoomId',
+        'roomUsersList',
+        'roomUsersName',
+        'targetUserInfo',
       ]),
+
+      refreshRoomData(roomData){
+        this.getChatRoomList();
+        this.getMessageDatas(roomData);
+      },
 
       // todo 구현대기
       // 스토리지 기반 컴포넌트를 사용할때 필수 컴포넌트가
@@ -101,10 +117,23 @@
 
         if(openRoomInfo !== null){
           let roomInfoData = JSON.parse(openRoomInfo);
-
           this.isOpenChatRoom = true;
+          this.setRoomId(roomInfoData.roomId);
+
+          let chatUsers = sessionStorage.getItem(CHAT_ROOM.STORAGE_KEY_CHAT_USER_LIST);
+          this.chatUserList(JSON.parse(chatUsers));
+
+          this.targetUserInfo(roomInfoData.targetUser);
+
+          let roomUsersUid = [roomInfoData.targetUser.uid, this.currentUser.uid]; // 챗방 유저리스트
+          let roomUsersName = [roomInfoData.targetUser.displayName, this.currentUser.displayName] // 챗방 유저 이름
+
+          this.roomUsersList(roomUsersUid);
+          this.roomUsersName(roomUsersName);
+
           this.getChatRoomList();
           this.getMessageDatas(roomInfoData);
+
         }else{
           alert('비정상적인 접근입니다.');
           this.$router.push('/chat');
@@ -112,32 +141,39 @@
 
       },
 
+
+
       getChatRoomList(){
         let vm = this;
+        console.log('getChatroomList',this.currentUser.uid)
         let rootRoomRef = this.$firebaseRealDB.ref(USER_DATA.REAR_FIREDB_NAME).child('UserRooms/'+this.currentUser.uid );
         rootRoomRef.off();
 
         rootRoomRef.on('value', (dataSnapShot) =>{
           let tmpData = []
           dataSnapShot.forEach((data) =>{
-
             let tmp = data.val();
-            console.log('getRoomList', tmp.roomUserName)
+            //console.log('getRoomList', tmp, tmp.roomUserName)
             tmp.roomUserName = tmp.roomUserName.split(CHAT_ROOM.SPLIT_CHAR);
             tmp.timestamp = timeForRoomList(tmp.timestamp);
             tmpData.push(tmp);
           });
-          console.log('roomList', tmpData)
+          console.log('UserRooms roomList', tmpData)
           vm.chatRoomListData = tmpData;
+
+          vm.chatRoomList(tmpData);
         });
       },
 
 
-      changeChatRoom(){
-        let storage = sessionStorage.getItem(CHAT_ROOM.STORAGE_KEY_OPEN_ROOM);
-        this.getMessageDatas(JSON.parse(storage));
-        this.setCurrentRoomTotalMessage(null);
-        this.messageDatas = [];
+      changeChatRoom(roomData){
+        console.log('vuexChatRoom changeChantRoom', roomData);
+
+        sessionStorage.setItem(CHAT_ROOM.STORAGE_KEY_OPEN_ROOM, JSON.stringify(roomData));
+        //
+        // this.setCurrentRoomTotalMessage(null);
+        // this.messageDatas = [];
+         this.checkOpenedChatRoom();
       },
 
       getMessageDatas(roomInfo){
