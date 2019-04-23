@@ -43,7 +43,7 @@ Kakao.init('aa310add55217b47727f8374a302f5c2');
 
 // Setup Firebase
 const config = {
-  apiKey: "AIzaSyCV7xlKQfRLoBfgGYGF3Jpy9z48-oSgpX8",
+  apiKey: "AAAAJERPPYs:APA91bFRcmBz5EqEIO-_HlNX7XHsV-9i4GF_Al4SpgkBQvkbcdSezSrex3QpMvQmHGr1Y7Ftn_-Ku8Uv6P-7AWUsJeMRlYObtDFD6CHPkXCgnqs_UgJOInT0eXHkWlsUq2Dg9uab9yog",
   authDomain: "model-vue-data.firebaseapp.com",
   databaseURL: "https://model-vue-data.firebaseio.com",
   projectId: "model-vue-data",
@@ -58,6 +58,7 @@ import 'firebase/auth';
 import 'firebase/database';
 import 'firebase/firestore';
 import 'firebase/storage';
+import 'firebase/messaging';
 const dbFireStore = firebase.firestore();
 dbFireStore.settings({ timestampsInSnapshots: true });
 firebase.auth().languageCode = 'kr';
@@ -71,6 +72,10 @@ Vue.prototype.$setPersistence = firebase.auth().setPersistence(googleAuthPersist
 Vue.prototype.$firebaseDB = dbFireStore;
 Vue.prototype.$firebaseRealDB = firebase.database();
 Vue.prototype.$firebaseStorage = firebase.storage();
+
+//let firebaseMessage = firebase.messaging();
+//firebaseMessage.usePublicVapidKey("BDLf2pX2_o8PrF4u9ijiqBSqcLSVErhEupGktUpry2VNShqPQy63t38_-4l5vWnVQ8jmlxTfq_Rx7WYYixgTZAU");
+//Vue.prototype.$fireMessage = firebaseMessage;
 
 new Vue({
   el: "#app",
