@@ -122,6 +122,11 @@
 
           let chatUsers = sessionStorage.getItem(CHAT_ROOM.STORAGE_KEY_CHAT_USER_LIST);
           this.chatUserList(JSON.parse(chatUsers));
+          //참여인원이 3인이상이면...
+          console.log('aaaaa', roomInfoData.roomType, CHAT_ROOM.TYPE_MULTI)
+          if(roomInfoData.roomType == CHAT_ROOM.TYPE_MULTI){
+            console.log('targetUserInfo', roomInfoData.targetUser)
+          }
 
           this.targetUserInfo(roomInfoData.targetUser);
 

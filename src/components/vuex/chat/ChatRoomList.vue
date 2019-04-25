@@ -60,7 +60,6 @@ export default {
       tmp.targetUser = this.chatUserList.filter((user)=>{
         return user.uid === roomData.roomOneVSOneTarget
       })[0];
-      console.log('ttfffffffft', tmp)
       this.$emit('changeChatRoom', tmp);
     },
 

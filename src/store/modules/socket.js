@@ -69,7 +69,7 @@ const mutations = {
     $state.ownerInfo = $payload;
   },
   targetUserInfo:($state, $payload) => {
-    console.log('targetUserInfo', $payload)
+    //console.log('targetUserInfo', $payload)
     $state.chatRoom.targetUserInfo = $payload;
   },
 

@@ -39,9 +39,8 @@
       return {
         targetUserList: '',
         chatRoomList: [],
-        chatUserList: '',
 
-        arrConnectedUser: [],
+        includUsersRoom: [],
         stateOnline: false,
 
       }
@@ -173,12 +172,12 @@
           location.reload(true);
         }
 
-        var roomUsersUid = [targetUser.uid, this.currentUser.uid]; // 챗방 유저리스트
-        var roomUsersName = [targetUser.displayName, this.currentUser.displayName] // 챗방 유저 이름
+        var roomUsersUid = [targetUser.uid, this.currentUser.uid]; // 챗방 유저리스트...대화타입이 멀티일때 다른 유저를 담을 수 있는 방법?
+        var roomUsersName = [targetUser.displayName, this.currentUser.displayName] // 챗방 유저 이름, 대화타입이 멀티일때 유저 이름들 담기....
 
-        //this.targetUserInfo(targetUser);
-        //this.roomUsersList(roomUsersUid);
-        //this.roomUsersName(roomUsersName);
+        this.targetUserInfo(targetUser); //target을 채팅 목록에서 선택한 유저를 제외한 나머지 인원 정보도 모두 담기
+        this.roomUsersList(roomUsersUid);
+        this.roomUsersName(roomUsersName);
 
         // 개설된 채팅방이 없다면?
         if (!this.checkCurruntUserRoomList(roomUsersUid[0])) {
@@ -188,6 +187,8 @@
 
 
         // 채팅룸 활성 상태 저장
+        // 멀티룸을 선택하면 타켓이 자신을 제외한 모든 유저 리스트가 배열로 들어간다.
+
         let storageOpenRoom = sessionStorage.getItem(CHAT_ROOM.STORAGE_KEY_OPEN_ROOM);
         if (storageOpenRoom === null) {
           let tmpStorage = {
