@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="chat-main">
     <h1 class="mb-4">Vuex, RealDatabase를 이용한 웹 메신저</h1>
     <div class="messaging">
       <div class="inbox_msg">
@@ -8,7 +8,7 @@
           <ChatRoomList :userRoomList="chatRoomListData" v-on:changeChatRoom ="changeChatRoom" />
         </div>
         <div class="mesgs">
-          <chatRoomView :msgDatas="messageDatas" :targetUser="propTargetUser" :progress ="progressData" />
+          <chatRoomView :msgDatas="messageDatas" :targetUserNames="chatRoomTargetUserNames" :progress ="progressData" />
           <MessageInputForm />
         </div>
       </div>
@@ -19,7 +19,7 @@
 <script>
   import { USER_DATA, CHAT_ROOM } from '@/common/Constant';
   import { Utils } from '@/plugins/utils';
-  import { timestampToTime, yyyyMMddHHmmsss, timeForRoomList } from '@/plugins/timestamp';
+  import { Timestamp } from '@/plugins/timestamp';
 
   import SearchChatRoomList from './SearchChatRoomList';
   import ChatRoomList from './ChatRoomList';
@@ -39,7 +39,8 @@
         chatRoomViewData:'',
         isOpenChatRoom:false,
 
-        propTargetUser:'',
+        targetUserNames:'',
+        chatRoomTargetUserNames:'',
       }
     },
     computed: {
@@ -67,6 +68,7 @@
         this.messageDatas = [];
         this.chatRoomViewData ='';
         this.setCurrentRoomTotalMessage(null);
+        this.targetUserInfo(null);
         sessionStorage.removeItem(CHAT_ROOM.STORAGE_KEY_OPEN_ROOM);
 
         if(!/\/chat/gi.test(location.hash)){ //이동하는 페이지가 채팅룸 메인이 아니라면?
@@ -89,17 +91,18 @@
         'roomUsersList',
         'roomUsersName',
         'targetUserInfo',
+        'openChatRoomInfo'
       ]),
 
-      refreshRoomData(roomData){
+      refreshRoomData(){
         this.getChatRoomList();
-        this.getMessageDatas(roomData);
+        this.getMessageDatas();
       },
 
       // todo 구현대기
       // 스토리지 기반 컴포넌트를 사용할때 필수 컴포넌트가
       // 사용자에 의해 임의적으로 삭제되어 있는지 확인하는 함수를 캡슐화해서 플로그인으로 사용할 필요가 있음.
-      checkHasNecessaryStorage(){
+      hasUserLoginDataStorage(){
         //로그인 정보를 갖는 스토리지를 제거했는지 체크!
         let storageCurrentUser = sessionStorage.getItem(USER_DATA.CURRENT_USER);
         if(storageCurrentUser === null) {
@@ -120,24 +123,29 @@
           this.isOpenChatRoom = true;
           this.setRoomId(roomInfoData.roomId);
 
+          //채팅 참여 가능 리스트 ==> 적당한 위치로 옮기기
           let chatUsers = sessionStorage.getItem(CHAT_ROOM.STORAGE_KEY_CHAT_USER_LIST);
           this.chatUserList(JSON.parse(chatUsers));
-          //참여인원이 3인이상이면...
-          console.log('aaaaa', roomInfoData.roomType, CHAT_ROOM.TYPE_MULTI)
-          if(roomInfoData.roomType == CHAT_ROOM.TYPE_MULTI){
-            console.log('targetUserInfo', roomInfoData.targetUser)
-          }
-
+          // targetUser 등록
           this.targetUserInfo(roomInfoData.targetUser);
 
-          let roomUsersUid = [roomInfoData.targetUser.uid, this.currentUser.uid]; // 챗방 유저리스트
-          let roomUsersName = [roomInfoData.targetUser.displayName, this.currentUser.displayName] // 챗방 유저 이름
+          if(roomInfoData.roomUserlist.length  == 2){
+            //roomType 1:1
+            this.chatRoomTargetUserNames = roomInfoData.targetUser.displayName;
+          }else{
+            //roomType: multi
+            //채팅룸 참여자 타이틀
+            this.chatRoomTargetUserNames = roomInfoData.targetUser.map((user) => {
+              return user.displayName;
+            }).join(',');
+          }
 
-          this.roomUsersList(roomUsersUid);
-          this.roomUsersName(roomUsersName);
+          this.roomUsersList(roomInfoData.roomUserlist);
+          this.roomUsersName(roomInfoData.roomUserName);
 
           this.getChatRoomList();
-          this.getMessageDatas(roomInfoData);
+          this.openChatRoomInfo(roomInfoData);
+          this.getMessageDatas();
 
         }else{
           alert('비정상적인 접근입니다.');
@@ -160,55 +168,83 @@
             let tmp = data.val();
             //console.log('getRoomList', tmp, tmp.roomUserName)
             tmp.roomUserName = tmp.roomUserName.split(CHAT_ROOM.SPLIT_CHAR);
-            tmp.timestamp = timeForRoomList(tmp.timestamp);
+            tmp.roomUserlist = tmp.roomUserlist.split(CHAT_ROOM.SPLIT_CHAR);
+            tmp.timestamp = Timestamp.timeForRoomList(tmp.timestamp);
+            tmp.lastMessage = (()=>{
+              const regExp = /<(\/)?([a-zA-Z1-6]*)(\s[a-zA-Z]*=[^>]*)?(\s)*(\/)?>/ig;
+              if(regExp.test(tmp.lastMessage)){
+                return tmp.lastMessage.replace(regExp, '');
+              }else{
+                return tmp.lastMessage;
+              }
+            })();
+
             tmpData.push(tmp);
           });
           console.log('UserRooms roomList', tmpData)
           vm.chatRoomListData = tmpData;
 
           vm.chatRoomList(tmpData);
+
+          //sessionStorage.setItem('chatRoomList', JSON.stringify(tmpData));
         });
       },
 
 
       changeChatRoom(roomData){
-        console.log('vuexChatRoom changeChantRoom', roomData);
+        console.log('changeChantRoom', roomData);
 
         sessionStorage.setItem(CHAT_ROOM.STORAGE_KEY_OPEN_ROOM, JSON.stringify(roomData));
-        //
-        // this.setCurrentRoomTotalMessage(null);
-        // this.messageDatas = [];
-         this.checkOpenedChatRoom();
+        this.setCurrentRoomTotalMessage(null);
+        this.messageDatas = [];
+        this.checkOpenedChatRoom();
       },
 
-      getMessageDatas(roomInfo){
+      getMessageDatas(){
         let vm = this;
         vm.messageDatas =[];
 
-        console.log('getMessageData', roomInfo)
-        if(roomInfo.roomId){
-          let messageRef = this.$firebaseRealDB.ref(USER_DATA.REAR_FIREDB_NAME + '/Messages/' + roomInfo.roomId);
+        console.log('getMessageData')
+        //if(roomInfo.roomId){
+          let messageRef = this.$firebaseRealDB.ref(USER_DATA.REAR_FIREDB_NAME + '/Messages/' + this.roomId);
           if(messageRef) messageRef.off();
-          this.propTargetUser = roomInfo.targetUser; //자식 컴포넌트로 내보낼 대화상대 정보
+          //this.propTargetUser = roomInfo.targetUser; //자식 컴포넌트로 내보낼 대화상대 정보
 
+          let dayCount=0;
+          let prevDay = 0, currentDay = 0, prevMonth = 0, currentMonth = 0;
           messageRef.limitToLast(50).on('child_added', (dataSnapShot) => {
             let dataValue = dataSnapShot.val();
             let tmpData = {
               uid: dataValue.uid,
               displayName: dataValue.displayName,
               photoURL: dataValue.photoURL,
-              timeStamp: timestampToTime(dataValue.timeStamp),
+              timeStamp: Timestamp.timestampToTime(dataValue.timeStamp, 'Hm'),
+              strNewDay: (function(){
+                let tmpDay = Timestamp.getDayTime(dataValue.timeStamp)
+                prevDay = currentDay;
+                currentDay = tmpDay.day;
+                prevMonth = currentMonth;
+                currentMonth = tmpDay.month;
+                console.log('dayTime', tmpDay);
+                //조건 정리가 필요함
+                // 이번달이 지난달보다 숫자가 작을때 ==> 추가비교: 년도로 평가
+                // 오늘 날짜가 어제날짜보다 작을때 ==> 추가 비교: month값으로 평가
+                // 오늘 날짜가 어제날짜보다 클때 ==> 추가 비교 필요 없음.
+                if((currentDay < prevDay && currentMonth > prevMonth) || (currentDay > prevDay)){
+                  return Timestamp.timestampToTime(dataValue.timeStamp, 'YMD');
+                }else{
+                  return null;
+                }
+              })(),
               message: dataValue.message
             };
-
-            //console.log('data', tmpData.uid, roomInfo.targetUser.uid, vm.currentUser.uid)
-            if( tmpData.uid == roomInfo.targetUser.uid || tmpData.uid == vm.currentUser.uid) {
-              //console.log('data download...')
+console.log('tmpData', tmpData)
+            //if( tmpData.uid == roomInfo.targetUser.uid || tmpData.uid == vm.currentUser.uid) {
               vm.messageDatas.push(tmpData);
               vm.setCurrentRoomTotalMessage(tmpData);
-            }
+            //}
           });
-        }
+        //}
 
       },
 
@@ -224,6 +260,9 @@
 </script>
 
 <style lang="scss">
+  .chat-main{
+    
+  }
   .messaging {
     img {
       min-width: 30px;
@@ -649,6 +688,11 @@
 
 
   @media (max-width:767px){
+    .chat-main{
+      h1{
+        display: none;
+      }
+    }
     .messaging{
       .inbox_msg{
         display: block;

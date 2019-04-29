@@ -2,7 +2,7 @@
   <footer class="container">
     <p class="float-right"><a href="#">Back to top</a></p>
     <p>
-      <span>© 2018 Lim,Jongjin</span>
+      <span>© 2018-2019 Lim,Jongjin</span>
     </p>
     <!-- modal popup -->
     <modal-popup v-if="showModal" @toggleClose="showModal=false; changeBodyStyle();" :modalOpened="showModal" />

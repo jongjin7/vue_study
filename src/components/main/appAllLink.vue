@@ -1,14 +1,10 @@
 <!-- 반복문 -->
 <template>
   <div class="list-group">
-      <router-link :to="list.link" :key="list.id" v-if="index < linklist.length-1" v-for="(list, index) in linklist" class="list-group-item" :class="list.class">
+      <router-link :to="list.link" :key="list.id" v-if="index < linklist.length" v-for="(list, index) in linklist" class="list-group-item" :class="list.class">
         <h4 class="list-group-item-heading">{{list.title}}</h4>
         <p class="list-group-item-text">{{list.content}}</p>
       </router-link>
-      <a href="#" class="list-group-item" @click.stop.prevent="$EventBus.$emit('loginPop')" v-else>
-        <h4 class="list-group-item-heading">{{list.title}}</h4>
-        <p class="list-group-item-text">{{list.content}}</p>
-      </a>
     </div>
 </template>
 <script>
@@ -17,6 +13,12 @@ export default {
   data() {
     return {
       linklist: [
+        {
+          title: "Vuex 상태 관리 라이브러리를 이용한 웹 메신저 구현",
+          content: "Vuex, firebase realDataBase, 회원 기반 메신저",
+          link: "/chat",
+          class:''
+        },
         {
           title: "todo 심플앱",
           content: "내가 할 일 관리하기, 리스트 생성/삭제/서버와 로컬스토리지에 저장",
@@ -47,18 +49,7 @@ export default {
           link: "/contact",
           class:''
         },
-        {
-          title: "Vuex 상태 관리 라이브러리를 이용한 웹 메신저 구현",
-          content: "Vuex, firebase realDataBase, 회원 기반 메신저",
-          link: "/chat",
-          class:''
-        },
-        {
-          title: "구글 Firebase Auth API를 이용한 회원가입 및 로그인 구현",
-          content: "모달 팝업으로 구현",
-          link: "/",
-          class:''
-        }
+
       ]
     };
   }

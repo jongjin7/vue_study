@@ -30,6 +30,7 @@ export default {
         inputMessageData: '',
         isFileAttach:false,
         isOpenUpChatRoom:false,
+        typeFileMessage:false,
       };
     },
     computed:{
@@ -43,7 +44,9 @@ export default {
         roomUsersName: ({ socket }) => socket.chatRoom.roomUsersName,
 
         currentUser: ({ socket }) => socket.ownerInfo,
-        targetUser: ({ socket }) => socket.chatRoom.targetUserInfo
+        targetUser: ({ socket }) => socket.chatRoom.targetUserInfo,
+
+        openChatRoomInfo: ({ socket }) => socket.chatRoom.openChatRoomInfo
       }),
 
     },
@@ -149,7 +152,8 @@ export default {
                     vm.inputMessageData = '<a href="'+ downloadURL +'">' + parm.message.name + '</a>';
                   }
 
-                  //vm.submitChatMessage();
+                  vm.typeFileMessage = true;
+                  vm.submitChatMessage();
                 });
               });
 
@@ -171,6 +175,24 @@ export default {
       keyEventSubmitChatMessage(e){
         if (e.keyCode === 13 && !e.shiftKey) {
           e.preventDefault();
+          // dom 도메인 만 추출
+          // par 도메인, 파라미터, 경로 전부 추출
+          var test = {
+            dom : /(http(s)?:\/\/|www.)([a-z0-9\w]+\.*)+[a-z0-9]{2,4}/gi,
+            par : /(http(s)?:\/\/|www.)([a-z0-9\w]+\.*)+[a-z0-9]{2,4}([\/a-z0-9-%#?&=\w])+(\.[a-z0-9]{2,4}(\?[\/a-z0-9-%#?&=\w]+)*)*/gi
+          };
+
+          let reUrl = /(http(s)?:\/\/|www.)([a-z0-9\w]+\.*)+[a-z0-9]{2,4}([\/a-z0-9-%#?&=\w])+(\.[a-z0-9]{2,4}(\?[\/a-z0-9-%#?&=\w]+)*)*/gi;
+
+          if(reUrl.test(this.inputMessageData)){
+            let matchUrl = this.inputMessageData.match(reUrl);
+            matchUrl.forEach((url, index) =>{
+              let wrapLink = '<a href="'+ url + '" target="_blank">'+ url +'<\/a>';
+              this.inputMessageData = this.inputMessageData.replace(url, wrapLink);
+            });
+            console.log('match', this.inputMessageData)
+          }
+
           this.submitChatMessage();
         }
       },
@@ -179,8 +201,8 @@ export default {
         let isOpenRoom = false;
         let filterRoomList = this.roomList.filter((obj) => {
 
-          let a = obj.roomOneVSOneTarget == targetUserUid;
-          let b = obj.roomType == 'ONE_VS_ONE';
+          let a = obj.roomOneVSOneTarget === targetUserUid;
+          let b = obj.roomType === CHAT_ROOM.TYPE_ONE_VS_ONE;
 
           //console.log(obj, targetUserUid, a, obj.roomOneVSOneTarget, b)
           if (a === true && b === true) {
@@ -267,10 +289,10 @@ export default {
                 roomOneVSOneTarget : roomUserListLength == 2 && i == 0 ? roomUserList[1] :  // 1대 1 대화이고 i 값이 0 이면
                   roomUserListLength == 2 && i == 1 ? roomUserList[0]   // 1대 1 대화 이고 i값이 1이면
                     : '', // 나머지
-                lastMessage : Utils.hasHtmlTag(this.inputMessageData).is? '파일을 보냈습니다.' : this.inputMessageData,
+                lastMessage : this.typeFileMessage ? '파일을 보냈습니다.' : this.inputMessageData,
                 // todo 이름과 사진은 대화 상대 이미지로 고정 필요
-                displayName: this.targetUser.displayName,
-                photoURL : this.targetUser.photoURL,
+                displayName: this.currentUser.displayName,
+                photoURL : this.currentUser.photoURL,
                 timestamp: this.$firebase.database.ServerValue.TIMESTAMP
 
               };
@@ -279,6 +301,7 @@ export default {
           console.log('multiUpdates', this.roomId+'::::', multiUpdates)
           this.$firebaseRealDB.ref(USER_DATA.REAR_FIREDB_NAME).update(multiUpdates);
           this.inputMessageData = '';
+          this.typeFileMessage = false;
 
           if(!this.isOpenUpChatRoom) this.isOpenUpChatRoom = true; //방 개설할때 사용하는 플래그
         }, afterTime);

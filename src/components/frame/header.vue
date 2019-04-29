@@ -1,25 +1,24 @@
 <template>
   <header>
-		<div class="navbar navbar-dark bg-dark box-shadow">
+		<div class="navbar bg-dark head-top">
 			<div class="container d-flex justify-content-between">
         <div class="lft">
-          <router-link :to="gotoMainLink" class="navbar-brand align-items-center logo mr-2">
+          <router-link :to="gotoMainLink" class="navbar-brand align-items-center logo mr-2 text-white">
             <img src="../../assets/logo.png">
             <strong>Jongjin</strong>
           </router-link>
-
-          <commonAccount />
         </div>
-
         <commonQuickMenu />
 			</div>
 		</div>
+    <commonAccount />
 	</header>
 </template>
 
 <script>
 import commonQuickMenu from "./quickMenu.vue";
 import commonAccount from "./Account.vue";
+
 export default {
   name: "Header",
   data() {
@@ -41,6 +40,12 @@ export default {
 <style lang='scss'>
 header{
   line-height:1;
+  .head-top{
+    padding:0.25rem 1rem;
+  }
+  .container{
+
+  }
   .logo {
     text-align: center;
     text-decoration: none;
@@ -49,6 +54,13 @@ header{
     img {
       width: 30px;
       vertical-align: middle;
+    }
+  }
+
+  @media (max-width:480px){
+    .container{
+      padding-left: 0;
+      padding-right: 0;
     }
   }
 }

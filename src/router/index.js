@@ -69,10 +69,15 @@ export default new Router({
       component: VuexChatMain,
     },
     {
-      path: '/chat/:userId',
+      path: '/chat/room',
       name: 'OpenedChatRoom',
       component: VuexChatRoom,
     },
+    // {
+    //   path: '/chat/:userId',
+    //   name: 'OpenedChatRoom',
+    //   component: VuexChatRoom,
+    // },
     {
       path: '/todo2',
       name: 'vuex',

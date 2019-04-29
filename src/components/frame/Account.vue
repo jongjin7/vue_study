@@ -1,13 +1,17 @@
 <template>
-  <div class="d-inline-block align-middle logined" v-if="isUserLogin" >
-    <!--<button class="badge badge-light" @click="modifyUserInfo">회원정보 수정</button>-->
-    <button class="badge badge-success" @click="logout">로그아웃</button>
-    <span :style="'background-image: url(' + connectUserData.photoURL + ');'" class="pic rounded-circle"></span>
-    <small class="text-white">[ {{ connectUserData.displayName }} ] 접속중...</small>
-  </div>
-  <div class="d-inline-block align-middle" v-else >
-    <button class="badge badge-light badge" @click="signUp">회원가입</button>
-    <button class="badge badge-success" @click="openLoginPopup">로그인</button>
+  <div class="navbar bg-secondary login-area">
+    <div class="container d-flex justify-content-end">
+      <div class="align-middle logined" v-if="isUserLogin" >
+        <!--<button class="badge badge-light" @click="modifyUserInfo">회원정보 수정</button>-->
+        <span :style="'background-image: url(' + connectUserData.photoURL + ');'" class="pic rounded-circle"></span>
+        <small class="text-white">[ {{ connectUserData.displayName }} ] 접속중...&nbsp;&nbsp;</small>
+        <button class="badge badge-success" @click="logout">로그아웃</button>
+      </div>
+      <div class="align-middle" v-else >
+        <button class="badge badge-light badge" @click="signUp">회원가입</button>
+        <button class="badge badge-success" @click="openLoginPopup">로그인</button>
+      </div>
+    </div>
   </div>
 </template>
 <script>
@@ -255,6 +259,11 @@
   }
 </script>
 <style lang="scss" scoped>
+  .login-area{
+    background: rgba(#343a40, 0.8);
+    padding-top: 0.25rem;
+    padding-bottom: 0.25rem;
+  }
   .logined{
     .pic{
       display: inline-block;

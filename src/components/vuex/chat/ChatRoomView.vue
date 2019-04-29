@@ -1,18 +1,20 @@
 <template>
   <div id="file-dropzone" class="view-container" :class="{ 'after-drop': isDropzone, 'is-dragover': isDragover }">
     <div class="bg-view-title py-2 text-center">
-      <strong>{{ targetUser.displayName }}</strong>님과 채팅중입니다.
+      <strong>{{ targetUserNames }}</strong>님과 채팅중입니다.
       <a href="#" @click.stop.prevent="showModalpopup('대화상대 초대하기', 'chatInvite'); $EventBus.$emit('showModal');">초대</a>
     </div>
     <div class="msg_history" v-auto-bottom="msgDatas">
-      <div class="hr-date small"><span>2019.01.29 (화)</span></div>
-      <div :class="{'incoming_msg':(msg.uid === targetUser.uid ), 'outgoing_msg':(msg.uid === currentUser.uid )}"
+
+      <div :class="{'incoming_msg':(msg.uid !== currentUser.uid ), 'outgoing_msg':(msg.uid === currentUser.uid )}"
            v-for="(msg, index) in msgDatas">
-        <div class="incoming_msg_img" v-if="msg.uid === targetUser.uid">
+        <div class="hr-date small" v-if="msg.strNewDay !== null"><span>{{ msg.strNewDay }}</span></div>
+
+        <div class="incoming_msg_img" v-if="msg.uid !== currentUser.uid">
           <span :style="'background-image: url(' + msg.photoURL + ');'" class="pic rounded-circle"></span>
           {{ msg.displayName }}
         </div>
-        <div class="received_msg" v-if="msg.uid === targetUser.uid">
+        <div class="received_msg" v-if="msg.uid !== currentUser.uid">
           <div class="received_withd_msg msg_box">
             <p v-html="msg.message.replace(/(?:\r\n|\r|\n)/g, '<br />')"></p>
             <span class="time_date">{{ msg.timeStamp }}</span>
@@ -24,35 +26,6 @@
         </div>
 
       </div>
-      <!--<div class="outgoing_msg">
-        <div class="sent_msg">
-          <p>Test which is a new approach to have all
-            solutions</p>
-          <span class="time_date"> 11:01 AM    |    June 9</span> </div>
-      </div>
-      <div class="incoming_msg">
-        <div class="incoming_msg_img"> <img src="https://ptetutorials.com/images/user-profile.png" alt="sunil"> </div>
-        <div class="received_msg">
-          <div class="received_withd_msg">
-            <p>Test, which is a new approach to have</p>
-            <span class="time_date"> 11:01 AM    |    Yesterday</span></div>
-        </div>
-      </div>
-      <div class="outgoing_msg">
-        <div class="sent_msg">
-          <p>Apollo University, Delhi, India Test</p>
-          <span class="time_date"> 11:01 AM    |    Today</span> </div>
-      </div>
-      <div class="incoming_msg">
-        <div class="incoming_msg_img"> <img src="https://ptetutorials.com/images/user-profile.png" alt="sunil"> </div>
-        <div class="received_msg">
-          <div class="received_withd_msg">
-            <p>We work directly with our designers and suppliers,
-              and sell direct to you, which means quality, exclusive
-              products, at a price anyone can afford.</p>
-            <span class="time_date"> 11:01 AM    |    Today</span></div>
-        </div>
-      </div>-->
     </div>
 
     <!-- 박스 드래그인드롭 파일 인풋 -->
@@ -107,7 +80,7 @@
   export default {
     name: "ChatRoomView",
     props: [
-      'targetUser',
+      'targetUserNames',
       'msgDatas',
       'progress',
     ],
@@ -123,7 +96,7 @@
       ...mapState({
         roomId: ({socket}) => socket.chatRoom.roomId,
         currentUser: ({socket}) => socket.ownerInfo,
-        //targetUser: ({socket}) => socket.chatRoom.targetUserInfo
+        targetUser: ({socket}) => socket.chatRoom.targetUserInfo,
       }),
 
       replaceBr(msg){
@@ -170,7 +143,6 @@
 
     },
     methods: {
-
       showModalpopup(title, componentName, post) {
         window.globalVars.pop_title = title;
         window.globalVars.pop_content = componentName;

@@ -19,7 +19,7 @@ function yyyyMMddHHmmsss(){
 /**
  * timestamp를 날짜 시간 으로 변환
  */
-function timestampToTime (timestamp) {
+function timestampToTime (timestamp, outputCondition) {
   var date = new Date(timestamp),
     year = date.getFullYear(),
     month = date.getMonth()+1,
@@ -27,19 +27,55 @@ function timestampToTime (timestamp) {
     hour = date.getHours(),
     minute = date.getMinutes(),
     week = new Array('일', '월', '화', '수', '목', '금', '토');
+  let outputTimeStamp;
 
   var convertDate = year + "년 "+month+"월 "+ day +"일 ("+ week[date.getDay()] +") ";
   var convertHour="";
   if(hour < 12){
-    convertHour = "오전 " + addNumZero(hour) +":" + addNumZero(minute);
+    convertHour = "오전 " + (hour == 0? 12: hour) +":" + addNumZero(minute);
   }else if(hour === 12){
-    convertHour = "오후 " + addNumZero(hour) +":" + addNumZero(minute);
+    convertHour = "오후 " + hour +":" + addNumZero(minute);
   }else{
-    convertHour = "오후 " + addNumZero(hour - 12) +":" + addNumZero(minute);
+    convertHour = "오후 " + (hour - 12) +":" + addNumZero(minute);
   }
 
-  return convertDate + convertHour;
+  switch (outputCondition){
+    case 'YMD':
+      outputTimeStamp = convertDate;
+      break;
+    case 'YMDH':
+      outputTimeStamp = convertDate + ( hour < 12 ? '오전' : '오후') + hour;
+      break;
+    case 'Hm':
+      outputTimeStamp = convertHour;
+      break;
+    default:
+      console.log(convertDate + convertHour);
+      outputTimeStamp = convertDate + convertHour;
+  }
+
+  return outputTimeStamp;
 }
+
+function getDayTime(timestamp, dayCount){
+  var date = new Date(timestamp),
+    year = date.getFullYear(),
+    month = date.getMonth()+1,
+    day = date.getDate(),
+    hour = date.getHours(),
+    minute = date.getMinutes(),
+    second = date.getSeconds().toString(),
+    mss = date.getMilliseconds().toString();
+  return {
+    month:month,
+    day:day,
+    hour: hour,
+    second : second,
+    milsecond: mss
+  };
+}
+
+
 
 /**
  *  10미만 숫자 앞에 0 붙이기
@@ -75,5 +111,14 @@ function timeForRoomList(timestamp) {
 export {
   timestampToTime,
   yyyyMMddHHmmsss,
-  timeForRoomList
+  timeForRoomList,
+  getDayTime,
 }
+
+export const Timestamp = {
+  timestampToTime,
+  yyyyMMddHHmmsss,
+  timeForRoomList,
+  getDayTime,
+}
+

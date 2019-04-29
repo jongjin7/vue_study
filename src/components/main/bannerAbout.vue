@@ -8,7 +8,7 @@
         <p>더 궁금하신 내용에 대해 문의를 주시면 성심성의(誠心誠意)껏 답변 드리겠습니다.<br>감사합니다.</p>
       </div>
       <!--<router-link :to="'/contact'" class="btn btn-sm btn-secondary">다시 문의하기</router-link>-->
-      <button class="btn btn-sm btn-secondary" @click="resetBannerMsg">내용 지우기</button>
+      <button class="btn btn-sm btn-outline-dark" @click="resetBannerMsg">내용 지우기</button>
     </div>
     <div v-else>
       <h1><span class="name text-primary">종진</span>의 데모 사이트에 오신것을 환영합니다.</h1>
@@ -29,7 +29,7 @@
           인디 앱 개발자들은 웬만한 서버 기능들은 실제 서버구성 없이도 데모나 알파테스트가 가능한 서비스를 만들 수 있을 것이다.
         </p>
       </div>
-      <button class="btn btn-sm" @click="showMoreData">
+      <button class="btn btn-sm btn-outline-dark" @click="showMoreData">
         <span v-show="!isMore">더 보기</span>
         <span v-show="isMore">닫기</span>
       </button>

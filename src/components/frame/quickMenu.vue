@@ -1,7 +1,7 @@
 <template>
   <div class="dropdown" :class="{ show: isOpenMenu }">
     <button class="navbar-toggler" type="button" data-toggle="collapse" @click="isOpenMenu=!isOpenMenu" @focusout="closeGnb" >
-      <span class="navbar-toggler-icon"></span>
+      <font-awesome-icon icon="bars"  />
     </button>
 
     <div id="" class="dropdown-menu" v-bind:class="{ show: isOpenMenu }">
@@ -10,6 +10,8 @@
   </div>
 </template>
 <script>
+
+
 export default {
   name:'quickMenu',
   data(){
@@ -17,6 +19,10 @@ export default {
       gotoMainLink: "/",
       isOpenMenu:false,
       gnbItems:[
+        {
+          title: "웹 메신저",
+          link: "/chat",
+        },
         {
           title: "todo 심플앱",
           link: "/todo",
@@ -45,13 +51,24 @@ export default {
       },100);
     },
 
+  },
+  components:{
+
   }
 }
 </script>
-<style scoped>
+<style scoped lang="scss">
   .dropdown-menu{
     left:auto;
-    right:-30px;
+    right:-5px;
+  }
+  .navbar-toggler{
+    border:none;
+    font-size: 1.5rem;
+    color:#fff;
+    svg{
+      width: 1em;
+    }
   }
   .router-link-active{
     background-color: #e9e9e9;

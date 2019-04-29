@@ -15,14 +15,14 @@ const state = {
     roomUsersName:'',
     invitableList:[],
     targetUserInfo:[],
+    openChatRoomInfo:'',
   },
-  chatUsersVsList:'',
 };
 
 //getter
 const getters = {
   getInvitableList: ($state, $payload) => {
-    console.log('초대 가능한 멤버 리스트', $state.chatRoom.targetUserInfo.uid, $state.chatUserList, $state.chatUsers)
+    console.log('초대 가능한 멤버 리스트', $state.chatRoom.targetUserInfo, $state.chatUserList, $state.chatUsers)
 
     let filterMember =  $state.chatUserList.filter((user) => {
       let isMember = $state.chatRoom.roomUsersList.includes(user.uid)
@@ -69,8 +69,11 @@ const mutations = {
     $state.ownerInfo = $payload;
   },
   targetUserInfo:($state, $payload) => {
-    //console.log('targetUserInfo', $payload)
-    $state.chatRoom.targetUserInfo = $payload;
+    if($payload !== null){
+      $state.chatRoom.targetUserInfo = $payload;
+    }else{
+      $state.chatRoom.targetUserInfo = [];
+    }
   },
 
   updateMessageDatas:($state, $payload)=>{
@@ -91,6 +94,10 @@ const mutations = {
 
   chatRoomList:($state, $payload)=>{
     $state.chatRoomList = $payload;
+  },
+
+  openChatRoomInfo:($state, $payload)=>{
+    $state.chatRoom.openChatRoomInfo = $payload;
   },
 
   setCurrentRoomTotalMessage:($state, $payload)=>{
