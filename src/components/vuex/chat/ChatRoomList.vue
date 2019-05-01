@@ -2,12 +2,12 @@
   <div class="inbox_chat">
     <div v-for="room in userRoomList" class="chat_list _active_chat">
         <div class="chat_people">
-          <a class="" href="#" title="유저 프로파일창 열기" @click.stop.prevent="showModalpopup('유저팝업', 'chatUser'); $EventBus.$emit('showModal');">
+          <!--<a class="" href="#" title="유저 프로파일창 열기" @click.stop.prevent="showModalpopup('유저팝업', 'chatUser'); $EventBus.$emit('showModal');">-->
+
+          <a href="#" @click.stop.prevent="changeChatRoomViewData(room)">
             <div class="chat_img">
               <img :src="'' + room.photoURL + ''" alt="sunil">
             </div>
-          </a>
-          <a href="#" @click.stop.prevent="changeChatRoomViewData(room)">
             <div class="chat_ib">
               <h5>{{ room.displayName }}<span class="chat_date">{{ room.timestamp }}</span></h5>
               <p>{{ room.lastMessage }}</p>

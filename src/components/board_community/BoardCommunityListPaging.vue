@@ -3,7 +3,7 @@
     <ul class="pagination justify-content-end" >
       <li class="page-item" :class="{disabled : pageNum == 0}"><a class="page-link" href="#" @click.stop.prevent="changePageIndex(pageNum)">이전</a></li>
       <li class="page-item" :class="{active : page == pageNum+1, disabled: page =='...'}" v-for="page in pageItems"><a href="#" class="page-link" @click.stop.prevent="changePageIndex(page)">{{ page }}</a></li>
-      <li class="page-item" :class="{disabled : pageNum >= pageCount - 1}"><a class="page-link" href="#" @click.stop.prevent="changePageIndex(pageNum+2)">다음 {{ pageNum + 1 }} </a></li>
+      <li class="page-item" :class="{disabled : pageNum >= pageCount - 1}"><a class="page-link" href="#" @click.stop.prevent="changePageIndex(pageNum+2)">다음 <!--{{ pageNum + 1 }}--> </a></li>
     </ul>
   </div>
 </template>

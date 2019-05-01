@@ -10,10 +10,14 @@ import './common/globalVariables';
 
 // font-awesome for vue
 import { library } from '@fortawesome/fontawesome-svg-core'
-import { faExclamation, faUserCog, faCommentDots, faCloudUploadAlt, faSpinner, faCommentAlt, faEyeSlash,faBars } from '@fortawesome/free-solid-svg-icons'
+import {
+  faExclamation, faUserCog, faCommentDots, faCloudUploadAlt,
+  faSpinner, faCommentAlt, faEyeSlash, faBars, faSearch, faListUl, faChevronCircleUp
+} from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 
-library.add(faExclamation, faUserCog,faCommentDots, faCloudUploadAlt, faSpinner, faCommentAlt, faEyeSlash, faBars)
+library.add(faExclamation, faUserCog, faCommentDots, faCloudUploadAlt, faSpinner, faCommentAlt,
+  faEyeSlash, faBars, faSearch, faListUl, faChevronCircleUp)
 Vue.component('font-awesome-icon', FontAwesomeIcon)
 
 

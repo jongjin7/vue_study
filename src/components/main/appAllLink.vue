@@ -20,12 +20,6 @@ export default {
           class:''
         },
         {
-          title: "todo 심플앱",
-          content: "내가 할 일 관리하기, 리스트 생성/삭제/서버와 로컬스토리지에 저장",
-          link: "/todo",
-          class:''
-        },
-        {
           title: "갤러리 게시판",
           content: "썸네일형 게시판 패키지 (내용,이미지 등록)",
           link: "/photo",
@@ -39,7 +33,7 @@ export default {
         },
         {
           title: "데이타 그리드(DataGrid)",
-          content: "datatableJs를 이용한 Data Grid 구현, Search, FileDownload, Print",
+          content: "datatables jQueryPlugin을 이용한 Data Grid 구현",
           link: "/grid",
           class:''
         },
@@ -47,6 +41,12 @@ export default {
           title: "문의사항 접수",
           content: "문의사항 접수 페이지",
           link: "/contact",
+          class:''
+        },
+        {
+          title: "todo앱",
+          content: "todo앱 vuejs버전 실습, todo항목은 로컬스토리지와 firebase DB를 이용한 데이터 연동",
+          link: "/todo",
           class:''
         },
 

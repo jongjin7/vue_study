@@ -199,8 +199,8 @@
         // ONE_VS_ONE@@targetUserUid
 
         //id router
-        //this.$router.push({name: 'OpenedChatRoom', params: { userId: targetUser.displayName }});
-        this.$router.push('chat/room');
+        this.$router.push({name: 'OpenedChatRoom', params: { userId: this.roomId }});
+
       },
 
       showModalpopup(title, componentName, post) {

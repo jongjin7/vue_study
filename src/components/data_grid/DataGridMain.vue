@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h1 class="mb-4">DataTableJs를 이용한 DataGrid</h1>
+    <h1 class="mb-4">Datatables jQuery Plugin을 이용한 DataGrid</h1>
     <datatable :columns="gridColumns" />
 
   </div>

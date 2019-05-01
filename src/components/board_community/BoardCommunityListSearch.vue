@@ -1,5 +1,5 @@
 <template>
-  <div class="col-md-8">
+  <div class="col-md-8 invisible"><!-- visibility:hidden -->
     <form class="" action="">
       <div class="input-group mb-3">
         <div class="flex-grow-1">

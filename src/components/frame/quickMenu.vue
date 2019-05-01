@@ -65,6 +65,7 @@ export default {
   .navbar-toggler{
     border:none;
     font-size: 1.5rem;
+    margin-right:-0.75rem;
     color:#fff;
     svg{
       width: 1em;

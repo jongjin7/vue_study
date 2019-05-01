@@ -192,12 +192,13 @@
 
 
       changeChatRoom(roomData){
-        console.log('changeChantRoom', roomData);
+        console.log('changeChantRoom', roomData, );
 
         sessionStorage.setItem(CHAT_ROOM.STORAGE_KEY_OPEN_ROOM, JSON.stringify(roomData));
         this.setCurrentRoomTotalMessage(null);
         this.messageDatas = [];
         this.checkOpenedChatRoom();
+        if($('.messaging').hasClass('closed')) $('.messaging').removeClass('closed');
       },
 
       getMessageDatas(){
@@ -284,48 +285,61 @@ console.log('tmpData', tmpData)
     .top_spac {
       margin: 20px 0 0;
     }
-    .srch_bar {
-      display: inline-block;
-      text-align: right;
-      width: 60%;
-      padding: 0;
-    }
+
     .headind_srch {
+      position: relative;
       padding: 10px 29px 10px 20px;
       overflow: hidden;
       border-bottom: 1px solid #c4c4c4;
+
+      .srch_bar {
+        display: none;
+        position: absolute; right:0; top:0;
+        width:180px;
+        padding: 7px 14px 7px 0;
+        text-align: right;
+
+        .inner_srch_bar{
+          display: flex;
+          background: rgba(white, 0.8);
+          input {
+            border: 1px solid #cdcdcd;
+            border-width: 0 0 1px 0;
+            width: 100%;
+            padding: 2px 4px 4px 6px;
+            background: transparent;
+          }
+          
+        }
+      }
     }
 
     .recent_heading {
-      float: left;
-      width: 40%;
-
       h4 {
         color: #05728f;
         font-size: 21px;
         margin: auto;
 
-        span {
+        .toggle-room-list {
           display: none;
+          cursor: pointer;
+          border:none;
+          padding:0;
+          background: none;
         }
       }
     }
-    .srch_bar input {
-      border: 1px solid #cdcdcd;
-      border-width: 0 0 1px 0;
-      width: 80%;
-      padding: 2px 0 4px 6px;
-      background: none;
-    }
+
     .srch_bar .input-group-addon button {
-      background: rgba(0, 0, 0, 0) none repeat scroll 0 0;
-      border: medium none;
+      background: none;
+      border: none;
       padding: 0;
+      margin: 4px 5px 3px;
       color: #707070;
-      font-size: 18px;
+      cursor:pointer;
     }
     .srch_bar .input-group-addon {
-      margin: 0 0 0 -27px;
+
     }
 
     .chat_ib h5 {
@@ -582,6 +596,7 @@ console.log('tmpData', tmpData)
 
       input, button, textarea{
         outline:none;
+        -webkit-border-radius:0;
       }
     }
     .file-label{
@@ -632,19 +647,24 @@ console.log('tmpData', tmpData)
 
     .btn_send {
       //background: #05728f;
+      display: block;
       position:relative;
-      border: medium none;
+      border: none;
       cursor: pointer;
       margin-bottom:0;
       color:#05728f;
       line-height:1;
 
+
       &.send_msg{
-        top:2px;
+        top:0;
+        width:60px;
         font-size:36px;
         background:transparent;
+        padding:0;
         i.txt{
-          position:absolute; left:14px; top:9px;
+          position:absolute; left:0; right:0;top:9px;
+          text-align: center;
           font-size:11px;
           color:#fff;
         }
@@ -696,70 +716,69 @@ console.log('tmpData', tmpData)
     .messaging{
       .inbox_msg{
         display: block;
+        position: relative;
       }
       .inbox_people{
+        float: none;
         width:100%;
-
         .headind_srch{
-          .recent_heading{
-            cursor: pointer;
-            &:hover{
-              opacity: 0.5;
-            }
-          }
 
         }
 
         h4{
-          span{
+          .toggle-room-list{
             display: inline-block;
+            transform:rotate(-180deg);
+            color:#444;
+          }
+        }
+        .inbox_chat{
+          display: none;
+          position: absolute; left:0; top:46px;
+          z-index: 10;
+          width:100%;
+          height:100%;
+          background: rgba(#000, 0.5);
 
-            .fa-toggle-off{
-              display: none;
+          .chat_list{
+            background: #fff;
+
+            &:hover{
+              background: #eaeaea;
             }
           }
         }
       }
-      .inbox_chat{
-        height:30vh;
-        border-bottom: 10px solid #f1f1f1;
-      }
-      .inbox_people:after{
-        display: block;
-        border-bottom: 1px solid #dadada;
-        content: '';
-        width:100%;
-      }
+
       .mesgs{
+        float:none;
         width:100%;
+
+        .msg_history{
+          max-height:48vh;
+          min-height:30vh;
+        }
       }
 
-      .msg_history{
-        height:50vw;
-      }
+
 
       // 룸 리스트
       &.closed{
         .inbox_people{
           h4{
-            .fa-toggle-on{
-              display: none;
-            }
-            .fa-toggle-off{
-              display: block;
+            .toggle-room-list{
+              transform:rotate(0deg);
             }
           }
           &:after{
             display: none;
           }
           .inbox_chat{
-            display: none;
+            display: block;
           }
         }
 
-        .msg_history{
-          height:80vw;
-        }
+
       }
     }
   }

@@ -1,13 +1,19 @@
 <template>
   <div class="headind_srch">
     <div class="recent_heading">
-      <h4>최근 대화 목록 <span><i class="fas fa-toggle-on"></i><i class="fas fa-toggle-off"></i></span></h4>
+      <h4>최근 대화 목록
+        <button class="toggle-room-list">
+          <font-awesome-icon icon="chevron-circle-up" />
+        </button>
+      </h4>
     </div>
     <div class="srch_bar">
-      <div class="stylish-input-group">
-        <input type="text" class="search-bar"  placeholder="검색" >
+      <div class="inner_srch_bar">
+        <input type="text" class="search-bar"  placeholder="채팅방 내용 검색어" >
         <span class="input-group-addon">
-          <button type="button" v-on:click="thisTest()"> <i class="fa fa-search" aria-hidden="true"></i></button>
+          <button type="button" v-on:click="thisTest()">
+            <font-awesome-icon icon="search" />
+          </button>
         </span>
       </div>
     </div>
@@ -20,7 +26,7 @@
       mounted(){
         let vm = this;
 
-        $(this.$el).find('.recent_heading').click(function(){
+        $(this.$el).find('.toggle-room-list').click(function(){
           $(this).parents('.messaging').toggleClass('closed');
         })
       },
