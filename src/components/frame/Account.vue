@@ -35,7 +35,7 @@
       console.log('Amount created')
       this.onChangeAuthAccount();
       this.$EventBus.$on('openLoginPopup', this.openLoginPopup);
-      this.$EventBus.$on('onSaveUserIndexedDB', this.saveUserAtIndexedDB); //신규 User를 IndexedDB에서 체크 후 저장
+      this.$EventBus.$on('onSaveUserIndexedDB', this.saveUserAtRealDB); //신규 User를 IndexedDB에서 체크 후 저장
       this.$EventBus.$on('onTypeAuth', $payload => this.fromLogin = $payload);
 
     },
@@ -165,17 +165,16 @@
         let userDBRef = this.$firebaseRealDB.ref(USER_DATA.REAR_FIREDB_NAME +'/'+ USER_DATA.INDEXDB_STORE + '/'+ user.uid);
         userDBRef.once('value').then((dataSnapShot) =>{
           // User Ref에 데이터가 없을 경우 데이터 저장
-          console.log('유저 정보 존재 유무:', dataSnapShot.hasChildren(), user.profileImg, user.userName)
           if (!dataSnapShot.hasChildren()) {
             let userData = {
               email: user.email,
-              photoURL: user.photoURL ? user.photoURL : '',
+              photoURL: user.photoURL,
               displayName : user.displayName
             }
+
             userDBRef.set(userData).then(()=>{
-              console.log('cbUserAfterSave completed!!!')
-              vm.saveUserAtIndexedDB(user, true);
-              //if (location.hash.split('/')[1] == 'chat') window.location.reload(true);
+              console.log('UserAfterSave completed!!!')
+              //vm.saveUserAtIndexedDB(user, true);
             }).catch((error)=>{
               console.log('realDB error',  error)
             });
@@ -205,16 +204,22 @@
             vm.$EventBus.$emit('checkOnlineUser');
 
             if(sessionStorage.getItem('currentUser') === null) {
-              sessionStorage.setItem('currentUser', JSON.stringify(user));
+
+              setTimeout(()=>{
+                console.log('session save', user)
+                sessionStorage.setItem('currentUser', JSON.stringify(user));
+              },1300)
+
               vm.setIsUserLogin(); //접속 상태를 store에 갱신
               vm.setCurrentUserData(user);
+
             }
 
             user.providerData.forEach(function (profile) {
               if(profile.providerId == 'password'){
-                if(vm.fromLogin) vm.checkAndSaveUser(user);
+                if(vm.fromLogin) vm.saveUserAtRealDB(user);
               }else if(profile.providerId == 'google.com'){
-                vm.checkAndSaveUser(user);
+                vm.saveUserAtRealDB(user);
               }
             });
             // 로그인 후 접속상태 정보를 사용하고자 하는 컴포넌트(router의 hash정보)에 보내기, 현재는 챗방 게이트에서 사용됨
