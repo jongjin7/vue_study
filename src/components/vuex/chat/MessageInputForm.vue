@@ -31,6 +31,8 @@ export default {
         isFileAttach:false,
         isOpenUpChatRoom:false,
         typeFileMessage:false,
+        messageType : null,
+        inviteUserNames:null,
       };
     },
     computed:{
@@ -83,8 +85,9 @@ export default {
         console.log('type', typeof parm, parm.messageType)
         if(parm.messageType !== undefined){
           if(parm.messageType === 'invite'){
-            console.log('arg',parm.message)
             this.inputMessageData = parm.message;
+            this.messageType = parm.messageType;
+            this.inviteUserNames = parm.inviteUserNames;
             vm.submitChatMessage();
           }else if(parm.messageType === 'file'){
             console.log('파일을 보냈습니다.')
@@ -156,7 +159,6 @@ export default {
                   vm.submitChatMessage();
                 });
               });
-
             }
 
 
@@ -217,12 +219,8 @@ export default {
         return filterRoomList.length > 0;
       },
 
-      submitChatMessageInvite(msg){
-        this.inputMessageData = msg;
-        this.submitChatMessage();
-      },
       submitChatMessage() {
-        console.log('submitChatMessage', this.inputMessageData.length);
+        console.log('submitChatMessage', this.messageType);
         if (this.inputMessageData.length === 0 ) return false;
 
         // 메시지를 첫 입력전에 방이 개설되었는지 체크, 방이 존재하면 개설된 roomId를 할당한다.
@@ -267,15 +265,15 @@ export default {
             this.$firebaseRealDB.ref(USER_DATA.REAR_FIREDB_NAME).update(multiUpdates);
           }
 
-
           multiUpdates ={}; // 변수 초기화
           // 테스트 메세지 저장
           multiUpdates['Messages/' + this.roomId + '/' + messageRefKey] = {
             uid: this.currentUser.uid,
+            roomId : this.roomId,
             message: this.inputMessageData,
             displayName:this.currentUser.displayName,
             photoURL:this.currentUser.photoURL,
-            timeStamp: this.$firebase.database.ServerValue.TIMESTAMP
+            timeStamp: this.$firebase.database.ServerValue.TIMESTAMP,
           }
 
           //유저별 룸리스트 저장
@@ -293,8 +291,9 @@ export default {
                 // todo 이름과 사진은 대화 상대 이미지로 고정 필요
                 displayName: this.currentUser.displayName,
                 photoURL : this.currentUser.photoURL,
-                timestamp: this.$firebase.database.ServerValue.TIMESTAMP
-
+                timestamp: this.$firebase.database.ServerValue.TIMESTAMP,
+                messageType: this.messageType === undefined ? null : this.messageType,
+                inviteUserNames: this.inviteUserNames === undefined ? null : this.inviteUserNames,
               };
             }
           }
@@ -302,6 +301,8 @@ export default {
           this.$firebaseRealDB.ref(USER_DATA.REAR_FIREDB_NAME).update(multiUpdates);
           this.inputMessageData = '';
           this.typeFileMessage = false;
+          this.messageType = null;
+          this.inviteUserNames = null;
 
           if(!this.isOpenUpChatRoom) this.isOpenUpChatRoom = true; //방 개설할때 사용하는 플래그
         }, afterTime);

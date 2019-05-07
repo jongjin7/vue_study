@@ -1,8 +1,10 @@
 <template>
   <div id="file-dropzone" class="view-container" :class="{ 'after-drop': isDropzone, 'is-dragover': isDragover }">
-    <div class="bg-view-title py-2 text-center">
-      <strong>{{ targetUserNames }}</strong>님과 채팅중입니다.
-      <a href="#" @click.stop.prevent="showModalpopup('대화상대 초대하기', 'chatInvite'); $EventBus.$emit('showModal');">초대</a>
+    <div class="bg-view-title text-center">
+      <div>
+        <strong>{{ targetUserNames }}</strong>님과 채팅중입니다.
+        <a href="#" @click.stop.prevent="showModalpopup('대화상대 초대하기', 'chatInvite'); $EventBus.$emit('showModal');">초대하기</a>
+      </div>
     </div>
     <div class="msg_history" v-auto-bottom="msgDatas">
 
@@ -160,26 +162,6 @@
 </script>
 
 <style lang="scss" scoped>
-  .hr-date {
-    position: relative;
-    padding: 1rem 0;
-    text-align: center;
 
-    &:before {
-      display: block;
-      position: absolute;
-      left: 0;
-      top: 50%;
-      border-top: 1px solid #eee;
-      width: 100%;
-      content: '';
-    }
-
-    span {
-      position: relative;
-      background: #fff;
-      padding: 0 1rem;
-    }
-  }
 
 </style>

@@ -63,7 +63,6 @@ export default {
       console.log('user', this.chatUserList)
       if(roomData.roomType == CHAT_ROOM.TYPE_ONE_VS_ONE) {
         tmp.targetUser = this.chatUserList.find( user =>{
-
           return user.uid === roomData.roomOneVSOneTarget
         })
       }else{

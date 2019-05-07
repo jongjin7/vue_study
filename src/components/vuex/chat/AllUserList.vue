@@ -47,8 +47,8 @@
     },
     created() {
       this.$EventBus.$on('checkOnlineUser', this.checkOnlineUser);
-      this.checkOnlineUser();
-      this.loadOnlineStatus();
+      //this.checkOnlineUser();
+      //this.loadOnlineStatus();
 
       this.loadChatRoomList();
       this.loadChatUserList();

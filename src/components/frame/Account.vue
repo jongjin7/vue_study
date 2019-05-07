@@ -208,10 +208,11 @@
               setTimeout(()=>{
                 console.log('session save', user)
                 sessionStorage.setItem('currentUser', JSON.stringify(user));
-              },1300)
+                vm.setIsUserLogin(); //접속 상태를 store에 갱신
+                vm.setCurrentUserData(user);
+              },1000)
 
-              vm.setIsUserLogin(); //접속 상태를 store에 갱신
-              vm.setCurrentUserData(user);
+
 
             }
 

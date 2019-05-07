@@ -145,7 +145,7 @@
 
           this.getChatRoomList();
           this.openChatRoomInfo(roomInfoData);
-          this.getMessageDatas();
+          this.getMessageDatas(roomInfoData);
 
         }else{
           alert('비정상적인 접근입니다.');
@@ -171,6 +171,7 @@
             tmp.roomUserlist = tmp.roomUserlist.split(CHAT_ROOM.SPLIT_CHAR);
             tmp.timestamp = Timestamp.timeForRoomList(tmp.timestamp);
             tmp.lastMessage = (()=>{
+              // html태그 존재시 일반 문자열로 변
               const regExp = /<(\/)?([a-zA-Z1-6]*)(\s[a-zA-Z]*=[^>]*)?(\s)*(\/)?>/ig;
               if(regExp.test(tmp.lastMessage)){
                 return tmp.lastMessage.replace(regExp, '');
@@ -178,6 +179,15 @@
                 return tmp.lastMessage;
               }
             })();
+            // todo 활성화된 룸 타이틀 변경 디버깅 중
+            // refresh할때 invite값 존재 시 타이틀 값 변경 금지
+            // 저장할때 룸리스트에 타켓유저 정보도 같이 넘겨야함...아니면 유저uid를 넘겨서 룸리스트 저장소를 업데이트 시켜야한다.
+            //console.log('messageType:::=>', tmp.messageType, tmp.roomId ,this.roomId)
+            if(tmp.messageType === 'invite' && tmp.roomId === this.roomId){
+              let oldMember = this.chatRoomTargetUserNames;
+              //console.log('oldMember', oldMember)
+              if(oldMember.indexOf(tmp.inviteUserNames) === -1) this.chatRoomTargetUserNames =  oldMember+ ',' + tmp.inviteUserNames;
+            }
 
             tmpData.push(tmp);
           });
@@ -185,6 +195,9 @@
           vm.chatRoomListData = tmpData;
 
           vm.chatRoomList(tmpData);
+
+          //새로운 멤버 추가 ==> emit으로 룸 타이틀 갱신필요
+
 
           //sessionStorage.setItem('chatRoomList', JSON.stringify(tmpData));
         });
@@ -201,52 +214,48 @@
         if($('.messaging').hasClass('closed')) $('.messaging').removeClass('closed');
       },
 
-      getMessageDatas(){
+      getMessageDatas(roomData){
         let vm = this;
         vm.messageDatas =[];
 
         console.log('getMessageData')
-        //if(roomInfo.roomId){
-          let messageRef = this.$firebaseRealDB.ref(USER_DATA.REAR_FIREDB_NAME + '/Messages/' + this.roomId);
-          if(messageRef) messageRef.off();
-          //this.propTargetUser = roomInfo.targetUser; //자식 컴포넌트로 내보낼 대화상대 정보
+        let messageRef = this.$firebaseRealDB.ref(USER_DATA.REAR_FIREDB_NAME + '/Messages/' + this.roomId);
+        if(messageRef) messageRef.off();
+        //this.propTargetUser = roomInfo.targetUser; //자식 컴포넌트로 내보낼 대화상대 정보
 
-          let dayCount=0;
-          let prevDay = 0, currentDay = 0, prevMonth = 0, currentMonth = 0;
-          messageRef.limitToLast(50).on('child_added', (dataSnapShot) => {
-            let dataValue = dataSnapShot.val();
-            let tmpData = {
-              uid: dataValue.uid,
-              displayName: dataValue.displayName,
-              photoURL: dataValue.photoURL,
-              timeStamp: Timestamp.timestampToTime(dataValue.timeStamp, 'Hm'),
-              strNewDay: (function(){
-                let tmpDay = Timestamp.getDayTime(dataValue.timeStamp)
-                prevDay = currentDay;
-                currentDay = tmpDay.day;
-                prevMonth = currentMonth;
-                currentMonth = tmpDay.month;
-                console.log('dayTime', tmpDay);
-                //조건 정리가 필요함
-                // 이번달이 지난달보다 숫자가 작을때 ==> 추가비교: 년도로 평가
-                // 오늘 날짜가 어제날짜보다 작을때 ==> 추가 비교: month값으로 평가
-                // 오늘 날짜가 어제날짜보다 클때 ==> 추가 비교 필요 없음.
-                if((currentDay < prevDay && currentMonth > prevMonth) || (currentDay > prevDay)){
-                  return Timestamp.timestampToTime(dataValue.timeStamp, 'YMD');
-                }else{
-                  return null;
-                }
-              })(),
-              message: dataValue.message
-            };
-console.log('tmpData', tmpData)
-            //if( tmpData.uid == roomInfo.targetUser.uid || tmpData.uid == vm.currentUser.uid) {
-              vm.messageDatas.push(tmpData);
-              vm.setCurrentRoomTotalMessage(tmpData);
-            //}
-          });
-        //}
+        let dayCount=0;
+        let prevDay = 0, currentDay = 0, prevMonth = 0, currentMonth = 0;
+        messageRef.limitToLast(50).on('child_added', (dataSnapShot) => {
+          let dataValue = dataSnapShot.val();
+          if(this.roomId !== dataValue.roomId) return false;
+          let tmpData = {
+            uid: dataValue.uid,
+            displayName: dataValue.displayName,
+            photoURL: dataValue.photoURL,
+            timeStamp: Timestamp.timestampToTime(dataValue.timeStamp, 'Hm'),
+            strNewDay: (function(){
+              let tmpDay = Timestamp.getDayTime(dataValue.timeStamp)
+              prevDay = currentDay;
+              currentDay = tmpDay.day;
+              prevMonth = currentMonth;
+              currentMonth = tmpDay.month;
+              //console.log('dayTime', tmpDay);
+              //조건 정리가 필요함
+              // 이번달이 지난달보다 숫자가 작을때 ==> 추가비교: 년도로 평가
+              // 오늘 날짜가 어제날짜보다 작을때 ==> 추가 비교: month값으로 평가
+              //오늘 날짜가 어제날짜보다 클때 ==> 추가 비교 필요 없음.
+              if((currentDay < prevDay && currentMonth > prevMonth) || (currentDay > prevDay)){
+                return Timestamp.timestampToTime(dataValue.timeStamp, 'YMD');
+              }else{
+                return null;
+              }
+            })(),
+            message: dataValue.message
+          };
 
+          vm.messageDatas.push(tmpData);
+          vm.setCurrentRoomTotalMessage(tmpData);
+        });
       },
 
     },
@@ -264,24 +273,68 @@ console.log('tmpData', tmpData)
   .chat-main{
     
   }
+
   .messaging {
+    padding: 0 0 50px 0;
     img {
       min-width: 30px;
       max-width: 100%;
     }
-    .inbox_people {
-      background: #f8f8f8 none repeat scroll 0 0;
-      float: left;
-      overflow: hidden;
-      width: 40%;
-      border-right: 1px solid #c4c4c4;
-    }
     .inbox_msg {
+      height:650px;
       display: flex;
       border: 1px solid #c4c4c4;
       clear: both;
       overflow: hidden;
     }
+    .inbox_people {
+      background: #f8f8f8 none repeat scroll 0 0;
+      float: left;
+      overflow: hidden;
+      width: 40%; height:100%;
+      border-right: 1px solid #c4c4c4;
+
+    }
+
+    .inbox_chat {
+      position: relative;
+      height: calc(100% - 46px);
+      overflow-y: auto;
+      background: #c4c4c4;
+
+      /*&:after{
+        display: block;
+        position: absolute; left:0; bottom:1px; right:0;
+        border-top: 1px solid #fff;
+        margin-top: -1px;
+        content:'';
+      }*/
+
+      .chat_list {
+        margin: 0;
+        padding: 18px 16px 10px;
+        background: #fff;
+        border-bottom: 1px solid #c4c4c4;
+
+        /*&:last-of-type{
+          border-bottom: none;
+        }*/
+
+        &:hover{
+          background: #eaeaea;
+        }
+      }
+
+      .chat_people {
+        overflow: hidden;
+        clear: both;
+      }
+    }
+
+    .active_chat {
+      background: #ebebeb;
+    }
+
     .top_spac {
       margin: 20px 0 0;
     }
@@ -366,82 +419,103 @@ console.log('tmpData', tmpData)
       width: 88%;
     }
 
-    .chat_people {
-      overflow: hidden;
-      clear: both;
-    }
-    .chat_list {
-      border-bottom: 1px solid #c4c4c4;
-      margin: 0;
-      padding: 18px 16px 10px;
 
-      &:hover{
-        background: #eaeaea;
-      }
-    }
-    .inbox_chat {
-      height: 100%;
-      overflow-y: scroll;
-    }
 
-    .active_chat {
-      background: #ebebeb;
-    }
-
-    .incoming_msg{
-      margin: 26px 0 26px;
-
-      .incoming_msg_img {
-        display: inline-block;
-        width: 6%;
-        font-size: 0.5rem;
-        text-align: center;
-
-        .pic{
-          display: inline-block;
-          width:100%; padding-top:100%;
-          margin-bottom: 0.25rem;
-          background-size: cover;
-          background-position: center center;
-          background-repeat:no-repeat;
-          vertical-align: middle;
-        }
-      }
-    }
-
-    .received_msg {
-      display: inline-block;
-      padding: 0 0 0 10px;
-      vertical-align: top;
-      width: 92%;
-    }
-    .received_withd_msg p {
-      background: #ebebeb none repeat scroll 0 0;
-      border-radius: 3px;
-      color: #646464;
-      font-size: 14px;
-      margin: 0;
-      padding: 5px 10px 5px 12px;
-      width: 100%;
-      word-break: break-all;
-
-    }
-    .time_date {
-      color: #747474;
-      display: block;
-      font-size: 12px;
-      margin: 8px 0 0;
-    }
-    .received_withd_msg {
-      width: 57%;
-    }
     .mesgs {
       float: left;
-      //padding: 12px 0 0 0;
       width: 60%;
-
+      position: relative;
       .view-container{
-        position: relative;
+        padding-top: 46px;
+
+        .bg-view-title{
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          position: absolute; left:0; top:0; right:0;
+          background: #c1c1c1;
+          min-height:46px;
+          overflow: hidden;
+          line-height:1.4;
+        }
+
+        .msg_history {
+          height: 554px;
+          padding-right: 10px;
+          padding-left: 15px;
+          overflow-y: scroll;
+        }
+
+        .hr-date {
+          position: relative;
+          margin: 0 0 1rem;
+          text-align: center;
+
+          &:before {
+            display: block;
+            position: absolute;
+            left: 0;
+            top: 50%;
+            border-top: 1px solid #eee;
+            width: 100%;
+            content: '';
+          }
+
+          span {
+            position: relative;
+            background: #fff;
+            padding: 0 1rem;
+          }
+        }
+
+        .time_date {
+          color: #747474;
+          display: block;
+          font-size: 12px;
+          margin: 8px 0 0;
+        }
+        .incoming_msg{
+          margin: 26px 0 26px;
+
+          .incoming_msg_img {
+            display: inline-block;
+            width: 6%;
+            font-size: 0.5rem;
+            text-align: center;
+
+            .pic{
+              display: inline-block;
+              width:100%; padding-top:100%;
+              margin-bottom: 0.25rem;
+              background-size: cover;
+              background-position: center center;
+              background-repeat:no-repeat;
+              vertical-align: middle;
+            }
+          }
+        }
+
+        .received_msg {
+          display: inline-block;
+          padding: 0 0 0 10px;
+          vertical-align: top;
+          width: 92%;
+        }
+        .received_withd_msg p {
+          background: #ebebeb none repeat scroll 0 0;
+          border-radius: 3px;
+          color: #646464;
+          font-size: 14px;
+          margin: 0;
+          padding: 5px 10px 5px 12px;
+          width: 100%;
+          word-break: break-all;
+
+        }
+        .received_withd_msg {
+          width: 57%;
+        }
+
         &.is-dragover{
           .dragdrop-input{
             display:block;
@@ -557,38 +631,34 @@ console.log('tmpData', tmpData)
           }
         }
 
+        .sent_msg p {
+          background: #eaeaea;
+          border-radius: 3px;
+          font-size: 14px;
+          margin: 0;
+          color: #444;
+          padding: 5px 10px 5px 12px;
+          width: 100%;
+          word-break: break-all;
+        }
+        .outgoing_msg {
+          overflow: hidden;
+          margin: 26px 0 26px;
+        }
+        .sent_msg {
+          float: right;
+          width: 46%;
 
-
-        .bg-view-title{
-          background: #c1c1c1;
         }
       }
     }
 
-    .sent_msg p {
-      background: #eaeaea;
-      border-radius: 3px;
-      font-size: 14px;
-      margin: 0;
-      color: #444;
-      padding: 5px 10px 5px 12px;
-      width: 100%;
-      word-break: break-all;
-    }
-    .outgoing_msg {
-      overflow: hidden;
-      margin: 26px 0 26px;
-    }
-    .sent_msg {
-      float: right;
-      width: 46%;
 
-    }
 
     .type_msg {
       display:flex;
       //height:80px;
-      height:45px;
+      height:50px;
       align-items:center;
       border-top: 1px solid #c4c4c4;
       position: relative;
@@ -680,15 +750,7 @@ console.log('tmpData', tmpData)
         opacity: 0.5;
       }
     }
-    .messaging {
-      padding: 0 0 50px 0;
-    }
-    .msg_history {
-      height: 560px;
-      padding-right: 10px;
-      padding-left: 15px;
-      overflow-y: scroll;
-    }
+
 
     .msg_box{
       img{
@@ -714,13 +776,16 @@ console.log('tmpData', tmpData)
       }
     }
     .messaging{
+      padding: 2.4vh 0 2vh;
       .inbox_msg{
         display: block;
         position: relative;
+        height:auto;
       }
       .inbox_people{
         float: none;
         width:100%;
+        border-right: none;
         .headind_srch{
 
         }
@@ -737,15 +802,21 @@ console.log('tmpData', tmpData)
           position: absolute; left:0; top:46px;
           z-index: 10;
           width:100%;
-          height:100%;
           background: rgba(#000, 0.5);
 
-          .chat_list{
+          &::-webkit-scrollbar-track{
+            background: #f1f1f1;
+          }
+          &::-webkit-scrollbar-thumb{
+            background: #888;
+          }
+          &::-webkit-scrollbar{
+            width:6px;
             background: #fff;
+          }
 
-            &:hover{
-              background: #eaeaea;
-            }
+          .chat_list{
+
           }
         }
       }
@@ -754,9 +825,14 @@ console.log('tmpData', tmpData)
         float:none;
         width:100%;
 
-        .msg_history{
-          max-height:48vh;
-          min-height:30vh;
+        .view-container{
+          padding-top: 0;
+          .bg-view-title{
+            position: static;
+          }
+          .msg_history{
+            height:54vh;
+          }
         }
       }
 
