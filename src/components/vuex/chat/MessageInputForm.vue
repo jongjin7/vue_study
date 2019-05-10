@@ -32,7 +32,7 @@ export default {
         isOpenUpChatRoom:false,
         typeFileMessage:false,
         messageType : null,
-        inviteUserNames:null,
+        inviteUserUid:null,
       };
     },
     computed:{
@@ -87,7 +87,7 @@ export default {
           if(parm.messageType === 'invite'){
             this.inputMessageData = parm.message;
             this.messageType = parm.messageType;
-            this.inviteUserNames = parm.inviteUserNames;
+            this.inviteUserUid = parm.inviteUserUid;
             vm.submitChatMessage();
           }else if(parm.messageType === 'file'){
             console.log('파일을 보냈습니다.')
@@ -224,7 +224,7 @@ export default {
         if (this.inputMessageData.length === 0 ) return false;
 
         // 메시지를 첫 입력전에 방이 개설되었는지 체크, 방이 존재하면 개설된 roomId를 할당한다.
-        let afterTime =0;
+        let afterTime = 0;
         if (!this.isOpenUpChatRoom) {
           if(this.checkCurruntUserRoomList(this.targetUser.uid)){
             this.isOpenUpChatRoom = true;
@@ -293,7 +293,7 @@ export default {
                 photoURL : this.currentUser.photoURL,
                 timestamp: this.$firebase.database.ServerValue.TIMESTAMP,
                 messageType: this.messageType === undefined ? null : this.messageType,
-                inviteUserNames: this.inviteUserNames === undefined ? null : this.inviteUserNames,
+                inviteUserUid: this.inviteUserUid === undefined ? null : this.inviteUserUid,
               };
             }
           }
@@ -302,7 +302,7 @@ export default {
           this.inputMessageData = '';
           this.typeFileMessage = false;
           this.messageType = null;
-          this.inviteUserNames = null;
+          this.inviteUserUid = null;
 
           if(!this.isOpenUpChatRoom) this.isOpenUpChatRoom = true; //방 개설할때 사용하는 플래그
         }, afterTime);

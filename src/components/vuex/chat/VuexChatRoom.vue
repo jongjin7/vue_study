@@ -48,6 +48,8 @@
         roomId: ({ socket }) => socket.chatRoom.roomId,
         currentUser: ({ socket }) => socket.ownerInfo,
         targetUser: ({ socket }) => socket.chatRoom.targetUserInfo,
+        roomUserList: ({ socket }) => socket.chatRoom.roomUsersList,
+        openChatRoomInfoRead: ({ socket }) => socket.chatRoom.openChatRoomInfo,
       }),
 
 
@@ -91,7 +93,11 @@
         'roomUsersList',
         'roomUsersName',
         'targetUserInfo',
-        'openChatRoomInfo'
+        'openChatRoomInfo',
+        'afterInviteUsers'
+      ]),
+      ...mapGetters([
+        'getInvitableList',
       ]),
 
       refreshRoomData(){
@@ -115,6 +121,19 @@
         this.progressData = data;
       },
 
+      chatRoomTitle(roomInfoData){
+        if(roomInfoData.roomUserlist.length  == 2){
+          //roomType 1:1
+          this.chatRoomTargetUserNames = roomInfoData.targetUser.displayName;
+        }else{
+          //roomType: multi
+          //채팅룸 참여자 타이틀
+          this.chatRoomTargetUserNames = roomInfoData.targetUser.map((user) => {
+            return user.displayName;
+          }).join(',');
+        }
+      },
+
       checkOpenedChatRoom(){
         let openRoomInfo = sessionStorage.getItem(CHAT_ROOM.STORAGE_KEY_OPEN_ROOM);
 
@@ -129,16 +148,7 @@
           // targetUser 등록
           this.targetUserInfo(roomInfoData.targetUser);
 
-          if(roomInfoData.roomUserlist.length  == 2){
-            //roomType 1:1
-            this.chatRoomTargetUserNames = roomInfoData.targetUser.displayName;
-          }else{
-            //roomType: multi
-            //채팅룸 참여자 타이틀
-            this.chatRoomTargetUserNames = roomInfoData.targetUser.map((user) => {
-              return user.displayName;
-            }).join(',');
-          }
+          this.chatRoomTitle(roomInfoData);
 
           this.roomUsersList(roomInfoData.roomUserlist);
           this.roomUsersName(roomInfoData.roomUserName);
@@ -184,9 +194,27 @@
             // 저장할때 룸리스트에 타켓유저 정보도 같이 넘겨야함...아니면 유저uid를 넘겨서 룸리스트 저장소를 업데이트 시켜야한다.
             //console.log('messageType:::=>', tmp.messageType, tmp.roomId ,this.roomId)
             if(tmp.messageType === 'invite' && tmp.roomId === this.roomId){
-              let oldMember = this.chatRoomTargetUserNames;
-              //console.log('oldMember', oldMember)
-              if(oldMember.indexOf(tmp.inviteUserNames) === -1) this.chatRoomTargetUserNames =  oldMember+ ',' + tmp.inviteUserNames;
+              let oldMemberName = this.chatRoomTargetUserNames;
+              let newMemberName = [];
+              console.log('isMember', this.roomUserList, this.targetUser)
+              let oldUsersList = this.roomUserList;
+              let filterMember =  oldUsersList.filter((uid) => {
+                let isMember = tmp.inviteUserUid.includes(uid);
+                if(isMember) {
+                  let tmp = this.targetUser.filter(user => user.uid === uid);
+                  let newMem = this.targetUser.concat(tmp);
+
+
+                    this.targetUserInfo(newMem);
+                    console.log('name', tmp, newMem, this.targetUser)
+                    //newMemberName.push(tmp[0].displayName);
+                }
+                return isMember;
+              });
+              console.log('oldMember2', )
+              //this.roomUsersList();
+              //this.afterInviteUsers();
+              if(filterMember.length < 1) this.chatRoomTargetUserNames =  oldMemberName+ ',' + tmp.inviteUserUid;
             }
 
             tmpData.push(tmp);
@@ -214,7 +242,7 @@
         if($('.messaging').hasClass('closed')) $('.messaging').removeClass('closed');
       },
 
-      getMessageDatas(roomData){
+      getMessageDatas(){
         let vm = this;
         vm.messageDatas =[];
 
@@ -433,6 +461,7 @@
           align-items: center;
           justify-content: center;
           position: absolute; left:0; top:0; right:0;
+          z-index: 2;
           background: #c1c1c1;
           min-height:46px;
           overflow: hidden;
