@@ -73,7 +73,7 @@
         }
 
         //console.log('초대되는 멤버의 uid,name을 참여 유저별 uid리스트, name리스트와 합치기')
-        this.roomUsersList(this.currentRoomUserList.concat(arrInviteUserList));
+
         this.roomUsersName(this.currentRoomUserName.concat(arrInviteUserName));
         console.log('초대 update', updates, arrInviteUserName)
         //멤버가 초대되면 새로운 방이 생성되고 인사말이 자동 출력되도록 한다.(방 유지 목적)

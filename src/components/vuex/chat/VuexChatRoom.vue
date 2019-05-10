@@ -8,7 +8,7 @@
           <ChatRoomList :userRoomList="chatRoomListData" v-on:changeChatRoom ="changeChatRoom" />
         </div>
         <div class="mesgs">
-          <chatRoomView :msgDatas="messageDatas" :targetUserNames="chatRoomTargetUserNames" :progress ="progressData" />
+          <chatRoomView :msgDatas="messageDatas" :targetUserNames="chatRoomTitleUserName" :progress ="progressData" />
           <MessageInputForm />
         </div>
       </div>
@@ -40,11 +40,12 @@
         isOpenChatRoom:false,
 
         targetUserNames:'',
-        chatRoomTargetUserNames:'',
+        chatRoomTitleUserName:'',
       }
     },
     computed: {
       ...mapState({
+        readChatUserList:({ socket }) => socket.chatUserList,
         roomId: ({ socket }) => socket.chatRoom.roomId,
         currentUser: ({ socket }) => socket.ownerInfo,
         targetUser: ({ socket }) => socket.chatRoom.targetUserInfo,
@@ -124,11 +125,11 @@
       chatRoomTitle(roomInfoData){
         if(roomInfoData.roomUserlist.length  == 2){
           //roomType 1:1
-          this.chatRoomTargetUserNames = roomInfoData.targetUser.displayName;
+          this.chatRoomTitleUserName = roomInfoData.targetUser.displayName;
         }else{
           //roomType: multi
           //채팅룸 참여자 타이틀
-          this.chatRoomTargetUserNames = roomInfoData.targetUser.map((user) => {
+          this.chatRoomTitleUserName = roomInfoData.targetUser.map((user) => {
             return user.displayName;
           }).join(',');
         }
@@ -181,7 +182,7 @@
             tmp.roomUserlist = tmp.roomUserlist.split(CHAT_ROOM.SPLIT_CHAR);
             tmp.timestamp = Timestamp.timeForRoomList(tmp.timestamp);
             tmp.lastMessage = (()=>{
-              // html태그 존재시 일반 문자열로 변
+              // html태그 존재시 일반 문자열로 변환
               const regExp = /<(\/)?([a-zA-Z1-6]*)(\s[a-zA-Z]*=[^>]*)?(\s)*(\/)?>/ig;
               if(regExp.test(tmp.lastMessage)){
                 return tmp.lastMessage.replace(regExp, '');
@@ -191,30 +192,59 @@
             })();
             // todo 활성화된 룸 타이틀 변경 디버깅 중
             // refresh할때 invite값 존재 시 타이틀 값 변경 금지
-            // 저장할때 룸리스트에 타켓유저 정보도 같이 넘겨야함...아니면 유저uid를 넘겨서 룸리스트 저장소를 업데이트 시켜야한다.
+            // 초대한 사람이 첫번째 사람일 경우 1:1 상태에서도 다중 채팅룸을 열고 있다. todo error
             //console.log('messageType:::=>', tmp.messageType, tmp.roomId ,this.roomId)
+
             if(tmp.messageType === 'invite' && tmp.roomId === this.roomId){
-              let oldMemberName = this.chatRoomTargetUserNames;
-              let newMemberName = [];
-              console.log('isMember', this.roomUserList, this.targetUser)
-              let oldUsersList = this.roomUserList;
-              let filterMember =  oldUsersList.filter((uid) => {
-                let isMember = tmp.inviteUserUid.includes(uid);
-                if(isMember) {
-                  let tmp = this.targetUser.filter(user => user.uid === uid);
-                  let newMem = this.targetUser.concat(tmp);
+              console.log('초대했을때...')
+              //setTimeout((tmp) => {
+                console.log('this.chatRoomTitleUserName', this.chatRoomTitleUserName)
+              //초대하고나서 새로고침하면 제목을 못가져옴
+              // 자신이 초대했던 사람을 선택하고 1:1 대화시작하면 타이틀쪽에서 에러남
+                let oldMemberName = this.chatRoomTitleUserName;
+                let newMemberName = [];
+                let newMem ='';
+                this.roomUsersList(this.roomUserList.concat(tmp.inviteUserUid));
+                let oldUsersList = this.roomUserList;
+                console.log('oldUsersList', oldUsersList, tmp.inviteUserUid)
+                let filterMember =  oldUsersList.filter((uid) => {
+                  let isMember = tmp.inviteUserUid.includes(uid);
+                  if(isMember) {
+                    let tmp = this.readChatUserList.filter(user => user.uid === uid);
+                    console.log('tmpLog', uid, this.readChatUserList )
+                    let tmpTarget = '';
+                    if(this.targetUser.constructor === Object){
+                      tmpTarget = [this.targetUser];
+                    }else if(this.targetUser.constructor === Array){
+                      tmpTarget = this.targetUser;
+                    }
+                    newMem = tmpTarget.concat(tmp);
 
 
                     this.targetUserInfo(newMem);
-                    console.log('name', tmp, newMem, this.targetUser)
-                    //newMemberName.push(tmp[0].displayName);
-                }
-                return isMember;
-              });
-              console.log('oldMember2', )
-              //this.roomUsersList();
-              //this.afterInviteUsers();
-              if(filterMember.length < 1) this.chatRoomTargetUserNames =  oldMemberName+ ',' + tmp.inviteUserUid;
+                    console.log('name', tmp, newMem, tmpTarget)
+                    newMemberName.push(tmp[0].displayName);
+                  }
+                  return isMember;
+                });
+                console.log('oldMember2', newMem, newMemberName.join(',') )
+
+                // 오픈된 채팅룸 정보 갱신
+                let openRoomInfo = sessionStorage.getItem(CHAT_ROOM.STORAGE_KEY_OPEN_ROOM);
+                let roomInfoData = JSON.parse(openRoomInfo);
+                roomInfoData.targetUser = newMem;
+                console.log('roomInfoData', roomInfoData)
+                // 초대한 사람의 채팅룸에서는 새로고침하면 갱신된 유저 네임을 유지하기 위해 스토리지에 저장하는 법으로 해결.
+                sessionStorage.setItem(CHAT_ROOM.STORAGE_KEY_OPEN_ROOM, JSON.stringify(roomInfoData))
+
+
+
+                // 여전히 같은 방의 다른 유저들은 초대한 사람의 정보와 룸 타이틀 갱신이 일어나지 않고 있다.
+                let strNewMember = newMemberName.join(',');
+                console.log('ddddd', oldMemberName, strNewMember)
+                if(oldMemberName.indexOf(strNewMember) === -1) this.chatRoomTitleUserName =  oldMemberName+ ',' + strNewMember;
+
+              //},1000, tmp)
             }
 
             tmpData.push(tmp);
@@ -227,7 +257,7 @@
           //새로운 멤버 추가 ==> emit으로 룸 타이틀 갱신필요
 
 
-          //sessionStorage.setItem('chatRoomList', JSON.stringify(tmpData));
+
         });
       },
 
@@ -299,7 +329,7 @@
 
 <style lang="scss">
   .chat-main{
-    
+
   }
 
   .messaging {
@@ -390,7 +420,7 @@
             padding: 2px 4px 4px 6px;
             background: transparent;
           }
-          
+
         }
       }
     }
