@@ -12,20 +12,30 @@
            v-for="(msg, index) in msgDatas">
         <div class="hr-date small" v-if="msg.strNewDay !== null"><span>{{ msg.strNewDay }}</span></div>
 
-        <div class="incoming_msg_img" v-if="msg.uid !== currentUser.uid">
-          <span :style="'background-image: url(' + msg.photoURL + ');'" class="pic rounded-circle"></span>
-          {{ msg.displayName }}
-        </div>
-        <div class="received_msg" v-if="msg.uid !== currentUser.uid">
-          <div class="received_withd_msg msg_box">
-            <p v-html="msg.message.replace(/(?:\r\n|\r|\n)/g, '<br />')"></p>
-            <span class="time_date">{{ msg.timeStamp }}</span>
+        <div>
+          <div class="invite-msg" v-if="msg.messageType === 'invite'">
+            <div class="msg_box">
+              <p>{{ msg.message }}</p>
+            </div>
+          </div>
+          <div v-else>
+            <div class="incoming_msg_img" v-if="msg.uid !== currentUser.uid">
+              <span :style="'background-image: url(' + msg.photoURL + ');'" class="pic rounded-circle"></span>
+              {{ msg.displayName }}
+            </div>
+            <div class="received_msg" v-if="msg.uid !== currentUser.uid">
+              <div class="received_withd_msg msg_box">
+                <p v-html="msg.message.replace(/(?:\r\n|\r|\n)/g, '<br>')"></p>
+                <span class="time_date">{{ msg.timeStamp }}</span>
+              </div>
+            </div>
+            <div class="sent_msg msg_box" v-else>
+              <p v-html="msg.message.replace(/(?:\r\n|\r|\n)/g, '<br>')"></p>
+              <span class="time_date">{{ msg.timeStamp }}</span>
+            </div>
           </div>
         </div>
-        <div class="sent_msg msg_box" v-else>
-          <p v-html="msg.message.replace(/(?:\r\n|\r|\n)/g, '<br />')"></p>
-          <span class="time_date">{{ msg.timeStamp }}</span>
-        </div>
+
 
       </div>
     </div>

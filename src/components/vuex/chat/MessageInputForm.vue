@@ -257,7 +257,7 @@ export default {
           let roomUserList = this.roomUsersList;
           let roomUserListLength = this.roomUsersList.length;  //채팅멤버
 
-          if(this.currentRoomMessage.length === 0){ //메시지 처음 입력하는 경우
+          if(this.currentRoomMessage.length === 0 || this.messageType === 'invite'){ //메시지 처음 입력하는 경우, 유저 초대시
             for(var i=0; i < roomUserListLength; i++){
               multiUpdates['RoomUsers/' +this.roomId + '/' + roomUserList[i]] = true;
             }
@@ -271,9 +271,11 @@ export default {
             uid: this.currentUser.uid,
             roomId : this.roomId,
             message: this.inputMessageData,
+            messageType: this.messageType,
             displayName:this.currentUser.displayName,
             photoURL:this.currentUser.photoURL,
             timeStamp: this.$firebase.database.ServerValue.TIMESTAMP,
+
           }
 
           //유저별 룸리스트 저장
@@ -282,10 +284,10 @@ export default {
               multiUpdates['UserRooms/' + this.roomUsersList[i] + '/' + this.roomId ] = {
                 roomId : this.roomId,
                 roomUserName : this.roomUsersName.join(CHAT_ROOM.SPLIT_CHAR),
-                roomUserlist : this.roomUsersList.join(CHAT_ROOM.SPLIT_CHAR),
+                roomUserList : this.roomUsersList.join(CHAT_ROOM.SPLIT_CHAR),
                 roomType : roomUserListLength > 2 ? CHAT_ROOM.TYPE_MULTI : CHAT_ROOM.TYPE_ONE_VS_ONE,
-                roomOneVSOneTarget : roomUserListLength == 2 && i == 0 ? roomUserList[1] :  // 1대 1 대화이고 i 값이 0 이면
-                  roomUserListLength == 2 && i == 1 ? roomUserList[0]   // 1대 1 대화 이고 i값이 1이면
+                roomOneVSOneTarget : roomUserListLength === 2 && i === 0 ? roomUserList[1] :  // 1대 1 대화이고 i 값이 0 이면
+                  roomUserListLength === 2 && i === 1 ? roomUserList[0]   // 1대 1 대화 이고 i값이 1이면
                     : '', // 나머지
                 lastMessage : this.typeFileMessage ? '파일을 보냈습니다.' : this.inputMessageData,
                 // todo 이름과 사진은 대화 상대 이미지로 고정 필요

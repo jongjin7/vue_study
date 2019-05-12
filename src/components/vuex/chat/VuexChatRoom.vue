@@ -123,7 +123,8 @@
       },
 
       chatRoomTitle(roomInfoData){
-        if(roomInfoData.roomUserlist.length  == 2){
+        // todo 참여하고 있는방에서 상대방이 누구를 초대한 후 새로고침하면 title length 에러, userList가 없음
+        if(roomInfoData.roomUserList.length  === 2){
           //roomType 1:1
           this.chatRoomTitleUserName = roomInfoData.targetUser.displayName;
         }else{
@@ -140,18 +141,19 @@
 
         if(openRoomInfo !== null){
           let roomInfoData = JSON.parse(openRoomInfo);
+          console.log('checkOpendChatRoom getRoomData storage', roomInfoData)
           this.isOpenChatRoom = true;
           this.setRoomId(roomInfoData.roomId);
 
           //채팅 참여 가능 리스트 ==> 적당한 위치로 옮기기
           let chatUsers = sessionStorage.getItem(CHAT_ROOM.STORAGE_KEY_CHAT_USER_LIST);
           this.chatUserList(JSON.parse(chatUsers));
+
           // targetUser 등록
           this.targetUserInfo(roomInfoData.targetUser);
-
           this.chatRoomTitle(roomInfoData);
 
-          this.roomUsersList(roomInfoData.roomUserlist);
+          this.roomUsersList(roomInfoData.roomUserList);
           this.roomUsersName(roomInfoData.roomUserName);
 
           this.getChatRoomList();
@@ -169,17 +171,16 @@
 
       getChatRoomList(){
         let vm = this;
-        console.log('getChatroomList',this.currentUser.uid)
+        console.log('getChatroomList')
         let rootRoomRef = this.$firebaseRealDB.ref(USER_DATA.REAR_FIREDB_NAME).child('UserRooms/'+this.currentUser.uid );
         rootRoomRef.off();
 
-        rootRoomRef.on('value', (dataSnapShot) =>{
+        rootRoomRef.orderByChild('timestamp').on('value', (dataSnapShot) =>{
           let tmpData = []
           dataSnapShot.forEach((data) =>{
             let tmp = data.val();
-            //console.log('getRoomList', tmp, tmp.roomUserName)
             tmp.roomUserName = tmp.roomUserName.split(CHAT_ROOM.SPLIT_CHAR);
-            tmp.roomUserlist = tmp.roomUserlist.split(CHAT_ROOM.SPLIT_CHAR);
+            tmp.roomUserList = tmp.roomUserList.split(CHAT_ROOM.SPLIT_CHAR);
             tmp.timestamp = Timestamp.timeForRoomList(tmp.timestamp);
             tmp.lastMessage = (()=>{
               // html태그 존재시 일반 문자열로 변환
@@ -196,67 +197,74 @@
             //console.log('messageType:::=>', tmp.messageType, tmp.roomId ,this.roomId)
 
             if(tmp.messageType === 'invite' && tmp.roomId === this.roomId){
+              // 새로고침하면 초대할때와 같은 프로세스를 타고 있음.
+              // 새로고침할때 이 로직을 안태울려면 조건값은 스토리지에 저장되어 있는것으로 판별해야하는데....
+              //
               console.log('초대했을때...')
-              //setTimeout((tmp) => {
                 console.log('this.chatRoomTitleUserName', this.chatRoomTitleUserName)
-              //초대하고나서 새로고침하면 제목을 못가져옴
               // 자신이 초대했던 사람을 선택하고 1:1 대화시작하면 타이틀쪽에서 에러남
                 let oldMemberName = this.chatRoomTitleUserName;
                 let newMemberName = [];
-                let newMem ='';
-                this.roomUsersList(this.roomUserList.concat(tmp.inviteUserUid));
-                let oldUsersList = this.roomUserList;
-                console.log('oldUsersList', oldUsersList, tmp.inviteUserUid)
-                let filterMember =  oldUsersList.filter((uid) => {
-                  let isMember = tmp.inviteUserUid.includes(uid);
-                  if(isMember) {
-                    let tmp = this.readChatUserList.filter(user => user.uid === uid);
-                    console.log('tmpLog', uid, this.readChatUserList )
-                    let tmpTarget = '';
-                    if(this.targetUser.constructor === Object){
-                      tmpTarget = [this.targetUser];
-                    }else if(this.targetUser.constructor === Array){
-                      tmpTarget = this.targetUser;
+                let updateTargetUserList ='';
+                let hasInviteUser = '';
+                tmp.inviteUserUid.forEach(inviteUid => {
+                  hasInviteUser = this.roomUserList.filter(uid => {
+                    return uid === inviteUid;
+                  })
+                  console.log('hasInviteUser', hasInviteUser, hasInviteUser.length)
+                }); //이미 스토리지에 동일한 UID의 유저가 있는지?
+
+                if(hasInviteUser.length === 0){
+                  this.roomUsersList(this.roomUserList.concat(tmp.inviteUserUid));
+                  let oldUsersList = this.roomUserList;
+                  console.log('oldUsersList:', oldUsersList, 'inviteUserUid:',tmp.inviteUserUid)
+                  oldUsersList.forEach((uid) => {
+                    let isMember = tmp.inviteUserUid.includes(uid);
+                    if(isMember) {
+                      let tmp1 = this.readChatUserList.filter(user => user.uid === uid);
+                      console.log('readChatUserList', uid, this.readChatUserList )
+                      let tmpTarget = '';
+                      if(this.targetUser.constructor === Object){
+                        tmpTarget = [this.targetUser];
+                      }else if(this.targetUser.constructor === Array){
+                        tmpTarget = this.targetUser;
+                      }
+                      updateTargetUserList = tmpTarget.concat(tmp1);
+
+
+                      this.targetUserInfo(updateTargetUserList);
+                      console.log('채팅유저리스트에서 초대유저 객체 추출:', tmp1, '새로운 멤버가 추가된 targetUserList:',updateTargetUserList)
+                      newMemberName.push(tmp1[0].displayName);
                     }
-                    newMem = tmpTarget.concat(tmp);
+                  });
 
+                  console.log('updateTargetUserList:::', updateTargetUserList,)
 
-                    this.targetUserInfo(newMem);
-                    console.log('name', tmp, newMem, tmpTarget)
-                    newMemberName.push(tmp[0].displayName);
-                  }
-                  return isMember;
-                });
-                console.log('oldMember2', newMem, newMemberName.join(',') )
-
-                // 오픈된 채팅룸 정보 갱신
-                let openRoomInfo = sessionStorage.getItem(CHAT_ROOM.STORAGE_KEY_OPEN_ROOM);
-                let roomInfoData = JSON.parse(openRoomInfo);
-                roomInfoData.targetUser = newMem;
-                console.log('roomInfoData', roomInfoData)
-                // 초대한 사람의 채팅룸에서는 새로고침하면 갱신된 유저 네임을 유지하기 위해 스토리지에 저장하는 법으로 해결.
-                sessionStorage.setItem(CHAT_ROOM.STORAGE_KEY_OPEN_ROOM, JSON.stringify(roomInfoData))
-
+                  // 오픈된 채팅룸 정보 갱신
+                  let openRoomInfo = sessionStorage.getItem(CHAT_ROOM.STORAGE_KEY_OPEN_ROOM);
+                  let roomInfoData = JSON.parse(openRoomInfo);
+                    let tmpStorageData = {};
+                    tmpStorageData.roomId = roomInfoData.roomId;
+                    tmpStorageData.targetUser = updateTargetUserList;
+                    tmpStorageData.roomUserList = this.roomUserList;
+                    //tmpStorageData.roomUserName = roomInfoData.roomUserName.concat(newMemberName);
+                    //tmpStorageData.isInviteUser = false;
+                    console.log('roomInfoData', tmpStorageData)
+                    // 초대한 사람의 채팅룸에서는 새로고침하면 갱신된 유저 네임을 유지하기 위해 스토리지에 저장하는 법으로 해결.
+                    sessionStorage.setItem(CHAT_ROOM.STORAGE_KEY_OPEN_ROOM, JSON.stringify(tmpStorageData))
+                    this.chatRoomTitleUserName =  oldMemberName+ ',' + newMemberName.join(',');
+                }
 
 
                 // 여전히 같은 방의 다른 유저들은 초대한 사람의 정보와 룸 타이틀 갱신이 일어나지 않고 있다.
-                let strNewMember = newMemberName.join(',');
-                console.log('ddddd', oldMemberName, strNewMember)
-                if(oldMemberName.indexOf(strNewMember) === -1) this.chatRoomTitleUserName =  oldMemberName+ ',' + strNewMember;
-
-              //},1000, tmp)
             }
 
             tmpData.push(tmp);
           });
           console.log('UserRooms roomList', tmpData)
-          vm.chatRoomListData = tmpData;
+          vm.chatRoomListData = tmpData.reverse();
 
           vm.chatRoomList(tmpData);
-
-          //새로운 멤버 추가 ==> emit으로 룸 타이틀 갱신필요
-
-
 
         });
       },
@@ -264,7 +272,7 @@
 
       changeChatRoom(roomData){
         console.log('changeChantRoom', roomData, );
-
+        roomData.isInviteUser = false;
         sessionStorage.setItem(CHAT_ROOM.STORAGE_KEY_OPEN_ROOM, JSON.stringify(roomData));
         this.setCurrentRoomTotalMessage(null);
         this.messageDatas = [];
@@ -301,14 +309,15 @@
               //조건 정리가 필요함
               // 이번달이 지난달보다 숫자가 작을때 ==> 추가비교: 년도로 평가
               // 오늘 날짜가 어제날짜보다 작을때 ==> 추가 비교: month값으로 평가
-              //오늘 날짜가 어제날짜보다 클때 ==> 추가 비교 필요 없음.
+              // 오늘 날짜가 어제날짜보다 클때 ==> 추가 비교 필요 없음.
               if((currentDay < prevDay && currentMonth > prevMonth) || (currentDay > prevDay)){
                 return Timestamp.timestampToTime(dataValue.timeStamp, 'YMD');
               }else{
                 return null;
               }
             })(),
-            message: dataValue.message
+            message: dataValue.message,
+            messageType: dataValue.messageType === 'invite'? dataValue.messageType:'',
           };
 
           vm.messageDatas.push(tmpData);

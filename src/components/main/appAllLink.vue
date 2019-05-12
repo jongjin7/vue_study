@@ -31,12 +31,12 @@ export default {
           link: "/community",
           class:''
         },
-        {
-          title: "데이타 그리드(DataGrid)",
-          content: "datatables jQueryPlugin을 이용한 Data Grid 구현",
-          link: "/grid",
-          class:''
-        },
+        // {
+        //   title: "데이타 그리드(DataGrid)",
+        //   content: "datatables jQueryPlugin을 이용한 Data Grid 구현",
+        //   link: "/grid",
+        //   class:''
+        // },
         {
           title: "문의사항 접수",
           content: "문의사항 접수 페이지",

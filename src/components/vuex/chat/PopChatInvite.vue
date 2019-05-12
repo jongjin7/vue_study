@@ -1,7 +1,12 @@
 <template>
     <div>
-      <userList :chatUserList = "getInvitableList" />
-      <p class="text-center pt-2"><button @click="onClickConfirmInvite">초대하기</button></p>
+      <div v-if="getInvitableList.length > 0">
+        <userList :chatUserList = "getInvitableList" />
+        <p class="text-center pt-2"><button @click="onClickConfirmInvite">초대하기</button></p>
+      </div>
+      <div v-else>
+        초대하고자하는 사용자가 없습니다.
+      </div>
     </div>
 </template>
 
@@ -61,31 +66,35 @@
         this.inviteUserNewMember();
         // 초대 메시지
         console.log('초대되는 멤버',this.newMember)
-        var arrInviteUserList = [];
-        var arrInviteUserName = [];
-        var updates = {};
-        for(var i=0; i < this.newMember.length; i++){
-          let inviteUserUid = this.newMember[i].uid;
-          let inviteUserName = this.newMember[i].displayName;
-          arrInviteUserList.push(inviteUserUid);
-          arrInviteUserName.push(inviteUserName);
-          updates['RoomUsers/'+ this.roomId +'/'+ inviteUserUid] = true;
+        if(this.newMember.length > 0){
+          var arrInviteUserList = [];
+          var arrInviteUserName = [];
+          var updates = {};
+          for(var i=0; i < this.newMember.length; i++){
+            let inviteUserUid = this.newMember[i].uid;
+            let inviteUserName = this.newMember[i].displayName;
+            arrInviteUserList.push(inviteUserUid);
+            arrInviteUserName.push(inviteUserName);
+          }
+
+          //초대되는 멤버의 uid,name을 참여 유저별 uid리스트, name리스트와 합치기
+          //this.roomUsersName(this.currentRoomUserName.concat(arrInviteUserName));
+          console.log('초대 update', updates, arrInviteUserName)
+          //멤버가 초대되면 새로운 방이 생성되고 인사말이 자동 출력되도록 한다.
+
+          //todo 에러::: 1:1방에서 한사람을초대하고, 초대받은 사람이 챗팅룸에 들어올 수 가 없다. 활성화된 채팅룸이 없다.
+          this.$EventBus.$emit('saveMessage',{
+            messageType:'invite',
+            message:'['+arrInviteUserName.join()+']님이 초대되었습니다.',
+            inviteUserUid: arrInviteUserList,
+          });
+
+          //this.$firebaseRealDB.ref().update(updates);
+          this.$EventBus.$emit('toggleClose');
+        }else{
+          alert('초대하고자하는 사용자를 선택하세요.');
         }
 
-        //console.log('초대되는 멤버의 uid,name을 참여 유저별 uid리스트, name리스트와 합치기')
-
-        this.roomUsersName(this.currentRoomUserName.concat(arrInviteUserName));
-        console.log('초대 update', updates, arrInviteUserName)
-        //멤버가 초대되면 새로운 방이 생성되고 인사말이 자동 출력되도록 한다.(방 유지 목적)
-        this.$EventBus.$emit('saveMessage',{
-          messageType:'invite',
-          message:'['+arrInviteUserName.join()+']님이 초대되었습니다.',
-          inviteUserUid: arrInviteUserList
-        });
-        //현재는 초대 메시지 보내고, 활성화된 챗팅방에서 유저 리스트와 이름을 DB에 저장한다. 0507
-        this.$firebaseRealDB.ref().update(updates);
-
-        this.$EventBus.$emit('toggleClose');
       },
     },
     components: {
@@ -93,7 +102,3 @@
     }
   }
 </script>
-
-<style scoped>
-
-</style>

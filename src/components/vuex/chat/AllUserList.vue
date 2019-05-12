@@ -183,9 +183,10 @@
         if (storageOpenRoom === null) {
           let tmpStorage = {
             roomId: this.roomId,
-            roomUserlist:[targetUser.uid, this.currentUser.uid],
+            roomUserList:[targetUser.uid, this.currentUser.uid],
             roomUserName:[targetUser.displayName, this.currentUser.displayName],
             targetUser: targetUser,
+            isInviteUser : false,
           }
           sessionStorage.setItem(CHAT_ROOM.STORAGE_KEY_OPEN_ROOM, JSON.stringify(tmpStorage))
         }
