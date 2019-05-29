@@ -65,7 +65,7 @@ import 'firebase/firestore';
 import 'firebase/storage';
 import 'firebase/messaging';
 const dbFireStore = firebase.firestore();
-dbFireStore.settings({ timestampsInSnapshots: true });
+//dbFireStore.settings({ timestampsInSnapshots: true });
 firebase.auth().languageCode = 'kr';
 // 구글 Auth계정 지속성 설정
 const googleAuthPersistence = firebase.auth.Auth.Persistence.SESSION;
@@ -79,11 +79,17 @@ Vue.prototype.$firebaseRealDB = firebase.database();
 Vue.prototype.$firebaseStorage = firebase.storage();
 
 //firebase cloud message사용시 https로 surving되어야 한다.
-// 현재 무료 도메인: http://ittl2875.cf/
-//let firebaseMessage = firebase.messaging();
-//console.log('firebaseMessage', firebaseMessage)
-// firebaseMessage.usePublicVapidKey("BDLf2pX2_o8PrF4u9ijiqBSqcLSVErhEupGktUpry2VNShqPQy63t38_-4l5vWnVQ8jmlxTfq_Rx7WYYixgTZAU");
-// Vue.prototype.$fireMessage = firebaseMessage;
+// 서비스워커 지원 유뮤 체크
+if (navigator.userAgent.toLowerCase().indexOf('safari') === -1) {
+  let firebaseMessage = firebase.messaging();
+  //console.log('firebaseMessage', firebaseMessage)
+  firebaseMessage.usePublicVapidKey("BDLf2pX2_o8PrF4u9ijiqBSqcLSVErhEupGktUpry2VNShqPQy63t38_-4l5vWnVQ8jmlxTfq_Rx7WYYixgTZAU");
+  Vue.prototype.$fireMessage = firebaseMessage;
+}
+
+if ('serviceWorker' in navigator) {
+
+}
 
 new Vue({
   el: "#app",

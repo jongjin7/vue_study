@@ -198,6 +198,10 @@
         this.$firebase.auth().onAuthStateChanged(function(user) {
           console.log('account:: $firebase.auth통신후 user정보 가져오기')
 
+          if (navigator.userAgent.toLowerCase().indexOf('safari') === -1) {
+            //vm.setCloudMessaging();
+          }
+
           if (user) {
             vm.$firebaseRealDB.goOnline(); // 데이터 베이스 명시적 온라인
             // 챗 메인 화면일경우 호출
@@ -211,9 +215,6 @@
                 vm.setIsUserLogin(); //접속 상태를 store에 갱신
                 vm.setCurrentUserData(user);
               },1000)
-
-
-
             }
 
             user.providerData.forEach(function (profile) {
@@ -225,6 +226,10 @@
             });
             // 로그인 후 접속상태 정보를 사용하고자 하는 컴포넌트(router의 hash정보)에 보내기, 현재는 챗방 게이트에서 사용됨
             vm.$EventBus.$emit('currentConnectionStatus');
+            //FCM 권한 획득 및 FCM Token정보 저장
+            if (navigator.userAgent.toLowerCase().indexOf('safari') === -1) {
+              vm.saveFCMToken();
+            }
 
           } else {
             console.log('logOut::onChangeAuthAccount')
@@ -232,10 +237,43 @@
               vm.setIsUserLogin();
               vm.setCurrentUserData([]);
               sessionStorage.clear();
-              if(location.hash.split('/chat/').length > 1) vm.$router.push('/chat');
+              if((/\/chat\//).test(location.hash)) vm.$router.push('/chat');
             }
           }
         });
+      },
+
+      setCloudMessaging(){
+        //메세징
+        var messaging = this.$fireMessage;
+        messaging.requestPermission()
+          .then(function(){
+            console.log('메세징 권한 획득');
+            return messaging.getToken();
+          })
+          .then(function(token){
+            console.log('fcm token : ', token);
+          })
+          .catch(function(e){
+            console.log('메세징 권한 획득 중 에러', e);
+          });
+      },
+
+      saveFCMToken(){
+        console.log('saveFCMToken', this.$fireMessage)
+        //로그인 후에 fcm 정보를 검색하여 저장
+        var cbGetToekn = function(token){
+          console.log('setLogin fcmId get : ', token);
+          var fcmIdRef= this.$firebaseRealDB.ref(USER_DATA.REAR_FIREDB_NAME +'/FcmId/' + this.connectUserData.uid);
+          fcmIdRef.set(token);
+
+        }
+
+        this.$fireMessage.getToken()
+          .then(cbGetToekn.bind(this))
+          .catch(function(e){
+            console.log('fcmId 확인 중 에러 : ', e);
+          })
       },
 
 

@@ -117,7 +117,7 @@
           event.target.focus();
         }else if(strValue.replace( blank_pattern, '' ) !== "" && !this.validatePassword(strValue)){
           this.errorMessage.passwordRe = '비밀번호는 영문,숫자,특수문자(!@#$%^&)가 조합된 7자리 이상으로 정의하여야 합니다.';
-          event.target.focus();
+          //event.target.focus();
         }else{
           this.errorMessage.passwordRe = "";
         }

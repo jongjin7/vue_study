@@ -47,10 +47,9 @@
     },
 
     created(){
-      console.log('created', 'store:',this.$store.state.popGalleryContent, 'new:',this.newGalleryListItem);
-      if(this.$store.state.popGalleryContent !== null ){
-        this.oldGalleryListItem = this.$store.state.popGalleryContent;
-        this.newGalleryListItem = this.$store.state.popGalleryContent;
+      if( window.globalVars.popGalleryContent !== null ){
+        this.oldGalleryListItem =  window.globalVars.popGalleryContent;
+        this.newGalleryListItem =  window.globalVars.popGalleryContent;
         this.modeNewPost = false;
       }
     },
@@ -59,7 +58,7 @@
       updateServerLastIndex(){
         const vm = this;
         this.$firebaseDB.collection('photo-gallery').doc('content').update({
-          lastIndex: vm.$store.state.latestGalleryItemIndex
+          lastIndex:  window.globalVars.latestGalleryItemIndex
         });
       },
 
@@ -78,7 +77,7 @@
         const vm = this;
         this.newGalleryListItem.title = this.newGalleryListItem.title && this.newGalleryListItem.title.trim()
         this.newGalleryListItem.body = this.newGalleryListItem.body && this.newGalleryListItem.body.trim();
-        this.newGalleryListItem.id = (this.newGalleryListItem.id == 0)? ++this.$store.state.latestGalleryItemIndex : this.newGalleryListItem.id;
+        this.newGalleryListItem.id = (this.newGalleryListItem.id == 0)? ++ window.globalVars.latestGalleryItemIndex : this.newGalleryListItem.id;
         if(this.modeNewPost) this.newGalleryListItem.timeStamp= new Date();
         if(this.modeNewPost) this.newGalleryListItem.strTimeStamp = this.$firebase.firestore.Timestamp.fromDate(new Date()).seconds * 1;
         this.newGalleryListItem.modifyTimeStamp= new Date();

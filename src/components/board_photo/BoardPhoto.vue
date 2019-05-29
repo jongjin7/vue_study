@@ -136,8 +136,8 @@ export default {
     },
 
     showModalpopup(title, componentName, post){
-      this.$store.state.pop_title = title;
-      this.$store.state.pop_content = componentName;
+      window.globalVars.pop_title = title;
+      window.globalVars.pop_content = componentName;
       if(post !== undefined){
         window.globalVars.popGalleryContent = post; //수정용 post
       }else{
