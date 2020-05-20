@@ -56,6 +56,7 @@
     mounted(){
 
     },
+
     destroyed(){
       if(!/\/chat\//gi.test(location.hash)){
         sessionStorage.removeItem(CHAT_ROOM.STORAGE_KEY_CHAT_USER_LIST);
